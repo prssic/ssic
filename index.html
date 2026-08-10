@@ -106,6 +106,9 @@
         }
         @media (hover: none), (pointer: coarse) {
             .cursor { display: none; }
+            .horizontal-tab, .search-result-item { cursor: pointer; }
+            .carousel-track { cursor: grab; }
+            .carousel-track:active { cursor: grabbing; }
         }
         
         .cursor.hovering {
@@ -427,7 +430,7 @@
         .horizontal-tab {
             position: relative; z-index: 1; flex: 0 0 auto; white-space: nowrap;
             padding: 11px 22px; font-size: 1rem; font-weight: 700; color: var(--c-gray);
-            cursor: pointer; transition: color 0.3s var(--ease-out), transform 0.25s var(--ease-out);
+            transition: color 0.3s var(--ease-out), transform 0.25s var(--ease-out);
             border-radius: 999px; letter-spacing: 0.1px;
         }
         .horizontal-tab:hover { color: var(--c-white); transform: translateY(-1px); }
@@ -471,10 +474,9 @@
         }
         .carousel-track {
             display: flex; width: 100%; overflow-x: auto; scroll-snap-type: x mandatory;
-            scrollbar-width: none; cursor: grab;
+            scrollbar-width: none;
         }
         .carousel-track::-webkit-scrollbar { display: none; }
-        .carousel-track:active { cursor: grabbing; }
         
         .carousel-slide {
             flex: 0 0 100%; aspect-ratio: 16/9; scroll-snap-align: center;
@@ -673,7 +675,7 @@
         }
         .search-result-item {
             display: flex; align-items: center; gap: 14px;
-            padding: 12px; border-radius: 12px; cursor: pointer;
+            padding: 12px; border-radius: 12px;
             transition: background var(--transition-fast);
         }
         .search-result-item:hover, .search-result-item.is-active { background: var(--c-overlay-hover); }
@@ -1750,8 +1752,10 @@
             }
         }, true);
 
-        // Stare inițială: pornim pe Acasă, sus de tot — hero pe tot ecranul, navbar ascuns.
-        updateNavForView('home', 0);
+        // Stare inițială a navbar-ului: doar pe Acasă (sus de tot) navbar-ul pornește ascuns
+        // (hero pe tot ecranul); pe orice altă pagină — inclusiv când se ajunge direct
+        // printr-un link cu #hash — navbar-ul trebuie să fie vizibil de la bun început.
+        updateNavForView(currentViewId, 0);
 
         function animateCount(el) {
             if (el.dataset.counted) return;
