@@ -1442,6 +1442,7 @@
         const navOrder = ['home', 'impact', 'board', 'facultate', 'camine', 'gallery'];
         let currentViewId = 'home';
         let isNavigating = false;
+        let suppressHistoryPush = false;
 
         // Navbar-ul stă ascuns doar pe Acasă, cât timp ești sus de tot (hero fullscreen).
         // Pe orice altă pagină navbar-ul e mereu vizibil (nu au hero, ci page-content cu padding pt. el).
@@ -1483,6 +1484,13 @@
 
             isNavigating = true;
             haptic(10);
+
+            // Sincronizăm adresa URL cu pagina curentă, ca fiecare secțiune să aibă link-ul ei
+            // (ex: index.html#board). suppressHistoryPush evită dublarea intrării în istoric
+            // când navigate() e chemată ca urmare a unui Back/Forward (vezi popstate mai jos).
+            if (!suppressHistoryPush) {
+                history.pushState({ view: targetId }, '', '#' + targetId);
+            }
             
             const cIdx = navOrder.indexOf(currentViewId);
             const tIdx = navOrder.indexOf(targetId);
@@ -1518,6 +1526,48 @@
                 isNavigating = false;
             }, 900);
         }
+
+        /* ==========================================================================
+           JS: Routing pe URL (#hash) — fiecare pagină are adresa ei
+           ========================================================================== */
+
+        // Back/Forward din browser: navigăm către view-ul din istoric, fără să mai
+        // adăugăm o intrare nouă (deja există în istoric — de-asta e acolo).
+        window.addEventListener('popstate', (e) => {
+            const id = (e.state && e.state.view) || (location.hash.slice(1) || 'home');
+            if (!navOrder.includes(id) || id === currentViewId) return;
+            suppressHistoryPush = true;
+            navigate(id);
+            suppressHistoryPush = false;
+        });
+
+        // La încărcarea paginii: dacă URL-ul conține deja un hash valid (ex: #board,
+        // deschis dintr-un link trimis cuiva), sărim direct pe pagina respectivă,
+        // instant, fără animația de swipe (nu are sens să "aluneci" dintr-un Acasă
+        // care nici n-a fost vreodată afișat).
+        (function initFromURL() {
+            const initial = (location.hash || '').slice(1);
+            if (initial && initial !== 'home' && navOrder.includes(initial)) {
+                const homeView = document.getElementById('view-home');
+                const targetView = document.getElementById(`view-${initial}`);
+                if (homeView && targetView) {
+                    homeView.classList.remove('active');
+                    targetView.classList.add('active');
+                    currentViewId = initial;
+                    document.querySelectorAll('.nav-link').forEach(l => {
+                        l.classList.remove('active');
+                        if (l.getAttribute('data-target') === initial) l.classList.add('active');
+                    });
+                    updateNavForView(initial, 0);
+                    if (initial === 'impact') refreshTabIndicator('nav-impact');
+                    if (initial === 'board') refreshTabIndicator('nav-board');
+                    if (initial === 'facultate') refreshTabIndicator('nav-facultate');
+                }
+            }
+            // Ne asigurăm că prima intrare din istoric reflectă pagina curentă,
+            // ca primul Back să nu iasă direct din site.
+            history.replaceState({ view: currentViewId }, '', '#' + currentViewId);
+        })();
 
         /* ==========================================================================
            JS: Interactivitate & Carusele Punctate
