@@ -60,6 +60,10 @@
             --transition-smooth: 0.8s var(--ease-out);
             
             --z-bg: 0; --z-content: 10; --z-nav: 100; --z-cursor: 9998; --z-swipe: 9999;
+
+            /* Liquid Glass — saturație + blur folosite peste tot unde e nevoie de efect de sticlă
+               (navbar, meniu mobil, search overlay, cursor). */
+            --glass-saturation: 1.5;
         }
 
         *, *::before, *::after {
@@ -106,14 +110,13 @@
         }
         @media (hover: none), (pointer: coarse) {
             .cursor { display: none; }
-            .horizontal-tab, .search-result-item { cursor: pointer; }
-            .carousel-track { cursor: grab; }
-            .carousel-track:active { cursor: grabbing; }
         }
         
         .cursor.hovering {
             width: 40px; height: 40px; background: var(--c-overlay-hover);
-            border: 1px solid var(--c-cursor-ring); backdrop-filter: blur(2px);
+            border: 1px solid var(--c-cursor-ring);
+            backdrop-filter: blur(3px) saturate(var(--glass-saturation));
+            -webkit-backdrop-filter: blur(3px) saturate(var(--glass-saturation));
             mix-blend-mode: difference;
         }
 
@@ -125,9 +128,10 @@
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 4vw; z-index: var(--z-nav);
             background: var(--c-nav-bg);
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            backdrop-filter: blur(22px) saturate(var(--glass-saturation));
+            -webkit-backdrop-filter: blur(22px) saturate(var(--glass-saturation));
             border-bottom: 1px solid var(--c-border);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -12px 24px -12px rgba(255,255,255,0.03);
             transition: transform 0.5s var(--ease-out), opacity 0.4s var(--ease-out);
         }
         /* Hero pe tot ecranul la Acasă: navbar-ul stă ascuns până la primul scroll,
@@ -244,17 +248,19 @@
         .title-huge { font-size: clamp(3.5rem, 8vw, 7rem); line-height: 1; color: var(--c-white); margin-bottom: 1.5rem; letter-spacing: -2px; }
         .title-huge i {
             font-style: normal; position: relative;
-            background: linear-gradient(100deg, var(--c-accent) 20%, var(--c-accent-2) 60%, var(--c-accent) 100%);
-            background-size: 220% 100%;
-            -webkit-background-clip: text; background-clip: text; color: transparent;
-            animation: titleGradientShift 8s ease-in-out infinite;
+            background: linear-gradient(90deg,
+                var(--c-accent), var(--c-accent-2), var(--c-primary-light), var(--c-accent-2), var(--c-accent));
+            background-size: 300% 100%;
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent; color: transparent;
+            animation: titleGradientMove 8s linear infinite;
         }
-        @keyframes titleGradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
+        @keyframes titleGradientMove {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 300% 50%; }
         }
         @media (prefers-reduced-motion: reduce) {
-            .title-huge i { animation: none; }
+            .title-huge i { animation: none; background-position: 0% 50%; }
         }
 
         /* Screen-reader only: varianta statică, pentru accesibilitate, cât timp #heroTyped e animat vizual */
@@ -295,14 +301,8 @@
             .reveal { opacity: 1 !important; transform: none !important; filter: none !important; transition: none !important; }
         }
 
-        /* Underline animat pe titlul accent (i din title-huge) */
-        .title-huge i::after {
-            content: ''; position: absolute; left: 0; right: 0; bottom: 0.08em; height: 3px;
-            background: linear-gradient(90deg, var(--c-accent), transparent);
-            transform: scaleX(0); transform-origin: left;
-            animation: underlineGrow 1.2s var(--ease-out) 0.4s forwards;
-        }
-        @keyframes underlineGrow { to { transform: scaleX(1); } }
+        /* Linia care sublinia titlul accent (i din title-huge) a fost eliminată la cerere. */
+
 
         /* ==========================================================================
            6. VIEW: ACASĂ (Embed Instagram real & Date Masive)
@@ -419,25 +419,19 @@
             scrollbar-width: none; -webkit-overflow-scrolling: touch;
         }
         .horizontal-nav::-webkit-scrollbar { display: none; }
-        .tab-indicator {
-            position: absolute; top: 6px; left: 6px; height: calc(100% - 12px);
-            border-radius: 999px; background: linear-gradient(120deg, var(--c-accent), var(--c-accent-2));
-            box-shadow: 0 8px 20px var(--c-accent-glow);
-            transition: transform 0.5s var(--ease-out), width 0.5s var(--ease-out);
-            will-change: transform, width; z-index: 0; pointer-events: none;
-        }
-        .horizontal-nav:not(.is-ready) .tab-indicator { transition: none; opacity: 0; }
         .horizontal-tab {
-            position: relative; z-index: 1; flex: 0 0 auto; white-space: nowrap;
+            flex: 0 0 auto; white-space: nowrap; position: relative;
             padding: 11px 22px; font-size: 1rem; font-weight: 700; color: var(--c-gray);
-            transition: color 0.3s var(--ease-out), transform 0.25s var(--ease-out);
-            border-radius: 999px; letter-spacing: 0.1px;
+            cursor: pointer; transition: color 0.25s var(--ease-out), background 0.25s var(--ease-out);
+            border-radius: 999px; letter-spacing: 0.1px; background: transparent;
         }
-        .horizontal-tab:hover { color: var(--c-white); transform: translateY(-1px); }
-        .horizontal-tab.active { color: var(--c-base); font-weight: 800; }
-        .horizontal-tab.active:hover { transform: none; }
+        .horizontal-tab:hover { color: var(--c-white); }
+        .horizontal-tab.active {
+            color: var(--c-base); font-weight: 800;
+            background: var(--c-accent);
+        }
         @media (prefers-reduced-motion: reduce) {
-            .tab-indicator { transition: none; }
+            .horizontal-tab { transition: none; }
         }
 
         /* Conținut tab — crossfade + slide, fără sărituri de layout, identic pe desktop/mobil */
@@ -467,6 +461,31 @@
         }
         .event-desc { font-size: 1.3rem; line-height: 1.8; color: var(--c-white-off); max-width: 1000px; margin-bottom: 40px; }
 
+        /* Secțiune Calendar — listă simplă de evenimente viitoare, fără gradient */
+        .calendar-section { margin-top: 70px; }
+        .calendar-section h2 { font-size: 1.7rem; margin-bottom: 24px; }
+        .calendar-list { display: flex; flex-direction: column; gap: 12px; }
+        .calendar-item {
+            display: flex; align-items: center; gap: 20px;
+            padding: 16px 20px; border-radius: 16px;
+            background: var(--c-surface-elevated); border: 1px solid var(--c-border-soft);
+            transition: border-color 0.25s var(--ease-out), transform 0.25s var(--ease-out);
+        }
+        .calendar-item:hover { border-color: var(--c-accent); transform: translateY(-2px); }
+        .calendar-date {
+            flex: 0 0 auto; width: 62px; height: 62px; border-radius: 12px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: var(--c-base); border: 1px solid var(--c-border-soft);
+        }
+        .calendar-date .cal-day { font-size: 1.3rem; font-weight: 800; color: var(--c-white); line-height: 1.1; }
+        .calendar-date .cal-month { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--c-accent); }
+        .calendar-info h3 { font-size: 1.1rem; font-weight: 800; color: var(--c-white); margin-bottom: 4px; }
+        .calendar-info p { font-size: 0.95rem; color: var(--c-gray); font-weight: 500; margin: 0; }
+        @media (max-width: 600px) {
+            .calendar-item { gap: 14px; padding: 14px 16px; }
+            .calendar-date { width: 52px; height: 52px; }
+        }
+
         /* Sistem Universal Carusel (Fără gradient/bordură de postare efectivă) */
         .carousel-container {
             width: 100%; max-width: 900px; position: relative; overflow: hidden;
@@ -474,9 +493,10 @@
         }
         .carousel-track {
             display: flex; width: 100%; overflow-x: auto; scroll-snap-type: x mandatory;
-            scrollbar-width: none;
+            scrollbar-width: none; cursor: grab;
         }
         .carousel-track::-webkit-scrollbar { display: none; }
+        .carousel-track:active { cursor: grabbing; }
         
         .carousel-slide {
             flex: 0 0 100%; aspect-ratio: 16/9; scroll-snap-align: center;
@@ -622,7 +642,9 @@
             position: fixed; inset: 0; z-index: 9000;
             display: flex; align-items: flex-start; justify-content: center;
             padding: 12vh 6vw 0;
-            background: rgba(8, 5, 13, 0.72); backdrop-filter: blur(8px);
+            background: rgba(8, 5, 13, 0.82);
+            backdrop-filter: blur(28px) saturate(var(--glass-saturation));
+            -webkit-backdrop-filter: blur(28px) saturate(var(--glass-saturation));
             opacity: 0; visibility: hidden; pointer-events: none;
             /* visibility comută abia DUPĂ ce s-a terminat fade-out-ul (delay = durata transition-ului
                de opacity) — altfel elementul devine invizibil instant și animația de exit nu se vede deloc. */
@@ -647,22 +669,24 @@
 
         .search-input-row {
             display: flex; align-items: center; gap: 14px;
-            padding: 20px 22px; border-bottom: 1px solid var(--c-border);
+            padding: 18px 18px 18px 22px; border-bottom: 1px solid var(--c-border);
         }
         .search-input-icon { color: var(--c-accent); font-size: 1.1rem; flex-shrink: 0; }
         .search-input {
-            flex: 1; background: none; border: none; outline: none;
+            flex: 1; min-width: 0; background: none; border: none; outline: none;
             font-family: var(--font-main); font-size: 1.15rem; font-weight: 600;
             color: var(--c-white); cursor: text;
         }
         .search-input::placeholder { color: var(--c-gray); font-weight: 500; }
         .search-close-btn {
-            width: 32px; height: 32px; border-radius: 50%; border: none;
-            background: var(--c-overlay-hover); color: var(--c-white-off);
+            width: 34px; height: 34px; border-radius: 50%;
+            border: 1px solid var(--c-border-strong);
+            background: var(--c-surface); color: var(--c-white-off);
             display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-            transition: background var(--transition-fast);
+            margin-left: auto;
+            transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
         }
-        .search-close-btn:hover { background: var(--c-border-med); }
+        .search-close-btn:hover { background: var(--c-white); color: var(--c-base); border-color: var(--c-white); }
 
         .search-results { overflow-y: auto; padding: 10px; }
         .search-results::-webkit-scrollbar { width: 6px; }
@@ -675,7 +699,7 @@
         }
         .search-result-item {
             display: flex; align-items: center; gap: 14px;
-            padding: 12px; border-radius: 12px;
+            padding: 12px; border-radius: 12px; cursor: pointer;
             transition: background var(--transition-fast);
         }
         .search-result-item:hover, .search-result-item.is-active { background: var(--c-overlay-hover); }
@@ -707,7 +731,8 @@
         }
         @media (max-width: 768px) {
             .search-overlay { padding: 0; align-items: flex-end; }
-            .search-panel { max-width: 100%; max-height: 85vh; border-radius: 20px 20px 0 0; }
+            .search-panel { max-width: 100%; max-height: 85vh; border-radius: 24px 24px 0 0; }
+            .search-input-row { padding: 22px 18px 18px 22px; }
             .search-hint { display: none; }
         }
 
@@ -728,31 +753,21 @@
             .nav-burger { display: flex; }
             .nav-links {
                 position: fixed; top: 90px; left: 0; width: 100%; height: calc(100vh - 90px);
-                flex-direction: column; align-items: center; justify-content: center; gap: 36px;
-                /* Fallback "de bază": fundal aproape opac, suficient de lizibil SINGUR, fără blur.
-                   Multe WebView-uri mobile (Instagram/Facebook in-app, Android mai vechi) nu suportă
-                   deloc backdrop-filter — dacă am lăsa doar varianta semi-transparentă, meniul devine
-                   ilizibil (exact bug-ul raportat: conținutul de dedesubt se vede brut, neediblurat). */
-                background: rgba(13, 8, 20, 0.96);
+                flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+                /* Fundal solid, opac — fără blur/glass. Compatibil peste tot (inclusiv WebView-uri
+                   mobile care nu suportă backdrop-filter), fără riscul ca ce e dedesubt să se vadă. */
+                background: #0e0916;
                 border-left: 1px solid var(--c-border-soft);
                 transform: translateX(4%); opacity: 0; visibility: hidden;
                 transition: transform 0.45s var(--ease-out), opacity 0.4s var(--ease-out), visibility 0s linear 0.45s;
                 pointer-events: none;
-            }
-            /* Doar acolo unde blur-ul chiar funcționează, trecem la varianta "sticlă mată" translucidă */
-            @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-                .nav-links {
-                    background: rgba(14, 9, 21, 0.62);
-                    backdrop-filter: blur(30px) saturate(160%);
-                    -webkit-backdrop-filter: blur(30px) saturate(160%);
-                }
             }
             .nav-links.nav-open {
                 transform: translateX(0); opacity: 1; visibility: visible; pointer-events: auto;
                 transition: transform 0.45s var(--ease-out), opacity 0.4s var(--ease-out), visibility 0s linear 0s;
             }
             /* Fiecare link intră individual, cu mic delay în cascadă, în loc să apară tot blocul deodată */
-            .nav-links li { opacity: 0; transform: translateY(16px); transition: opacity 0.4s var(--ease-out), transform 0.4s var(--ease-out); }
+            .nav-links li { opacity: 0; transform: translateY(16px); transition: opacity 0.4s var(--ease-out), transform 0.4s var(--ease-out); width: 78%; max-width: 340px; }
             .nav-links.nav-open li { opacity: 1; transform: translateY(0); }
             .nav-links.nav-open li:nth-child(1) { transition-delay: 0.10s; }
             .nav-links.nav-open li:nth-child(2) { transition-delay: 0.16s; }
@@ -763,7 +778,26 @@
             @media (prefers-reduced-motion: reduce) {
                 .nav-links, .nav-links li { transition: opacity 0.25s !important; transform: none !important; }
             }
-            .nav-link { font-size: 1.3rem; }
+            /* Butoane simple, plate: pastilă cu bordură subtilă. Starea activă e doar
+               o culoare de fundal solidă (accent), fără gradient — simplu și robust. */
+            .nav-links .nav-link {
+                display: block; width: 100%; text-align: center;
+                font-size: 1.05rem; padding: 16px 20px; border-radius: 999px;
+                position: relative;
+                background: var(--c-surface-elevated);
+                border: 1px solid var(--c-border-soft);
+                transition: color 0.3s var(--ease-out), background 0.3s var(--ease-out), border-color 0.3s var(--ease-out), transform var(--transition-fast);
+            }
+            .nav-links .nav-link::after { display: none; }
+            .nav-links .nav-link:active { transform: scale(0.97); }
+            .nav-links .nav-link.active {
+                color: var(--c-base); font-weight: 900;
+                background: var(--c-accent);
+                border-color: transparent;
+            }
+            @media (prefers-reduced-motion: reduce) {
+                .nav-links .nav-link { transition-duration: 0.15s; }
+            }
             .gallery-grid { columns: 2 150px; }
             footer { grid-template-columns: 1fr; padding: 60px 6vw; gap: 40px; }
             .title-huge { font-size: 3rem; }
@@ -818,7 +852,7 @@
         </div>
         <ul class="nav-links" id="navLinks">
             <li><a class="nav-link active hover-target" data-target="home" onclick="navigate('home')">Acasă</a></li>
-            <li><a class="nav-link hover-target" data-target="impact" onclick="navigate('impact')">Impact</a></li>
+            <li><a class="nav-link hover-target" data-target="impact" onclick="navigate('impact')">Evenimente</a></li>
             <li><a class="nav-link hover-target" data-target="board" onclick="navigate('board')">Board</a></li>
             <li><a class="nav-link hover-target" data-target="facultate" onclick="navigate('facultate')">Facultate</a></li>
             <li><a class="nav-link hover-target" data-target="camine" onclick="navigate('camine')">Cămine</a></li>
@@ -937,10 +971,9 @@
         <!-- ================= VIEW: IMPACT (Orizontal, Fără widget bouncy, Cu Carusele curate) ================= -->
         <section class="view" id="view-impact">
             <div class="page-content">
-                <h1 class="title-huge">Impact & <i>Evenimente</i></h1>
+                <h1 class="title-huge"><i>Evenimente</i></h1>
                 
                 <div class="horizontal-nav" id="nav-impact">
-                    <span class="tab-indicator" aria-hidden="true"></span>
                     <div class="horizontal-tab active hover-target" onclick="switchEvent(0, this)">Poli Chemistry Fest</div>
                     <div class="horizontal-tab hover-target" onclick="switchEvent(1, this)">Poli Fest</div>
                     <div class="horizontal-tab hover-target" onclick="switchEvent(2, this)">ChemEx</div>
@@ -997,6 +1030,33 @@
                     </div>
                 </div>
 
+                <div class="calendar-section reveal">
+                    <h2><i class="fa-solid fa-calendar-days" style="color:var(--c-accent); margin-right:10px;"></i>Calendar</h2>
+                    <div class="calendar-list">
+                        <div class="calendar-item hover-target" onclick="switchEvent(0, document.querySelectorAll('#nav-impact .horizontal-tab')[0])">
+                            <div class="calendar-date"><span class="cal-day">14</span><span class="cal-month">Oct</span></div>
+                            <div class="calendar-info">
+                                <h3>Poli Chemistry Fest</h3>
+                                <p>Facultatea de Inginerie Chimică și Biotehnologii · 10:00</p>
+                            </div>
+                        </div>
+                        <div class="calendar-item hover-target" onclick="switchEvent(1, document.querySelectorAll('#nav-impact .horizontal-tab')[1])">
+                            <div class="calendar-date"><span class="cal-day">02</span><span class="cal-month">Nov</span></div>
+                            <div class="calendar-info">
+                                <h3>Poli Fest</h3>
+                                <p>Campus UPB · 09:00</p>
+                            </div>
+                        </div>
+                        <div class="calendar-item hover-target" onclick="switchEvent(2, document.querySelectorAll('#nav-impact .horizontal-tab')[2])">
+                            <div class="calendar-date"><span class="cal-day">21</span><span class="cal-month">Nov</span></div>
+                            <div class="calendar-info">
+                                <h3>ChemEx</h3>
+                                <p>Detalii în curând · 09:00</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
             <footer class="global-footer"></footer>
         </section>
@@ -1007,7 +1067,6 @@
                 <h1 class="title-huge">Structura <i>Board-ului</i></h1>
                 
                 <div class="horizontal-nav" id="nav-board">
-                    <span class="tab-indicator" aria-hidden="true"></span>
                     <div class="horizontal-tab active hover-target" onclick="switchDept('dept-cd', this)">Consiliu Director</div>
                     <div class="horizontal-tab hover-target" onclick="switchDept('dept-hr', this)">HR</div>
                     <div class="horizontal-tab hover-target" onclick="switchDept('dept-pr', this)">PR</div>
@@ -1128,7 +1187,6 @@
                 <h1 class="title-huge">Reprezentare <i>în Facultate</i></h1>
 
                 <div class="horizontal-nav" id="nav-facultate">
-                    <span class="tab-indicator" aria-hidden="true"></span>
                     <div class="horizontal-tab active hover-target" onclick="switchFac('fac-conducere', this)">Conducerea Facultății</div>
                     <div class="horizontal-tab hover-target" onclick="switchFac('fac-senatori', this)">Senatori</div>
                     <div class="horizontal-tab hover-target" onclick="switchFac('fac-consilieri', this)">Consilieri Facultate</div>
@@ -1515,12 +1573,6 @@
                 resetScrollProgress();
                 updateNavForView(targetId, 0);
 
-                // Fix glitch: view-urile inactive au display:none, deci pastila-gradient
-                // din tab-urile Impact/Board nu se putea calcula corect decât după click.
-                // O recalculăm chiar acum, când view-ul respectiv tocmai a devenit vizibil.
-                if (targetId === 'impact') refreshTabIndicator('nav-impact');
-                if (targetId === 'board') refreshTabIndicator('nav-board');
-                if (targetId === 'facultate') refreshTabIndicator('nav-facultate');
             }, 400);
 
             setTimeout(() => {
@@ -1561,9 +1613,6 @@
                         if (l.getAttribute('data-target') === initial) l.classList.add('active');
                     });
                     updateNavForView(initial, 0);
-                    if (initial === 'impact') refreshTabIndicator('nav-impact');
-                    if (initial === 'board') refreshTabIndicator('nav-board');
-                    if (initial === 'facultate') refreshTabIndicator('nav-facultate');
                 }
             }
             // Ne asigurăm că prima intrare din istoric reflectă pagina curentă,
@@ -1605,55 +1654,6 @@
         initDraggableCarousel('carousel-ev2', 'dots-ev2');
 
         /* ==========================================================================
-           JS: Indicator glisant pentru tab-urile orizontale (Board & Impact)
-           ========================================================================== */
-        function moveTabIndicator(navEl, tabEl) {
-            if (!navEl || !tabEl) return;
-            const indicator = navEl.querySelector('.tab-indicator');
-            if (!indicator) return;
-            indicator.style.width = tabEl.offsetWidth + 'px';
-            indicator.style.transform = `translateX(${tabEl.offsetLeft - 6}px)`;
-        }
-
-        function initTabIndicator(navId) {
-            const navEl = document.getElementById(navId);
-            if (!navEl) return;
-            const activeTab = navEl.querySelector('.horizontal-tab.active') || navEl.querySelector('.horizontal-tab');
-            moveTabIndicator(navEl, activeTab);
-            requestAnimationFrame(() => navEl.classList.add('is-ready'));
-        }
-
-        // Notă: view-urile inactive au display:none (fix pt. glitch-ul de scroll-stacking),
-        // deci .offsetWidth/.offsetLeft ale tab-urilor din Impact/Board sunt 0 la încărcarea
-        // paginii (fiindcă acele view-uri nu sunt încă randate). De-asta pastila-gradient
-        // "nu apărea" decât după un click. Recalculăm indicatorul chiar când view-ul devine
-        // vizibil, nu doar o singură dată la load.
-        function refreshTabIndicator(navId) {
-            const navEl = document.getElementById(navId);
-            if (!navEl) return;
-            const activeTab = navEl.querySelector('.horizontal-tab.active') || navEl.querySelector('.horizontal-tab');
-            navEl.classList.remove('is-ready');
-            moveTabIndicator(navEl, activeTab);
-            requestAnimationFrame(() => navEl.classList.add('is-ready'));
-        }
-
-        let tabResizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(tabResizeTimeout);
-            tabResizeTimeout = setTimeout(() => {
-                ['nav-impact', 'nav-board', 'nav-facultate'].forEach(navId => {
-                    const navEl = document.getElementById(navId);
-                    // offsetParent === null înseamnă că view-ul lui e display:none acum (nu e activ) —
-                    // sărim peste, ca să nu suprascriem indicatorul cu un calcul greșit (lățime 0).
-                    // Se recalculează oricum corect data viitoare când view-ul devine activ.
-                    if (!navEl || navEl.offsetParent === null) return;
-                    const activeTab = navEl.querySelector('.horizontal-tab.active');
-                    moveTabIndicator(navEl, activeTab);
-                });
-            }, 150);
-        });
-
-        /* ==========================================================================
            JS: Tranziție crossfade+slide pentru conținutul de tab (fără salt instant)
            ========================================================================== */
         function swapTabPanel(currentPanel, nextPanel) {
@@ -1676,7 +1676,6 @@
             haptic(8);
             document.querySelectorAll('#view-impact .horizontal-tab').forEach(t => t.classList.remove('active'));
             el.classList.add('active');
-            moveTabIndicator(document.getElementById('nav-impact'), el);
 
             const current = document.querySelector('#view-impact .event-content-wrapper.active');
             const next = document.getElementById(`ev-${index}`);
@@ -1689,7 +1688,6 @@
             haptic(8);
             document.querySelectorAll('#view-board .horizontal-tab').forEach(t => t.classList.remove('active'));
             el.classList.add('active');
-            moveTabIndicator(document.getElementById('nav-board'), el);
 
             const current = document.querySelector('#view-board .board-dept.active');
             const next = document.getElementById(id);
@@ -1702,7 +1700,6 @@
             haptic(8);
             document.querySelectorAll('#view-facultate .horizontal-tab').forEach(t => t.classList.remove('active'));
             el.classList.add('active');
-            moveTabIndicator(document.getElementById('nav-facultate'), el);
 
             const current = document.querySelector('#view-facultate .board-dept.active');
             const next = document.getElementById(id);
@@ -1752,10 +1749,8 @@
             }
         }, true);
 
-        // Stare inițială a navbar-ului: doar pe Acasă (sus de tot) navbar-ul pornește ascuns
-        // (hero pe tot ecranul); pe orice altă pagină — inclusiv când se ajunge direct
-        // printr-un link cu #hash — navbar-ul trebuie să fie vizibil de la bun început.
-        updateNavForView(currentViewId, 0);
+        // Stare inițială: pornim pe Acasă, sus de tot — hero pe tot ecranul, navbar ascuns.
+        updateNavForView('home', 0);
 
         function animateCount(el) {
             if (el.dataset.counted) return;
@@ -1904,15 +1899,15 @@
             // Fiecare intrare știe cum să "ajungă" la ținta ei: view + (opțional) tab + element de scroll.
             const searchIndex = [
                 { group: 'Secțiuni', title: 'Acasă', sub: 'Pagina principală', icon: 'fa-house', view: 'home' },
-                { group: 'Secțiuni', title: 'Impact & Evenimente', sub: 'Proiectele SSIC', icon: 'fa-star', view: 'impact' },
+                { group: 'Secțiuni', title: 'Evenimente', sub: 'Proiectele SSIC', icon: 'fa-star', view: 'impact' },
                 { group: 'Secțiuni', title: 'Structura Board-ului', sub: 'Echipa de conducere', icon: 'fa-users', view: 'board' },
                 { group: 'Secțiuni', title: 'Reprezentare în Facultate', sub: 'Conducere, senatori, consilieri', icon: 'fa-building-columns', view: 'facultate' },
                 { group: 'Secțiuni', title: 'Reprezentare în Cămine', sub: 'De completat', icon: 'fa-bed', view: 'camine' },
                 { group: 'Secțiuni', title: 'Galerie', sub: 'Poze din activități', icon: 'fa-image', view: 'gallery' },
 
-                { group: 'Evenimente', title: 'Poli Chemistry Fest', sub: 'Impact & Evenimente', icon: 'fa-flask', view: 'impact', eventIndex: 0, targetId: 'ev-0' },
-                { group: 'Evenimente', title: 'Poli Fest', sub: 'Impact & Evenimente', icon: 'fa-flask', view: 'impact', eventIndex: 1, targetId: 'ev-1' },
-                { group: 'Evenimente', title: 'ChemEx', sub: 'Impact & Evenimente', icon: 'fa-flask', view: 'impact', eventIndex: 2, targetId: 'ev-2' },
+                { group: 'Evenimente', title: 'Poli Chemistry Fest', sub: 'Evenimente', icon: 'fa-flask', view: 'impact', eventIndex: 0, targetId: 'ev-0' },
+                { group: 'Evenimente', title: 'Poli Fest', sub: 'Evenimente', icon: 'fa-flask', view: 'impact', eventIndex: 1, targetId: 'ev-1' },
+                { group: 'Evenimente', title: 'ChemEx', sub: 'Evenimente', icon: 'fa-flask', view: 'impact', eventIndex: 2, targetId: 'ev-2' },
 
                 { group: 'Board', title: 'Constantin Alexandru', sub: 'Președinte · Consiliu Director', icon: 'fa-user', view: 'board', deptId: 'dept-cd' },
                 { group: 'Board', title: 'Soficaru David', sub: 'Vicepreședinte · Consiliu Director', icon: 'fa-user', view: 'board', deptId: 'dept-cd' },
