@@ -1,0 +1,2446 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SSIC | Societatea Studenților în Inginerie Chimică și Biotehnologii</title>
+
+    <!-- FontAwesome pentru iconițele de Social Media -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Font: Jost — geometric sans liber, gândit explicit ca alternativă modernă la Futura,
+         cu suport complet pentru diacriticele românești (ă, â, î, ș, ț). -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==========================================================================
+           1. SISTEM DE DESIGN & RESET 
+           ========================================================================== */
+        :root {
+            --c-base: #100b19;
+            --c-surface: #180f24;
+            --c-surface-elevated: #221631;
+            --c-primary: #5a2f8a;
+            --c-primary-light: #8348c4;
+            --c-accent: #f5b027;       
+            --c-accent-glow: rgba(245, 176, 39, 0.4);
+            --c-accent-2: #c9a6f2;
+            --c-accent-2-glow: rgba(201, 166, 242, 0.32);
+            --c-white: #ffffff;
+            --c-white-off: #e9e2ef;
+            --c-gray: #948aa3;
+
+            /* Borduri / overlay-uri / umbre — separate de --c-white ca să poată fi inversate corect în tema light */
+            --c-border-hairline: rgba(255,255,255,0.06);
+            --c-border-soft: rgba(255,255,255,0.07);
+            --c-border: rgba(255,255,255,0.09);
+            --c-border-strong: rgba(255,255,255,0.12);
+            --c-border-med: rgba(255,255,255,0.22);
+            --c-overlay-hover: rgba(255,255,255,0.1);
+            --c-shadow-1: rgba(0,0,0,0.5);
+            --c-shadow-2: rgba(0,0,0,0.6);
+            --c-nav-bg: rgba(20, 13, 30, 0.7);
+            --c-nav-bg-solid: rgba(20, 13, 30, 0.97);
+            --c-footer-bg: #0c0812;
+            --c-cursor-ring: rgba(255,255,255,0.4);
+            --c-scheme: dark;
+
+            /* Wash-uri pentru fundalul grainy-gradient (mesh), aplicate pe .app */
+            --c-mesh-1: rgba(90, 47, 138, 0.55);
+            --c-mesh-2: rgba(245, 176, 39, 0.14);
+            --c-mesh-3: rgba(201, 166, 242, 0.16);
+            
+            --font-main: "Jost", system-ui, sans-serif;
+            --font-display: "Jost", system-ui, sans-serif;
+            
+            --ease-out: cubic-bezier(0.2, 1, 0.2, 1);
+            --ease-in-out: cubic-bezier(0.8, 0, 0.2, 1);
+            --transition-fast: 0.3s var(--ease-out);
+            --transition-smooth: 0.8s var(--ease-out);
+            
+            --z-bg: 0; --z-content: 10; --z-nav: 100; --z-cursor: 9998; --z-swipe: 9999;
+
+            /* Liquid Glass — saturație + blur folosite peste tot unde e nevoie de efect de sticlă
+               (navbar, meniu mobil, search overlay, cursor). */
+            --glass-saturation: 1.5;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box; margin: 0; padding: 0;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            *, *::before, *::after { cursor: none; }
+        }
+
+        html, body {
+            width: 100%; height: 100%; overflow: hidden; 
+            background-color: var(--c-base); color: var(--c-white-off);
+            font-family: var(--font-main); -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4 { 
+            font-family: var(--font-display); 
+            font-weight: 800; 
+            line-height: 1.1; 
+            letter-spacing: -0.02em; 
+            color: var(--c-white);
+        }
+        
+        p { font-size: 1.15rem; color: var(--c-gray); line-height: 1.6; font-weight: 500; }
+        a { text-decoration: none; color: inherit; }
+        ul { list-style: none; }
+
+        .noise {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9997; opacity: 0.05; mix-blend-mode: overlay;
+            background-image: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23n)"/%3E%3C/svg%3E');
+        }
+
+        /* ==========================================================================
+           2. CURSOR CUSTOM MAGNETIC
+           ========================================================================== */
+        .cursor {
+            position: fixed; top: 0; left: 0; width: 10px; height: 10px;
+            background: var(--c-accent); border-radius: 50%;
+            pointer-events: none; z-index: var(--z-cursor);
+            transform: translate(-50%, -50%);
+            transition: width 0.2s var(--ease-out), height 0.2s var(--ease-out), background 0.2s;
+            mix-blend-mode: normal;
+        }
+        @media (hover: none), (pointer: coarse) {
+            .cursor { display: none; }
+        }
+        
+        .cursor.hovering {
+            width: 40px; height: 40px; background: var(--c-overlay-hover);
+            border: 1px solid var(--c-cursor-ring);
+            backdrop-filter: blur(3px) saturate(var(--glass-saturation));
+            -webkit-backdrop-filter: blur(3px) saturate(var(--glass-saturation));
+            mix-blend-mode: difference;
+        }
+
+        /* ==========================================================================
+           3. NAVBAR (Liquid Glass)
+           ========================================================================== */
+        nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: 90px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 4vw; z-index: var(--z-nav);
+            background: var(--c-nav-bg);
+            backdrop-filter: blur(22px) saturate(var(--glass-saturation));
+            -webkit-backdrop-filter: blur(22px) saturate(var(--glass-saturation));
+            border-bottom: 1px solid var(--c-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -12px 24px -12px rgba(255,255,255,0.03);
+            transition: transform 0.5s var(--ease-out), opacity 0.4s var(--ease-out);
+        }
+        /* Hero pe tot ecranul la Acasă: navbar-ul stă ascuns până la primul scroll,
+           ca hero-ul (video + titlu) să respire pe tot viewport-ul, fără nimic peste el. */
+        nav.nav-hidden { transform: translateY(-100%); opacity: 0; pointer-events: none; }
+        @media (prefers-reduced-motion: reduce) {
+            nav { transition: opacity 0.3s; }
+            nav.nav-hidden { transform: none; }
+        }
+
+        /* Bară subțire de progres al scroll-ului, deasupra a tot (inclusiv navbar-ul ascuns) */
+        .scroll-progress {
+            position: fixed; top: 0; left: 0; width: 100%; height: 3px;
+            z-index: 10001; pointer-events: none; background: transparent;
+        }
+        .scroll-progress-fill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, var(--c-accent), var(--c-accent-2), var(--c-primary-light), var(--c-accent));
+            background-size: 300% 100%;
+            box-shadow: 0 0 12px var(--c-accent-glow);
+            transition: width 0.12s linear;
+            animation: progressGradientMove 6s linear infinite;
+        }
+        @keyframes progressGradientMove {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 300% 50%; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .scroll-progress-fill { animation: none; }
+        }
+        .logo { display: flex; align-items: center; gap: 15px; }
+        .logo img { height: 40px; }
+        .logo span { font-family: var(--font-display); font-weight: 900; font-size: 24px; color: var(--c-white); letter-spacing: 1px; }
+        .logo span i { color: var(--c-accent); font-style: normal; }
+
+        .nav-links { display: flex; gap: 30px; }
+        .nav-right { display: flex; align-items: center; gap: 14px; }
+
+        /* Buton hamburger — vizibil doar pe mobil */
+        .nav-burger {
+            display: none; flex-direction: column; justify-content: center; gap: 6px;
+            width: 44px; height: 44px; background: none; border: none; padding: 0;
+            z-index: 110; position: relative;
+        }
+        .nav-burger span {
+            display: block; width: 26px; height: 2px; background: var(--c-white);
+            border-radius: 2px; transition: transform 0.3s var(--ease-out), opacity 0.3s var(--ease-out);
+            margin: 0 auto;
+        }
+        .nav-burger.is-active span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+        .nav-burger.is-active span:nth-child(2) { opacity: 0; }
+        .nav-burger.is-active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+        .nav-link {
+            font-weight: 800; font-size: 13px; color: #a394b5;
+            text-transform: uppercase; letter-spacing: 2px;
+            padding: 10px 0; position: relative; display: inline-block;
+            transition: color var(--transition-fast);
+        }
+        .nav-link.active, .nav-link:hover { color: var(--c-white); }
+        .nav-link::after {
+            content: ''; position: absolute; bottom: 0; left: 50%;
+            width: 5px; height: 5px; border-radius: 50%; background: var(--c-accent);
+            transform: scale(0) translateX(-50%); transition: transform 0.3s var(--ease-out);
+        }
+        .nav-link.active::after { transform: scale(1) translateX(-50%); }
+
+        /* ==========================================================================
+           4. SWIPE TRANSITIONS
+           ========================================================================== */
+        .swipe-container {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: var(--z-swipe); display: flex; visibility: hidden;
+        }
+        .swipe-bar { position: absolute; top: 0; width: 100%; height: 100%; will-change: transform; }
+        .swipe-bar:nth-child(1) { background: var(--c-primary); z-index: 2; }
+        .swipe-bar:nth-child(2) { background: var(--c-white); z-index: 1; }
+
+        .swipe-ltr { visibility: visible; }
+        .swipe-ltr .swipe-bar { transform: translateX(-100%); }
+        .swipe-ltr.animating .swipe-bar:nth-child(1) { animation: swipeLTR 0.8s var(--ease-in-out) forwards; }
+        .swipe-ltr.animating .swipe-bar:nth-child(2) { animation: swipeLTR 0.8s var(--ease-in-out) 0.1s forwards; }
+
+        .swipe-rtl { visibility: visible; }
+        .swipe-rtl .swipe-bar { transform: translateX(100%); }
+        .swipe-rtl.animating .swipe-bar:nth-child(1) { animation: swipeRTL 0.8s var(--ease-in-out) forwards; }
+        .swipe-rtl.animating .swipe-bar:nth-child(2) { animation: swipeRTL 0.8s var(--ease-in-out) 0.1s forwards; }
+
+        @keyframes swipeLTR { 0% { transform: translateX(-100%); } 45%, 55% { transform: translateX(0); } 100% { transform: translateX(100%); } }
+        @keyframes swipeRTL { 0% { transform: translateX(100%); } 45%, 55% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+
+        /* ==========================================================================
+           5. SPA CORE & LAYOUTS
+           ========================================================================== */
+        .app {
+            position: relative; width: 100vw; height: 100vh;
+            background-color: var(--c-base);
+            background-image:
+                radial-gradient(ellipse 1300px 900px at 50% -10%, var(--c-mesh-1), transparent 58%),
+                radial-gradient(ellipse 900px 700px at 100% 100%, var(--c-mesh-3), transparent 62%),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cpath d='M64 0H0V64' fill='none' stroke='white' stroke-opacity='0.045' stroke-width='1' shape-rendering='crispEdges'/%3E%3C/svg%3E");
+            background-repeat: no-repeat, no-repeat, repeat;
+            background-size: auto, auto, 64px 64px;
+            background-attachment: fixed, fixed, fixed;
+        }
+        .view {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; visibility: hidden; pointer-events: none; display: none;
+            overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth;
+        }
+        .view.active { opacity: 1; visibility: visible; pointer-events: auto; display: block; }
+        
+        .view::-webkit-scrollbar { display: none; }
+        .view { scrollbar-width: none; -ms-overflow-style: none; }
+
+        .title-huge { font-size: clamp(3rem, 7vw, 6rem); line-height: 1.08; color: var(--c-white); margin-bottom: 1.5rem; letter-spacing: -1px; }
+        .title-huge i {
+            font-style: normal; position: relative;
+            background: linear-gradient(90deg,
+                var(--c-accent), var(--c-accent-2), var(--c-primary-light), var(--c-accent-2), var(--c-accent));
+            background-size: 300% 100%;
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent; color: transparent;
+            animation: titleGradientMove 8s linear infinite;
+        }
+        @keyframes titleGradientMove {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 300% 50%; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .title-huge i { animation: none; background-position: 0% 50%; }
+        }
+
+        /* Screen-reader only: varianta statică, pentru accesibilitate, cât timp #heroTyped e animat vizual */
+        .sr-only {
+            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+            overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+        }
+
+        /* Rândul care se scrie/șterge — rezervăm un pic de "respirație" ca titlul de dedesubt să nu sară */
+        .typed-line { display: inline-block; min-height: 1em; }
+        .typed-text { display: inline; color: var(--c-white); }
+        .typed-cursor {
+            display: inline-block; width: 3px; height: 0.82em; margin-left: 6px;
+            margin-bottom: -0.08em; background: var(--c-accent);
+            box-shadow: 0 0 12px var(--c-accent-glow);
+            animation: cursorBlink 0.9s steps(1) infinite;
+            vertical-align: baseline;
+        }
+        .typed-cursor.is-typing { animation: none; opacity: 1; }
+        @keyframes cursorBlink { 0%, 45% { opacity: 1; } 50%, 95% { opacity: 0; } 100% { opacity: 1; } }
+        @media (prefers-reduced-motion: reduce) {
+            .typed-cursor { animation: cursorBlink 1.4s steps(1) infinite; }
+        }
+        
+        .page-content { padding: 180px 6vw 100px; max-width: 1600px; margin: 0 auto; }
+
+        /* ==========================================================================
+           5b. REVEAL-ON-SCROLL (animație discretă, nu schimbă layoutul)
+           ========================================================================== */
+        .reveal {
+            opacity: 0; transform: translateY(36px); filter: blur(6px);
+            transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out), filter 0.9s var(--ease-out);
+            will-change: opacity, transform, filter;
+        }
+        .reveal.is-visible { opacity: 1; transform: translateY(0); filter: blur(0); }
+        .reveal-stagger.is-visible { transition-delay: var(--r-delay, 0s); }
+        @media (prefers-reduced-motion: reduce) {
+            .reveal { opacity: 1 !important; transform: none !important; filter: none !important; transition: none !important; }
+        }
+
+        /* Linia care sublinia titlul accent (i din title-huge) a fost eliminată la cerere. */
+
+
+        /* ==========================================================================
+           6. VIEW: ACASĂ (Embed Instagram real & Date Masive)
+           ========================================================================== */
+        #view-home { padding: 0; }
+        
+        .hero { position: relative; width: 100%; height: 100vh; height: 100svh; display: flex; align-items: center; padding: 0 6vw; }
+        .hero-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; object-fit: cover; opacity: 0.55; }
+        @media (hover: hover) and (pointer: fine) {
+            .hero-video { mix-blend-mode: luminosity; opacity: 0.5; }
+        }
+        .hero-grad { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, var(--c-base) 0%, rgba(16,11,25,0.35) 100%); z-index: 1; }
+        .hero-content { position: relative; z-index: 2; width: 100%; max-width: 1200px; }
+
+        /* Ambient blobs — mișcare lentă, discretă, pur decorativă */
+        .hero-ambient { position: absolute; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; }
+        .hero-ambient span {
+            position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.35;
+            will-change: transform;
+        }
+        .hero-ambient span:nth-child(1) {
+            width: 480px; height: 480px; top: -10%; left: 10%;
+            background: radial-gradient(circle, var(--c-primary-light), transparent 70%);
+            animation: floatBlob1 22s ease-in-out infinite;
+        }
+        .hero-ambient span:nth-child(2) {
+            width: 380px; height: 380px; bottom: -15%; right: 8%;
+            background: radial-gradient(circle, var(--c-accent-2), transparent 70%);
+            opacity: 0.22;
+            animation: floatBlob2 26s ease-in-out infinite;
+        }
+        @keyframes floatBlob1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(60px, 40px) scale(1.15); }
+        }
+        @keyframes floatBlob2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-50px, -30px) scale(1.1); }
+        }
+        
+        .home-extended-area {
+            padding: 80px 6vw; max-width: 1600px; margin: 0 auto;
+        }
+        
+        .home-huge-stats {
+            display: flex; flex-wrap: wrap; gap: 40px; margin-bottom: 100px;
+            padding-bottom: 60px; border-bottom: 1px solid var(--c-border-hairline);
+        }
+        
+        .home-stat { flex: 1; min-width: 300px; }
+        .home-stat span {
+            display: block; font-family: var(--font-display); font-size: 6rem; font-weight: 900;
+            color: var(--c-accent); line-height: 1; margin-bottom: 10px;
+        }
+        .home-stat p { font-size: 1.5rem; color: var(--c-white); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
+        
+        .home-about-extended {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 80px; margin-bottom: 100px;
+        }
+        .home-about-extended h2 { font-size: 3.5rem; line-height: 1.1; margin-bottom: 30px; }
+        .home-about-extended p { font-size: 1.3rem; margin-bottom: 20px; line-height: 1.8; }
+        
+        /* Secțiune Instagram — ultima postare, preluată automat (vezi CONFIG în JS) */
+        .instagram-embed-wrapper {
+            width: 100%; max-width: 370px; margin: 0 auto 150px;
+        }
+        /* "Ramă" întunecată în jurul widget-ului alb de Instagram — nu-i putem schimba
+           culorile interioare (e un iframe de pe instagram.com, izolat de CSS-ul nostru),
+           dar îl putem prezenta ca pe o fotografie înrămată pe fundal dark, nu ca un
+           dreptunghi alb aruncat pe pagină. */
+        .ig-embed-frame {
+            background: var(--c-surface-elevated); border: 1px solid var(--c-border-soft);
+            border-radius: 24px; padding: 14px;
+            overflow: hidden; max-width: 100%;
+            box-shadow: 0 20px 60px var(--c-shadow-1);
+            display: flex; justify-content: center;
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+        }
+        /* Forțăm widget-ul Instagram (blockquote și iframe-ul care îl înlocuiește) să nu
+           depășească niciodată lățimea ramei, ca să nu mai apară scroll orizontal pe telefon. */
+        .ig-embed-frame blockquote.instagram-media,
+        .ig-embed-frame iframe {
+            max-width: 100% !important; width: 100% !important; min-width: 0 !important;
+        }
+        .ig-embed-frame:hover { transform: translateY(-6px); box-shadow: 0 30px 70px var(--c-shadow-2); }
+        .ig-embed-eyebrow {
+            display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+            font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.4px;
+            color: var(--c-accent);
+        }
+        .ig-embed-eyebrow i { font-size: 0.95rem; }
+        .ig-card {
+            background: var(--c-surface-elevated); border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 60px var(--c-shadow-1); border: 1px solid var(--c-border-soft);
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+        }
+        .ig-card:hover { transform: translateY(-6px); box-shadow: 0 30px 70px var(--c-shadow-2); }
+        .ig-card-head {
+            display: flex; align-items: center; gap: 12px; padding: 18px 20px;
+            border-bottom: 1px solid var(--c-border-soft);
+        }
+        .ig-card-avatar {
+            width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+            background: linear-gradient(135deg, var(--c-primary-light), var(--c-accent-2) 55%, var(--c-accent));
+            display: flex; align-items: center; justify-content: center; color: var(--c-white); font-size: 1.1rem;
+        }
+        .ig-card-head strong { color: var(--c-white); font-size: 0.95rem; font-weight: 800; }
+        .ig-card-head span { display: block; color: var(--c-gray); font-size: 0.8rem; }
+        .ig-card-media {
+            width: 100%; aspect-ratio: 1/1; background: var(--c-surface);
+            display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;
+        }
+        .ig-card-media img, .ig-card-media video { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .ig-card-media .ig-placeholder-icon { font-size: 3rem; color: var(--c-gray); opacity: 0.35; }
+        .ig-card-body { padding: 18px 20px 22px; }
+        .ig-card-caption {
+            font-size: 0.95rem; color: var(--c-white-off); line-height: 1.55; margin-bottom: 14px;
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .ig-card-link {
+            display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 0.8rem;
+            text-transform: uppercase; letter-spacing: 1.5px; color: var(--c-accent);
+        }
+        .ig-card-link i { font-size: 1rem; }
+
+        /* ==========================================================================
+           7. VIEW: IMPACT & EVENIMENTE (Fără Bouncy, Fără Gradient)
+           ========================================================================== */
+        /* Sistem comun de Tab-uri (Board/Impact) — segmented control modern, cu pastilă-indicator care alunecă */
+        .horizontal-nav {
+            position: relative; display: flex; gap: 4px; margin-bottom: 60px;
+            padding: 6px; border-radius: 14px;
+            background: var(--c-surface-elevated); border: 1px solid var(--c-border-soft);
+            overflow-x: auto; overflow-y: hidden; max-width: 100%;
+            scrollbar-width: none; -webkit-overflow-scrolling: touch;
+        }
+        .horizontal-nav::-webkit-scrollbar { display: none; }
+        .horizontal-tab {
+            flex: 0 0 auto; white-space: nowrap; position: relative;
+            padding: 11px 22px; font-size: 1rem; font-weight: 700; color: var(--c-gray);
+            cursor: pointer; transition: color 0.25s var(--ease-out), background 0.25s var(--ease-out);
+            border-radius: 10px; letter-spacing: 0.1px; background: transparent;
+        }
+        .horizontal-tab:hover { color: var(--c-white); }
+        .horizontal-tab.active {
+            color: var(--c-base); font-weight: 800;
+            background: var(--c-accent);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .horizontal-tab { transition: none; }
+        }
+
+        /* Conținut tab — crossfade + slide, fără sărituri de layout, identic pe desktop/mobil */
+        .event-content-wrapper, .board-dept {
+            display: none; opacity: 0; transform: translateY(14px) scale(0.99); filter: blur(3px);
+        }
+        .event-content-wrapper.active, .board-dept.active {
+            display: block; animation: tabEnter 0.5s var(--ease-out) forwards;
+        }
+        .event-content-wrapper.tab-leaving, .board-dept.tab-leaving {
+            display: block; animation: tabLeave 0.22s var(--ease-out) forwards;
+        }
+        @keyframes tabEnter {
+            from { opacity: 0; transform: translateY(14px) scale(0.99); filter: blur(3px); }
+            to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+        @keyframes tabLeave {
+            from { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+            to { opacity: 0; transform: translateY(-10px) scale(0.99); filter: blur(3px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .event-content-wrapper, .board-dept,
+            .event-content-wrapper.active, .board-dept.active,
+            .event-content-wrapper.tab-leaving, .board-dept.tab-leaving {
+                animation: none !important; opacity: 1 !important; transform: none !important; filter: none !important;
+            }
+        }
+        .event-desc { font-size: 1.3rem; line-height: 1.8; color: var(--c-white-off); max-width: 1000px; margin-bottom: 40px; }
+
+        /* Secțiune Calendar — listă simplă de evenimente viitoare, fără gradient */
+        .calendar-section { margin-top: 70px; }
+        .calendar-section h2 { font-size: 1.7rem; margin-bottom: 24px; }
+        .calendar-list { display: flex; flex-direction: column; gap: 12px; }
+        .calendar-item {
+            display: flex; align-items: center; gap: 20px;
+            padding: 16px 20px; border-radius: 16px;
+            background: var(--c-surface-elevated); border: 1px solid var(--c-border-soft);
+            transition: border-color 0.25s var(--ease-out), transform 0.25s var(--ease-out);
+        }
+        .calendar-item:hover { border-color: var(--c-accent); transform: translateY(-2px); }
+        .calendar-date {
+            flex: 0 0 auto; width: 62px; height: 62px; border-radius: 12px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: var(--c-base); border: 1px solid var(--c-border-soft);
+        }
+        .calendar-date .cal-day { font-size: 1.3rem; font-weight: 800; color: var(--c-white); line-height: 1.1; }
+        .calendar-date .cal-month { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--c-accent); }
+        .calendar-info h3 { font-size: 1.1rem; font-weight: 800; color: var(--c-white); margin-bottom: 4px; }
+        .calendar-info p { font-size: 0.95rem; color: var(--c-gray); font-weight: 500; margin: 0; }
+        @media (max-width: 600px) {
+            .calendar-item { gap: 14px; padding: 14px 16px; }
+            .calendar-date { width: 52px; height: 52px; }
+        }
+
+        /* Sistem Universal Carusel (Fără gradient/bordură de postare efectivă) */
+        .carousel-container {
+            width: 100%; max-width: 900px; position: relative; overflow: hidden;
+            border-radius: 16px; margin-top: 30px;
+        }
+        .carousel-track {
+            display: flex; width: 100%; overflow-x: auto; scroll-snap-type: x mandatory;
+            scrollbar-width: none; cursor: grab;
+        }
+        .carousel-track::-webkit-scrollbar { display: none; }
+        .carousel-track:active { cursor: grabbing; }
+        
+        .carousel-slide {
+            flex: 0 0 100%; aspect-ratio: 16/9; scroll-snap-align: center;
+            position: relative; background: var(--c-surface-elevated);
+        }
+        .carousel-slide img { width: 100%; height: 100%; object-fit: cover; opacity: 0.95; }
+        
+        .carousel-dots {
+            display: flex; justify-content: flex-start; gap: 8px; margin-top: 15px; padding-bottom: 10px;
+        }
+        .carousel-dot {
+            width: 8px; height: 8px; border-radius: 50%; background: var(--c-border-med); transition: 0.3s;
+        }
+        .carousel-dot.active { background: var(--c-accent); }
+
+        /* ==========================================================================
+           8. VIEW: BOARD & STRUCTURĂ (Text Static/Normal, Spațiu pt Departament)
+           ========================================================================== */
+        /* Container modern pentru textul de intro al departamentului — bară gradient, nu chenar plat */
+        .dept-intro {
+            position: relative; padding-bottom: 32px; margin-bottom: 56px;
+            border-bottom: 1px solid var(--c-border-hairline);
+            max-width: 780px;
+        }
+        .dept-intro p {
+            margin: 0; color: var(--c-white-off); font-size: 1.35rem; font-weight: 400;
+            line-height: 1.65; letter-spacing: -0.01em;
+        }
+
+        .team-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 52px 40px;
+        }
+        .team-member { display: flex; flex-direction: column; gap: 15px; position: relative; min-width: 0; }
+        .team-photo {
+            width: 100%; aspect-ratio: 1/1; border-radius: 12px;
+            background: linear-gradient(145deg, var(--c-surface), var(--c-surface-elevated));
+            border: 2px solid var(--c-border);
+            position: relative; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out), border-color 0.3s var(--ease-out);
+        }
+        .team-photo::after {
+            content: '\f007'; font-family: "Font Awesome 6 Free"; font-weight: 900;
+            font-size: 2.5rem; opacity: 0.16; color: var(--c-white); transition: opacity 0.3s var(--ease-out);
+        }
+        /* Poza reală (dacă există fișierul) acoperă complet fundalul + iconița decorativă */
+        .team-photo img {
+            position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;
+        }
+        .team-member:hover .team-photo {
+            transform: translateY(-4px);
+            border-color: var(--c-accent);
+            box-shadow: 0 14px 28px var(--c-shadow-1);
+        }
+        .team-member:hover .team-photo::after { opacity: 0.3; }
+
+        .team-info { display: flex; flex-direction: column; gap: 8px; }
+        .team-name {
+            font-family: var(--font-display); font-size: 1.5rem; color: var(--c-white); font-weight: 900;
+            letter-spacing: -0.01em; transition: color 0.3s var(--ease-out);
+        }
+        .team-member:hover .team-name { color: var(--c-accent); }
+        /* Etichetă de rol: bloc solid, colț drept (nu pastilă), fără punct decorativ —
+           un stil mai apăsat/tipografic, nu genericul "badge rotunjit cu glow" AI. */
+        .team-role {
+            display: inline-flex; align-items: center; width: fit-content;
+            font-size: 0.8rem; color: var(--c-accent); font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1.4px;
+            padding: 3px 0 3px 14px; position: relative;
+        }
+        .team-role::before {
+            content: ''; position: absolute; left: 0; top: 1px; bottom: 1px; width: 3px;
+            background: var(--c-accent); border-radius: 2px;
+        }
+
+        /* ==========================================================================
+           9. VIEW: GALERIE (Masonry 20+ poze)
+           ========================================================================== */
+        .gallery-grid {
+            columns: 4 280px; gap: 20px; margin-top: 60px;
+        }
+        .gal-item {
+            width: 100%; background: var(--c-surface-elevated); margin-bottom: 20px;
+            display: inline-block; position: relative; border-radius: 12px;
+            border: 1px solid var(--c-border-hairline); overflow: hidden;
+            transition: transform 0.4s var(--ease-out), border-color 0.4s var(--ease-out);
+        }
+        .gal-item:hover { transform: translateY(-4px); border-color: var(--c-accent-2); }
+        .gal-item::before { content: ''; display: block; padding-top: calc(100% * (var(--aspect))); }
+        .gal-item::after {
+            content: '\f03e'; font-family: "Font Awesome 6 Free"; font-weight: 900;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 1.6rem; opacity: 0.16; color: var(--c-white); transition: opacity 0.3s var(--ease-out);
+        }
+        .gal-item:hover::after { opacity: 0.28; }
+        /* Poza reală (dacă există fișierul) acoperă complet iconița decorativă */
+        .gal-item img {
+            position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;
+        }
+
+        /* Easter Egg Particle Styles */
+        .easter-particle {
+            position: fixed; color: var(--c-accent); font-family: var(--font-display);
+            font-size: 2.5rem; font-weight: 900; pointer-events: none; z-index: 10000;
+            text-shadow: 0 0 10px rgba(245, 176, 39, 0.8);
+            animation: explode 1.2s cubic-bezier(0.1, 1, 0.3, 1) forwards;
+        }
+        @keyframes explode {
+            0% { transform: translate(0, 0) scale(0.5); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(1.5) rotate(var(--rot)); opacity: 0; }
+        }
+
+        /* ==========================================================================
+           10. FOOTER GLOBAL PROFESIONIST (Cu Iconițe și Tiktok)
+           ========================================================================== */
+        footer {
+            background: var(--c-footer-bg); padding: 80px 6vw 0; border-top: 1px solid var(--c-border-hairline);
+            display: flex; flex-direction: column; position: relative; z-index: 10;
+        }
+        .footer-grid {
+            display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 60px; padding-bottom: 56px;
+        }
+        .ft-col h4 { font-family: var(--font-display); font-size: 1.2rem; font-weight: 800; color: var(--c-white); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .ft-col p { font-size: 1rem; margin-bottom: 10px; color: var(--c-gray); }
+        .ft-mail {
+            display: inline-flex; align-items: center; gap: 8px; color: var(--c-accent) !important;
+            font-weight: 700; transition: color 0.25s var(--ease-out), gap 0.25s var(--ease-out);
+        }
+        .ft-mail:hover { color: var(--c-accent-2) !important; gap: 11px; }
+        .ft-mail i { font-size: 0.95em; }
+        .social-icons { display: flex; gap: 15px; margin-top: 20px; }
+        .soc-icon {
+            width: 45px; height: 45px; border-radius: 12px; border: 1px solid var(--c-border-strong);
+            display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--c-white);
+            transition: all var(--transition-fast); font-size: 1.2rem;
+        }
+        .soc-icon:hover { background: var(--c-white); color: var(--c-base); border-color: var(--c-white); }
+
+        /* Bară inferioară de footer: copyright + notă privind cookie-urile */
+        .footer-bottom {
+            border-top: 1px solid var(--c-border-hairline);
+            padding: 22px 0; display: flex; flex-wrap: wrap; gap: 10px 24px;
+            align-items: center; justify-content: space-between;
+            font-size: 0.82rem; color: var(--c-gray);
+        }
+        .footer-bottom a { color: var(--c-gray); transition: color 0.2s var(--ease-out); }
+        .footer-bottom a:hover { color: var(--c-accent); }
+
+        /* ==========================================================================
+           NOTĂ COOKIE-URI (banner discret, jos, fără să blocheze conținutul)
+           ========================================================================== */
+        .cookie-notice {
+            position: fixed; left: 20px; right: 20px; bottom: 20px; z-index: 9500;
+            max-width: 560px; margin: 0 auto;
+            display: flex; flex-wrap: wrap; align-items: center; gap: 16px;
+            background: var(--c-surface-elevated); border: 1px solid var(--c-border-strong);
+            border-radius: 16px; padding: 18px 20px;
+            box-shadow: 0 20px 50px var(--c-shadow-2);
+            backdrop-filter: blur(18px) saturate(var(--glass-saturation));
+            -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturation));
+            transform: translateY(140%); opacity: 0; pointer-events: none;
+            transition: transform 0.5s var(--ease-out), opacity 0.4s var(--ease-out);
+        }
+        .cookie-notice.is-visible { transform: translateY(0); opacity: 1; pointer-events: auto; }
+        .cookie-notice p { flex: 1 1 260px; margin: 0; font-size: 0.9rem; color: var(--c-white-off); line-height: 1.5; }
+        .cookie-notice p i { color: var(--c-accent); margin-right: 6px; }
+        .cookie-notice-btn {
+            flex: 0 0 auto; border: none; cursor: pointer; font-family: var(--font-main);
+            background: var(--c-accent); color: var(--c-base); font-weight: 800;
+            font-size: 0.9rem; padding: 10px 20px; border-radius: 10px;
+            transition: transform var(--transition-fast), background 0.25s var(--ease-out);
+        }
+        .cookie-notice-btn:hover { background: var(--c-accent-2); }
+        .cookie-notice-btn:active { transform: scale(0.96); }
+        @media (prefers-reduced-motion: reduce) {
+            .cookie-notice { transition: opacity 0.3s; transform: none; }
+        }
+
+        /* ==========================================================================
+           SEARCH (Command Palette)
+           ========================================================================== */
+        .nav-search-btn {
+            width: 45px; height: 45px; border-radius: 12px; border: 1px solid var(--c-border-strong);
+            background: transparent; display: flex; align-items: center; justify-content: center;
+            color: var(--c-white); font-size: 1.05rem; transition: all var(--transition-fast);
+        }
+        .nav-search-btn:hover { background: var(--c-white); color: var(--c-base); border-color: var(--c-white); }
+
+        .search-overlay {
+            /* z-index sub --z-cursor (9998): altfel cursor-ul custom (care rulează pe DESKTOP,
+               pointer fin) rămâne "sub" overlay și dispare din search — bug raportat.
+               9000 e oricum mult peste navbar, deci acoperă tot conținutul cum trebuie. */
+            position: fixed; inset: 0; z-index: 9000;
+            display: flex; align-items: flex-start; justify-content: center;
+            padding: 12vh 6vw 0;
+            background: rgba(8, 5, 13, 0.82);
+            backdrop-filter: blur(28px) saturate(var(--glass-saturation));
+            -webkit-backdrop-filter: blur(28px) saturate(var(--glass-saturation));
+            opacity: 0; visibility: hidden; pointer-events: none;
+            /* visibility comută abia DUPĂ ce s-a terminat fade-out-ul (delay = durata transition-ului
+               de opacity) — altfel elementul devine invizibil instant și animația de exit nu se vede deloc. */
+            transition: opacity 0.25s var(--ease-out), visibility 0s linear 0.25s;
+        }
+        .search-overlay.open {
+            opacity: 1; visibility: visible; pointer-events: auto;
+            transition: opacity 0.25s var(--ease-out), visibility 0s linear 0s;
+        }
+
+        .search-panel {
+            width: 100%; max-width: 620px; max-height: 68vh;
+            background: var(--c-surface-elevated); border: 1px solid var(--c-border-strong);
+            border-radius: 20px; box-shadow: 0 30px 80px var(--c-shadow-2);
+            display: flex; flex-direction: column; overflow: hidden;
+            transform: translateY(-16px) scale(0.98); opacity: 0;
+            transition: transform 0.3s var(--ease-out), opacity 0.3s var(--ease-out);
+        }
+        .search-overlay.open .search-panel { transform: translateY(0) scale(1); opacity: 1; }
+        /* La închidere, panoul se micșorează/dispare puțin mai rapid decât fundalul, ca ieșirea să pară intenționată */
+        .search-overlay:not(.open) .search-panel { transition: transform 0.2s var(--ease-in-out), opacity 0.2s var(--ease-in-out); }
+
+        .search-input-row {
+            display: flex; align-items: center; gap: 14px;
+            padding: 18px 18px 18px 22px; border-bottom: 1px solid var(--c-border);
+        }
+        .search-input-icon { color: var(--c-accent); font-size: 1.1rem; flex-shrink: 0; }
+        .search-input {
+            flex: 1; min-width: 0; background: none; border: none; outline: none;
+            font-family: var(--font-main); font-size: 1.15rem; font-weight: 600;
+            color: var(--c-white); cursor: text;
+        }
+        .search-input::placeholder { color: var(--c-gray); font-weight: 500; }
+        .search-close-btn {
+            width: 34px; height: 34px; border-radius: 10px;
+            border: 1px solid var(--c-border-strong);
+            background: var(--c-surface); color: var(--c-white-off);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            margin-left: auto;
+            transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+        }
+        .search-close-btn:hover { background: var(--c-white); color: var(--c-base); border-color: var(--c-white); }
+
+        .search-results { overflow-y: auto; padding: 10px; }
+        .search-results::-webkit-scrollbar { width: 6px; }
+        .search-results::-webkit-scrollbar-thumb { background: var(--c-border-med); border-radius: 10px; }
+
+        .search-result-group-label {
+            font-family: var(--font-display); font-size: 0.72rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.08em; color: var(--c-gray);
+            padding: 12px 12px 6px;
+        }
+        .search-result-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 12px; border-radius: 12px; cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+        .search-result-item:hover, .search-result-item.is-active { background: var(--c-overlay-hover); }
+        .search-result-icon {
+            width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+            background: rgba(245, 176, 39, 0.12); color: var(--c-accent);
+            display: flex; align-items: center; justify-content: center; font-size: 1rem;
+        }
+        .search-result-text { min-width: 0; }
+        .search-result-title { color: var(--c-white); font-weight: 700; font-size: 1rem; }
+        .search-result-sub { color: var(--c-gray); font-size: 0.88rem; margin-top: 1px; }
+        .search-result-title mark, .search-result-sub mark {
+            background: none; color: var(--c-accent); font-weight: 800;
+        }
+
+        .search-empty {
+            padding: 40px 20px; text-align: center; color: var(--c-gray); font-size: 0.98rem;
+        }
+
+        .search-hint {
+            display: flex; gap: 18px; padding: 12px 22px;
+            border-top: 1px solid var(--c-border); flex-wrap: wrap;
+        }
+        .search-hint span { font-size: 0.8rem; color: var(--c-gray); display: flex; align-items: center; gap: 6px; }
+        .search-hint kbd {
+            font-family: var(--font-main); font-size: 0.75rem; font-weight: 700; color: var(--c-white-off);
+            background: var(--c-surface); border: 1px solid var(--c-border-strong);
+            border-radius: 5px; padding: 2px 6px;
+        }
+        @media (max-width: 768px) {
+            .search-overlay { padding: 0; align-items: flex-end; }
+            .search-panel { max-width: 100%; max-height: 85vh; border-radius: 24px 24px 0 0; }
+            .search-input-row { padding: 22px 18px 18px 22px; }
+            .search-hint { display: none; }
+        }
+
+        /* ==========================================================================
+           MODAL: CONTACT PERSOANĂ (Decan / Prodecani — date preluate de pe chimie.upb.ro)
+           ========================================================================== */
+        .contact-overlay {
+            position: fixed; inset: 0; z-index: 9200;
+            display: flex; align-items: center; justify-content: center;
+            padding: 5vh 6vw;
+            background: rgba(8, 5, 13, 0.82);
+            backdrop-filter: blur(28px) saturate(var(--glass-saturation));
+            -webkit-backdrop-filter: blur(28px) saturate(var(--glass-saturation));
+            opacity: 0; visibility: hidden; pointer-events: none;
+            transition: opacity 0.25s var(--ease-out), visibility 0s linear 0.25s;
+        }
+        .contact-overlay.open {
+            opacity: 1; visibility: visible; pointer-events: auto;
+            transition: opacity 0.25s var(--ease-out), visibility 0s linear 0s;
+        }
+        .contact-card {
+            position: relative; width: 100%; max-width: 640px; max-height: 88vh; overflow-y: auto;
+            background: var(--c-surface-elevated); border: 1px solid var(--c-border-strong);
+            border-radius: 24px; box-shadow: 0 30px 80px var(--c-shadow-2);
+            display: flex; flex-direction: row;
+            transform: translateY(-16px) scale(0.98); opacity: 0;
+            transition: transform 0.3s var(--ease-out), opacity 0.3s var(--ease-out);
+        }
+        .contact-overlay.open .contact-card { transform: translateY(0) scale(1); opacity: 1; }
+        .contact-close-btn {
+            position: absolute; top: 16px; right: 16px; z-index: 2;
+            width: 38px; height: 38px; border-radius: 10px;
+            border: 1px solid var(--c-border-strong);
+            background: rgba(16,11,25,0.55); color: var(--c-white-off);
+            display: flex; align-items: center; justify-content: center;
+            transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+        }
+        .contact-close-btn:hover { background: var(--c-white); color: var(--c-base); border-color: var(--c-white); }
+        .contact-photo {
+            flex: 0 0 40%; min-height: 260px;
+            background: linear-gradient(145deg, var(--c-surface), var(--c-surface-elevated));
+            position: relative; overflow: hidden;
+        }
+        .contact-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .contact-body { flex: 1 1 auto; padding: 40px 36px; min-width: 0; }
+        .contact-role {
+            display: inline-block; font-size: 0.78rem; font-weight: 800; color: var(--c-base);
+            text-transform: uppercase; letter-spacing: 1px; background: var(--c-accent);
+            padding: 5px 12px; border-radius: 4px; margin-bottom: 14px;
+        }
+        .contact-body h3 { font-size: 1.7rem; margin-bottom: 4px; }
+        .contact-title { color: var(--c-gray); font-size: 0.98rem; font-weight: 600; margin-bottom: 24px; }
+        .contact-lines { display: flex; flex-direction: column; gap: 14px; margin-bottom: 26px; }
+        .contact-lines a, .contact-lines span {
+            display: flex; align-items: flex-start; gap: 12px;
+            color: var(--c-white-off); font-size: 0.98rem; line-height: 1.5;
+        }
+        .contact-lines a { transition: color 0.2s var(--ease-out); }
+        .contact-lines a:hover { color: var(--c-accent); }
+        .contact-lines i { color: var(--c-accent); width: 18px; text-align: center; margin-top: 3px; flex-shrink: 0; }
+        .contact-link {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-weight: 800; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--c-accent);
+        }
+        .contact-link:hover { color: var(--c-accent-2); }
+        @media (max-width: 700px) {
+            .contact-card { flex-direction: column; max-height: 90vh; }
+            .contact-photo { flex: 0 0 auto; aspect-ratio: 4/3; min-height: 0; }
+            .contact-body { padding: 28px 24px 32px; }
+        }
+
+        /* Highlight temporar aplicat rezultatului spre care s-a navigat */
+        @keyframes searchTargetPulse {
+            0%, 100% { box-shadow: 0 0 0 0 var(--c-accent-glow); }
+            50% { box-shadow: 0 0 0 8px transparent; }
+        }
+        .search-target-highlight { animation: searchTargetPulse 1.1s var(--ease-out) 2; border-radius: 14px; }
+
+        /* Media Queries */
+        @media (max-width: 1024px) {
+            .home-about-extended { grid-template-columns: 1fr; gap: 40px; }
+            .gallery-grid { columns: 3 250px; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            .nav-burger { display: flex; }
+            .nav-links {
+                position: fixed; top: 90px; left: 0; width: 100%; height: calc(100vh - 90px);
+                flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+                /* Fundal solid, opac — fără blur/glass. Compatibil peste tot (inclusiv WebView-uri
+                   mobile care nu suportă backdrop-filter), fără riscul ca ce e dedesubt să se vadă. */
+                background: #0e0916;
+                border-left: 1px solid var(--c-border-soft);
+                transform: translateX(4%); opacity: 0; visibility: hidden;
+                transition: transform 0.45s var(--ease-out), opacity 0.4s var(--ease-out), visibility 0s linear 0.45s;
+                pointer-events: none;
+            }
+            .nav-links.nav-open {
+                transform: translateX(0); opacity: 1; visibility: visible; pointer-events: auto;
+                transition: transform 0.45s var(--ease-out), opacity 0.4s var(--ease-out), visibility 0s linear 0s;
+            }
+            /* Fiecare link intră individual, cu mic delay în cascadă, în loc să apară tot blocul deodată */
+            .nav-links li { opacity: 0; transform: translateY(16px); transition: opacity 0.4s var(--ease-out), transform 0.4s var(--ease-out); width: 78%; max-width: 340px; }
+            .nav-links.nav-open li { opacity: 1; transform: translateY(0); }
+            .nav-links.nav-open li:nth-child(1) { transition-delay: 0.10s; }
+            .nav-links.nav-open li:nth-child(2) { transition-delay: 0.16s; }
+            .nav-links.nav-open li:nth-child(3) { transition-delay: 0.22s; }
+            .nav-links.nav-open li:nth-child(4) { transition-delay: 0.28s; }
+            .nav-links.nav-open li:nth-child(5) { transition-delay: 0.34s; }
+            .nav-links.nav-open li:nth-child(6) { transition-delay: 0.40s; }
+            @media (prefers-reduced-motion: reduce) {
+                .nav-links, .nav-links li { transition: opacity 0.25s !important; transform: none !important; }
+            }
+            /* Butoane simple, plate: pastilă cu bordură subtilă. Starea activă e doar
+               o culoare de fundal solidă (accent), fără gradient — simplu și robust. */
+            .nav-links .nav-link {
+                display: block; width: 100%; text-align: center;
+                font-size: 1.05rem; padding: 16px 20px; border-radius: 12px;
+                position: relative;
+                background: var(--c-surface-elevated);
+                border: 1px solid var(--c-border-soft);
+                transition: color 0.3s var(--ease-out), background 0.3s var(--ease-out), border-color 0.3s var(--ease-out), transform var(--transition-fast);
+            }
+            .nav-links .nav-link::after { display: none; }
+            .nav-links .nav-link:active { transform: scale(0.97); }
+            .nav-links .nav-link.active {
+                color: var(--c-base); font-weight: 900;
+                background: var(--c-accent);
+                border-color: transparent;
+            }
+            @media (prefers-reduced-motion: reduce) {
+                .nav-links .nav-link { transition-duration: 0.15s; }
+            }
+            .gallery-grid { columns: 2 150px; }
+            footer { padding: 60px 6vw 0; }
+            .footer-grid { grid-template-columns: 1fr; gap: 40px; padding-bottom: 40px; }
+            .footer-bottom { padding: 18px 0 26px; font-size: 0.78rem; }
+            .title-huge { font-size: 2.5rem; line-height: 1.15; letter-spacing: -0.5px; }
+            .home-stat span { font-size: 4rem; }
+
+            /* Mai puțin spațiu "mort": clearance-uri și margini uriașe recalibrate pt. ecrane mici */
+            .page-content { padding: 130px 6vw 70px; }
+            /* Hero pe tot ecranul la deschiderea Acasă: video + textul care se scrie umplu integral viewport-ul */
+            .hero { height: 100vh; height: 100svh; padding: 0 6vw; }
+            .home-extended-area { padding: 56px 6vw; }
+            .home-huge-stats { gap: 24px; margin-bottom: 56px; padding-bottom: 36px; }
+            .home-stat { min-width: 45%; }
+            .home-about-extended { margin-bottom: 56px; }
+            .home-about-extended h2 { font-size: 2.2rem; }
+            .home-about-extended p { font-size: 1.05rem; margin-bottom: 14px; }
+            .instagram-embed-wrapper { margin: 0 auto 70px; }
+            .ig-embed-frame { padding: 8px; }
+
+            .horizontal-nav { margin-bottom: 36px; justify-content: flex-start; }
+            .horizontal-tab { padding: 10px 18px; font-size: 0.92rem; }
+            .dept-intro { padding-bottom: 22px; margin-bottom: 32px; }
+            .dept-intro p { font-size: 1.08rem; }
+            .team-grid { grid-template-columns: 1fr; gap: 40px; }
+            .team-photo { aspect-ratio: 4/5; }
+            .team-name { font-size: 1.15rem; }
+            .event-desc { font-size: 1.05rem; margin-bottom: 24px; }
+            .carousel-container { margin-top: 20px; }
+        }
+        @media (max-width: 430px) {
+            /* Widget-ul oficial Instagram cere min-width:326px pe blockquote. Sub 430px,
+               padding-ul ramei + padding-ul lateral al secțiunii puteau lăsa mai puțin loc
+               decât atât, iar rama tăia/strângea postarea. Reducem paddingurile ca să
+               rămână mereu destul spațiu; overflow-x:auto (mai sus) e plasa de siguranță
+               dacă totuși nu încape pe un telefon foarte îngust. */
+            .home-extended-area { padding: 56px 3vw; }
+            .ig-embed-frame { padding: 4px; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Confidențialitate: acest site nu colectează date despre vizitatori. Orice cookie tehnic
+         (dacă e vreodată setat, de ex. de un script extern) e șters automat la fiecare încărcare
+         a paginii, ca sesiunea să pornească mereu "curată". -->
+    <script>
+        (function clearAllCookiesOnInit() {
+            try {
+                document.cookie.split(';').forEach(function (c) {
+                    const name = c.split('=')[0].trim();
+                    if (!name) return;
+                    document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                    document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + location.hostname + ';';
+                });
+            } catch (e) { /* ignorăm — unele browsere blochează accesul la document.cookie, ceea ce e oricum OK aici */ }
+        })();
+    </script>
+
+    <!-- Cinematic Noise & Cursor -->
+    <div class="noise"></div>
+    <div class="cursor" id="cursor"></div>
+
+    <!-- Bară de progres al scroll-ului -->
+    <div class="scroll-progress" aria-hidden="true"><div class="scroll-progress-fill" id="scrollProgressFill"></div></div>
+
+    <!-- Swipe Trans -->
+    <div class="swipe-container" id="swiper">
+        <div class="swipe-bar"></div>
+        <div class="swipe-bar"></div>
+    </div>
+
+
+    <!-- Nav (Liquid Glass) -->
+    <nav>
+        <div class="logo hover-target" onclick="navigate('home')">
+            <!-- Asigurăm vizibilitatea textului în lipsa imaginii -->
+            <span style="display:flex; align-items:center;">SS<i style="margin-left:2px;">IC</i></span>
+        </div>
+        <ul class="nav-links" id="navLinks">
+            <li><a class="nav-link active hover-target" data-target="home" onclick="navigate('home')">Acasă</a></li>
+            <li><a class="nav-link hover-target" data-target="impact" onclick="navigate('impact')">Evenimente</a></li>
+            <li><a class="nav-link hover-target" data-target="board" onclick="navigate('board')">Board</a></li>
+            <li><a class="nav-link hover-target" data-target="facultate" onclick="navigate('facultate')">Facultate</a></li>
+            <li><a class="nav-link hover-target" data-target="camine" onclick="navigate('camine')">Cămine</a></li>
+            <li><a class="nav-link hover-target" data-target="gallery" onclick="navigate('gallery')">Galerie</a></li>
+        </ul>
+        <div class="nav-right">
+            <button class="nav-search-btn hover-target" id="navSearchBtn" aria-label="Caută în site" aria-haspopup="dialog" aria-expanded="false" aria-controls="searchOverlay">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+            <button class="nav-burger hover-target" id="navBurger" aria-label="Deschide meniul" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ================= SEARCH OVERLAY (Command Palette) ================= -->
+    <div class="search-overlay" id="searchOverlay" role="dialog" aria-modal="true" aria-label="Căutare în site">
+        <div class="search-panel">
+            <div class="search-input-row">
+                <i class="fa-solid fa-magnifying-glass search-input-icon"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Caută membri, evenimente, secțiuni…" autocomplete="off" spellcheck="false">
+                <button class="search-close-btn hover-target" id="searchCloseBtn" aria-label="Închide căutarea">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="search-results" id="searchResults"></div>
+            <div class="search-hint">
+                <span><kbd>↑</kbd><kbd>↓</kbd> navighează</span>
+                <span><kbd>Enter</kbd> selectează</span>
+                <span><kbd>Esc</kbd> închide</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: CONTACT PERSOANĂ (Decan/Prodecani) ================= -->
+    <div class="contact-overlay" id="contactOverlay" role="dialog" aria-modal="true" aria-labelledby="contactName">
+        <div class="contact-card">
+            <button class="contact-close-btn hover-target" id="contactCloseBtn" aria-label="Închide">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="contact-photo" id="contactPhoto"></div>
+            <div class="contact-body">
+                <div class="contact-role" id="contactRole"></div>
+                <h3 id="contactName"></h3>
+                <div class="contact-title" id="contactTitle"></div>
+                <div class="contact-lines" id="contactLines"></div>
+                <a href="#" id="contactPersonalLink" class="contact-link hover-target" target="_blank" rel="noopener">
+                    Pagina personală UPB <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ==========================================================================
+           JS: MODAL CONTACT PERSOANĂ (Decan / Prodecani)
+           Date preluate manual de pe chimie.upb.ro/administratie/conducerea-facultatii
+           (nume, titlu, e-mail, telefon, birou, departament, pagină personală, poză).
+           ========================================================================== */
+        const contactData = {
+            orbeci: {
+                role: 'Decan',
+                title: 'Prof. dr. ing.',
+                name: 'Cristina Orbeci',
+                email: 'cristina.orbeci@upb.ro',
+                phone: '+4 021 402 3822',
+                office: 'Str. Gheorghe Polizu, nr. 1-7, sector 1, București, corp C, sala 105',
+                dept: 'Departamentul de Chimie Analitică și Ingineria Mediului',
+                personalUrl: 'https://chimie.upb.ro/departamente/chimie-analitica-si-ingineria-mediului/colectiv/orbeci-cristina',
+                photo: 'https://chimie.upb.ro/administrare/content/img/personal/didactic/chimie-analitica-si-ingineria-mediului/orbeci-cristina/img.jpg'
+            },
+            stoleriu: {
+                role: 'Prodecan',
+                title: 'Prof. dr. ing.',
+                name: 'Ștefania Paula Stoleriu',
+                email: 'stefania.stoleriu@upb.ro',
+                phone: '+4 021 402 3997',
+                office: 'Str. Gheorghe Polizu, nr. 1-7, sector 1, București, corp I, sala 026',
+                dept: 'Departamentul de Știința și Ingineria Materialelor Oxidice și Nanomateriale',
+                personalUrl: 'https://chimie.upb.ro/departamente/stiinta-si-ingineria-materialelor-oxidice-si-nanomaterialelor/colectiv/stoleriu-stefania-paula',
+                photo: 'https://chimie.upb.ro/administrare/content/img/personal/didactic/stiinta-si-ingineria-materialelor-oxidice-si-nanomaterialelor/stoleriu-stefania-paula/img.jpg'
+            },
+            pirvu: {
+                role: 'Prodecan',
+                title: 'Prof. dr. ing.',
+                name: 'Cristian Pîrvu',
+                email: 'cristian.pirvu@upb.ro',
+                phone: '+4 021 402 3894',
+                office: 'Str. Gheorghe Polizu, nr. 1-7, sector 1, București, corp R, sala 024',
+                dept: 'Departamentul de Chimie Generală',
+                personalUrl: 'https://chimie.upb.ro/departamente/chimie-generala/colectiv/pirvu-cristian',
+                photo: 'https://chimie.upb.ro/administrare/content/img/personal/didactic/chimie-generala/pirvu-cristian/img.jpg'
+            },
+            todasca: {
+                role: 'Prodecan',
+                title: 'Ș. l. dr. ing.',
+                name: 'Maria Cristina Todașcă',
+                email: 'cristina.todasca@upb.ro',
+                phone: '+4 021 402 3887',
+                office: 'Str. Gheorghe Polizu, nr. 1-7, sector 1, București, corp P, sala 014',
+                dept: "Departamentul de Chimie Organică 'Costin Nenițescu'",
+                personalUrl: 'https://chimie.upb.ro/departamente/chimie-organica/colectiv/todasca-maria-cristina',
+                photo: 'https://chimie.upb.ro/administrare/content/img/personal/didactic/chimie-organica/todasca-maria-cristina/img.jpg'
+            },
+            biru: {
+                role: 'Prodecan',
+                title: 'Conf. dr. ing.',
+                name: 'Elena Iuliana Bîru',
+                email: 'iuliana.biru@upb.ro',
+                phone: '+4 021 402 2703',
+                office: 'Str. Gheorghe Polizu, nr. 1-7, sector 1, București, corp A, sala 126',
+                dept: 'Departamentul de Bioresurse și Știința Polimerilor',
+                personalUrl: 'https://chimie.upb.ro/departamente/bioresurse-si-stiinta-polimerilor/colectiv/biru-elena-iuliana',
+                photo: 'https://chimie.upb.ro/administrare/content/img/personal/didactic/bioresurse-si-stiinta-polimerilor/biru-elena-iuliana/img.jpg'
+            }
+        };
+
+        (function () {
+            const overlay = document.getElementById('contactOverlay');
+            const closeBtn = document.getElementById('contactCloseBtn');
+            const photoEl = document.getElementById('contactPhoto');
+            const roleEl = document.getElementById('contactRole');
+            const nameEl = document.getElementById('contactName');
+            const titleEl = document.getElementById('contactTitle');
+            const linesEl = document.getElementById('contactLines');
+            const personalLink = document.getElementById('contactPersonalLink');
+            if (!overlay) return;
+
+            let lastFocused = null;
+
+            window.openContact = function (id) {
+                const p = contactData[id];
+                if (!p) return;
+                if (typeof haptic === 'function') haptic(10);
+
+                photoEl.innerHTML = `<img src="${p.photo}" alt="${p.name}" loading="lazy">`;
+                roleEl.textContent = p.role;
+                nameEl.textContent = p.name;
+                titleEl.textContent = p.title;
+                linesEl.innerHTML = `
+                    <a href="mailto:${p.email}" class="hover-target"><i class="fa-regular fa-envelope"></i> ${p.email}</a>
+                    <a href="tel:${p.phone.replace(/\s+/g, '')}" class="hover-target"><i class="fa-solid fa-phone"></i> ${p.phone}</a>
+                    <span><i class="fa-solid fa-location-dot"></i> ${p.office}</span>
+                    <span><i class="fa-solid fa-building-columns"></i> ${p.dept}</span>
+                `;
+                personalLink.href = p.personalUrl;
+
+                lastFocused = document.activeElement;
+                overlay.classList.add('open');
+                overlay.setAttribute('aria-hidden', 'false');
+                setTimeout(() => closeBtn.focus(), 50);
+            };
+
+            function closeContact() {
+                overlay.classList.remove('open');
+                overlay.setAttribute('aria-hidden', 'true');
+                if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+            }
+            window.closeContact = closeContact;
+
+            closeBtn.addEventListener('click', closeContact);
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) closeContact(); });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && overlay.classList.contains('open')) closeContact();
+            });
+        })();
+    </script>
+
+    <!-- SPA Root -->
+    <main class="app">
+        
+        <!-- ================= VIEW: ACASĂ ================= -->
+        <section class="view active" id="view-home">
+            
+            <div class="hero">
+                <!--
+                    VIDEO DE FUNDAL — pune fișierul tău aici:
+                    1. Creează folderul assets/video/ lângă acest index.html
+                    2. Exportă reel-ul din Instagram ca .mp4 (fără watermark, ideal <15MB pt. încărcare rapidă)
+                    3. Denumește-l exact "hero-background.mp4" și pune-l în assets/video/
+                    4. (Opțional) Un poster/thumbnail static "hero-poster.jpg" în același folder — se vede
+                       instant, cât timp video-ul se încarcă, și pe conexiuni foarte lente.
+                    Dacă fișierul lipsește, video-ul dispare automat și rămân blob-urile + gradientul (arată bine oricum).
+                -->
+                <video class="hero-video" id="heroVideo" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="assets/video/hero-poster.jpg">
+                    <source src="assets/video/hero-background.mp4" type="video/mp4">
+                </video>
+                <div class="hero-ambient"><span></span><span></span></div>
+                <div class="hero-grad"></div>
+                <div class="hero-content">
+                    <h1 class="title-huge">
+                        <span class="typed-line" aria-hidden="true"><span class="typed-text" id="heroTyped"></span><span class="typed-cursor" id="heroCursor"></span></span>
+                        <span class="sr-only">Inovație în Inginerie Chimică</span>
+                        <br><i>Inginerie Chimică</i>
+                    </h1>
+                </div>
+            </div>
+
+            <div class="home-extended-area">
+                
+                <div class="home-huge-stats">
+                    <div class="home-stat reveal">
+                        <span data-count-to="200" data-suffix="+">0+</span>
+                        <p>Voluntari Activi</p>
+                    </div>
+                    <div class="home-stat reveal" style="--r-delay:0.12s;">
+                        <span data-count-to="3" data-suffix="+">0+</span>
+                        <p>Ani de Activitate Continuă</p>
+                    </div>
+                </div>
+
+                <div class="home-about-extended">
+                    <div class="reveal">
+                        <h2>Cine suntem</h2>
+                        <p>Societatea Studenților în Inginerie Chimică și Biotehnologii (SSIC) este organizația studențească reprezentativă pentru studenții Facultății de Inginerie Chimică și Biotehnologii din cadrul Universității Politehnica din București. Înființată în anul 2023, din dorința de a sprijini și reprezenta interesele studenților, SSIC s-a afirmat ca un exemplu de implicare și profesionalism în rândul organizațiilor studențești.</p>
+                    </div>
+                    <div class="reveal" style="--r-delay:0.12s;">
+                        <h2>Misiunea noastră</h2>
+                        <p>Misiunea SSIC este de a sprijini dezvoltarea academică, profesională și personală a voluntarilor săi, prin cultivarea unui mediu activ, colaborativ și orientat spre excelență. Participarea constantă la evenimente precum PoliFest și PoliChemistryFest, alături de inițierea programului național de schimb de experiență ChemEx, reflectă angajamentul SSIC față de formarea continuă și implicarea comunitară.</p>
+                        <p>Cu activitate susținută și ambițioasă, SSIC contribuie activ la consolidarea unei comunități de tineri ingineri pasionați de știință, inovație și responsabilitate, capabili să dezvolte soluții sustenabile și relevante în domeniile ingineriei chimice și biotehnologiilor.</p>
+                    </div>
+                </div>
+
+                <!-- ==========================================================================
+                     ULTIMA POSTARE INSTAGRAM — Embed manual (fără API, fără cont de admin necesar)
+
+                     CUM ACTUALIZEZI (durează 30 de secunde, de fiecare dată când postați ceva nou):
+                       1. Deschide postarea dorită pe instagram.com (din browser, nu din aplicație).
+                       2. Click pe cele trei puncte "···" din colțul din dreapta sus al postării.
+                       3. Alege "Embed" (Încorporare).
+                       4. Copiază tot codul care apare (începe cu <blockquote class="instagram-media" ...>).
+                       5. Șterge blocul <blockquote> de mai jos (dintre marcajele START/END) și lipește
+                          codul nou copiat exact în locul lui. Nu șterge și scriptul embed.js de la
+                          finalul paginii — acela e nevoie o singură dată, procesează orice <blockquote>.
+                       6. Salvează fișierul. Gata — postarea reală apare, cu poză, like-uri și caption,
+                          exact ca pe Instagram.
+
+                     Până pui o postare reală, rămâne vizibil cardul de mai jos (linkul către profil). -->
+                <div class="instagram-embed-wrapper reveal" id="ig-embed-wrapper">
+                    <div class="ig-embed-eyebrow"><i class="fab fa-instagram"></i> Ultima postare</div>
+                    <div class="ig-embed-frame">
+
+                    <!-- IG-EMBED-START — înlocuiește tot ce e între START și END cu codul copiat de la pasul 4 -->
+                    <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/DcoXrGZDYgJ/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" style=" background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px; max-width:400px; min-width:326px; padding:0; width:99.375%; width:-webkit-calc(100% - 2px); width:calc(100% - 2px);"><div style="padding:16px;"> <a href="https://www.instagram.com/p/DcoXrGZDYgJ/?utm_source=ig_embed&amp;utm_campaign=loading" style=" background:#FFFFFF; line-height:0; padding:0 0; text-align:center; text-decoration:none; width:100%;" target="_blank"> <div style=" display: flex; flex-direction: row; align-items: center;"> <div style="background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 40px; margin-right: 14px; width: 40px;"></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 100px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 60px;"></div></div></div><div style="padding: 19% 0;"></div> <div style="display:block; height:50px; margin:0 auto 12px; width:50px;"><svg width="50px" height="50px" viewBox="0 0 60 60" version="1.1" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g transform="translate(-511.000000, -20.000000)" fill="#000000"><g><path d="M556.869,30.41 C554.814,30.41 553.148,32.076 553.148,34.131 C553.148,36.186 554.814,37.852 556.869,37.852 C558.924,37.852 560.59,36.186 560.59,34.131 C560.59,32.076 558.924,30.41 556.869,30.41 M541,60.657 C535.114,60.657 530.342,55.887 530.342,50 C530.342,44.114 535.114,39.342 541,39.342 C546.887,39.342 551.658,44.114 551.658,50 C551.658,55.887 546.887,60.657 541,60.657 M541,33.886 C532.1,33.886 524.886,41.1 524.886,50 C524.886,58.899 532.1,66.113 541,66.113 C549.9,66.113 557.115,58.899 557.115,50 C557.115,41.1 549.9,33.886 541,33.886 M565.378,62.101 C565.244,65.022 564.756,66.606 564.346,67.663 C563.803,69.06 563.154,70.057 562.106,71.106 C561.058,72.155 560.06,72.803 558.662,73.347 C557.607,73.757 556.021,74.244 553.102,74.378 C549.944,74.521 548.997,74.552 541,74.552 C533.003,74.552 532.056,74.521 528.898,74.378 C525.979,74.244 524.393,73.757 523.338,73.347 C521.94,72.803 520.942,72.155 519.894,71.106 C518.846,70.057 518.197,69.06 517.654,67.663 C517.244,66.606 516.755,65.022 516.623,62.101 C516.479,58.943 516.448,57.996 516.448,50 C516.448,42.003 516.479,41.056 516.623,37.899 C516.755,34.978 517.244,33.391 517.654,32.338 C518.197,30.938 518.846,29.942 519.894,28.894 C520.942,27.846 521.94,27.196 523.338,26.654 C524.393,26.244 525.979,25.756 528.898,25.623 C532.057,25.479 533.004,25.448 541,25.448 C548.997,25.448 549.943,25.479 553.102,25.623 C556.021,25.756 557.607,26.244 558.662,26.654 C560.06,27.196 561.058,27.846 562.106,28.894 C563.154,29.942 563.803,30.938 564.346,32.338 C564.756,33.391 565.244,34.978 565.378,37.899 C565.522,41.056 565.552,42.003 565.552,50 C565.552,57.996 565.522,58.943 565.378,62.101 M570.82,37.631 C570.674,34.438 570.167,32.258 569.425,30.349 C568.659,28.377 567.633,26.702 565.965,25.035 C564.297,23.368 562.623,22.342 560.652,21.575 C558.743,20.834 556.562,20.326 553.369,20.18 C550.169,20.033 549.148,20 541,20 C532.853,20 531.831,20.033 528.631,20.18 C525.438,20.326 523.257,20.834 521.349,21.575 C519.376,22.342 517.703,23.368 516.035,25.035 C514.368,26.702 513.342,28.377 512.574,30.349 C511.834,32.258 511.326,34.438 511.181,37.631 C511.035,40.831 511,41.851 511,50 C511,58.147 511.035,59.17 511.181,62.369 C511.326,65.562 511.834,67.743 512.574,69.651 C513.342,71.625 514.368,73.296 516.035,74.965 C517.703,76.634 519.376,77.658 521.349,78.425 C523.257,79.167 525.438,79.673 528.631,79.82 C531.831,79.965 532.853,80.001 541,80.001 C549.148,80.001 550.169,79.965 553.369,79.82 C556.562,79.673 558.743,79.167 560.652,78.425 C562.623,77.658 564.297,76.634 565.965,74.965 C567.633,73.296 568.659,71.625 569.425,69.651 C570.167,67.743 570.674,65.562 570.82,62.369 C570.966,59.17 571,58.147 571,50 C571,41.851 570.966,40.831 570.82,37.631"></path></g></g></g></svg></div><div style="padding-top: 8px;"> <div style=" color:#3897f0; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:550; line-height:18px;">View this post on Instagram</div></div><div style="padding: 12.5% 0;"></div> <div style="display: flex; flex-direction: row; margin-bottom: 14px; align-items: center;"><div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(0px) translateY(7px);"></div> <div style="background-color: #F4F4F4; height: 12.5px; transform: rotate(-45deg) translateX(3px) translateY(1px); width: 12.5px; flex-grow: 0; margin-right: 14px; margin-left: 2px;"></div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(9px) translateY(-18px);"></div></div><div style="margin-left: 8px;"> <div style=" background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 20px; width: 20px;"></div> <div style=" width: 0; height: 0; border-top: 2px solid transparent; border-left: 6px solid #f4f4f4; border-bottom: 2px solid transparent; transform: translateX(16px) translateY(-4px) rotate(30deg)"></div></div><div style="margin-left: auto;"> <div style=" width: 0px; border-top: 8px solid #F4F4F4; border-right: 8px solid transparent; transform: translateY(16px);"></div> <div style=" background-color: #F4F4F4; flex-grow: 0; height: 12px; width: 16px; transform: translateY(-4px);"></div> <div style=" width: 0; height: 0; border-top: 8px solid #F4F4F4; border-left: 8px solid transparent; transform: translateY(-4px) translateX(8px);"></div></div></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center; margin-bottom: 24px;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 224px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 144px;"></div></div></a><p style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; line-height:17px; margin-bottom:0; margin-top:8px; overflow:hidden; padding:8px 0 7px; text-align:center; text-overflow:ellipsis; white-space:nowrap;"><a href="https://www.instagram.com/p/DcoXrGZDYgJ/?utm_source=ig_embed&amp;utm_campaign=loading" style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:normal; line-height:17px; text-decoration:none;" target="_blank">A post shared by SSIC (@ssic.upb)</a></p></div></blockquote>
+                    <!-- IG-EMBED-END -->
+
+                    </div>
+                </div>
+
+            </div>
+
+            <footer class="global-footer"></footer>
+        </section>
+
+        <!-- ================= VIEW: IMPACT (Orizontal, Fără widget bouncy, Cu Carusele curate) ================= -->
+        <section class="view" id="view-impact">
+            <div class="page-content">
+                <h1 class="title-huge"><i>Evenimente</i></h1>
+
+                <!-- Poze evenimente: creează folderul assets/events/ lângă acest index.html și
+                     pune acolo poza pentru fiecare eveniment, denumită exact ca în src="..." de mai
+                     jos (ex. poli-chemistry-fest-1.jpg). Dacă un fișier lipsește, acel slide dispare
+                     automat din carusel (fără poză spartă vizibilă). -->
+                <div class="horizontal-nav" id="nav-impact">
+                    <div class="horizontal-tab active hover-target" onclick="switchEvent(0, this)">Poli Chemistry Fest</div>
+                    <div class="horizontal-tab hover-target" onclick="switchEvent(1, this)">Poli Fest</div>
+                    <div class="horizontal-tab hover-target" onclick="switchEvent(2, this)">ChemEx</div>
+                </div>
+
+                <div class="event-content-wrapper active" id="ev-0">
+                    <div class="event-desc reveal">
+                        <p>Poli Chemistry Fest este platforma unde inovațiile din chimie și biotehnologii prind viață. Aducem știința direct publicului larg printr-un maraton de demonstrații, interacțiuni cu cercetători de top și experimente avansate. Tinerii descoperă aici magia sintezei de noi materiale și a aplicațiilor din industria farma.</p>
+                    </div>
+                    <!-- Carusel Simplu Insta-Style (Fără gradient) -->
+                    <div class="carousel-container hover-target reveal">
+                        <div class="carousel-track" id="carousel-ev0">
+                            <div class="carousel-slide"><img src="assets/events/poli-chemistry-fest-1.jpg" alt="Poli Chemistry Fest 1" onerror="this.parentElement.remove()"></div>
+                            <div class="carousel-slide"><img src="assets/events/poli-chemistry-fest-2.jpg" alt="Poli Chemistry Fest 2" onerror="this.parentElement.remove()"></div>
+                        </div>
+                        <div class="carousel-dots" id="dots-ev0">
+                            <div class="carousel-dot active"></div>
+                            <div class="carousel-dot"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="event-content-wrapper" id="ev-1">
+                    <div class="event-desc reveal">
+                        <p>Implicarea SSIC în Poli Fest subliniază dedicarea noastră de a reprezenta și de a promova ingineria la nivel universitar. Efortul combinat al departamentelor noastre creează standuri vizitate de mii de elevi și studenți, solidificând poziția noastră ca asociație pilon în cadrul universității.</p>
+                    </div>
+                    <div class="carousel-container hover-target reveal">
+                        <div class="carousel-track" id="carousel-ev1">
+                            <div class="carousel-slide"><img src="assets/events/poli-fest-1.jpg" alt="Poli Fest 1" onerror="this.parentElement.remove()"></div>
+                            <div class="carousel-slide"><img src="assets/events/poli-fest-2.jpg" alt="Poli Fest 2" onerror="this.parentElement.remove()"></div>
+                            <div class="carousel-slide"><img src="assets/events/poli-fest-3.jpg" alt="Poli Fest 3" onerror="this.parentElement.remove()"></div>
+                        </div>
+                        <div class="carousel-dots" id="dots-ev1">
+                            <div class="carousel-dot active"></div>
+                            <div class="carousel-dot"></div>
+                            <div class="carousel-dot"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="event-content-wrapper" id="ev-2">
+                    <div class="event-desc reveal">
+                        <p>ChemEx este proiectul flagship care redefinește dezvoltarea profesională a viitorilor chimiști. Schimburile de experiență, conferințele avansate, vizitele la unități de producție și networking-ul cu directorii tehnici facilitează o tranziție rapidă și de succes spre piața muncii.</p>
+                    </div>
+                    <div class="carousel-container hover-target reveal">
+                        <div class="carousel-track" id="carousel-ev2">
+                            <div class="carousel-slide"><img src="assets/events/chemex-1.jpg" alt="ChemEx 1" onerror="this.parentElement.remove()"></div>
+                            <div class="carousel-slide"><img src="assets/events/chemex-2.jpg" alt="ChemEx 2" onerror="this.parentElement.remove()"></div>
+                        </div>
+                        <div class="carousel-dots" id="dots-ev2">
+                            <div class="carousel-dot active"></div>
+                            <div class="carousel-dot"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="calendar-section reveal">
+                    <h2><i class="fa-solid fa-calendar-days" style="color:var(--c-accent); margin-right:10px;"></i>Calendar</h2>
+                    <div class="calendar-list">
+                        <div class="calendar-item hover-target">
+                            <div class="calendar-date"><span class="cal-day">28</span><span class="cal-month">Sep</span></div>
+                            <div class="calendar-info">
+                                <h3>DiscoverSSIC</h3>
+                                <p>Detalii în curând</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <footer class="global-footer"></footer>
+        </section>
+
+        <!-- ================= VIEW: BOARD & STRUCTURĂ ================= -->
+        <section class="view" id="view-board">
+            <div class="page-content">
+                <h1 class="title-huge">Structura <i>Board-ului</i></h1>
+                
+                <div class="horizontal-nav" id="nav-board">
+                    <div class="horizontal-tab active hover-target" onclick="switchDept('dept-cd', this)">Consiliu Director</div>
+                    <div class="horizontal-tab hover-target" onclick="switchDept('dept-hr', this)">HR</div>
+                    <div class="horizontal-tab hover-target" onclick="switchDept('dept-pr', this)">PR</div>
+                    <div class="horizontal-tab hover-target" onclick="switchDept('dept-fr', this)">Fundraising</div>
+                    <div class="horizontal-tab hover-target" onclick="switchDept('dept-ev', this)">Evenimente</div>
+                </div>
+
+                <!-- CD -->
+                <div class="board-dept active" id="dept-cd">
+                    <!-- Text normal static (Fără colapsare și fără bordură galbenă) -->
+                    <div class="dept-intro reveal">
+                        <p>Echipa executivă care trasează direcțiile strategice, supervizează bugetele majore și asigură funcționarea fluidă a tuturor departamentelor. Viziunea organizației pornește de aici.</p>
+                    </div>
+                    
+                    <div class="team-grid">
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Constantin Alexandru</div><div class="team-role">Președinte</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Soficaru David</div><div class="team-role">Vicepreședinte</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Vizireanu Andreea</div><div class="team-role">Secretar General</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HR -->
+                <div class="board-dept" id="dept-hr">
+                    <div class="dept-intro reveal">
+                        <p>Departamentul HR coordonează procesul de recrutare, organizarea sesiunilor de teambuilding și evaluarea periodică a performanței voluntarilor, menținând un mediu de lucru sănătos.</p>
+                    </div>
+                    <div class="team-grid">
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Sergiu Drăghici</div><div class="team-role">Director</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Tofan Ana</div><div class="team-role">Coordonator Logistică</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Rusu Simon</div><div class="team-role">Coordonator Resurse Umane</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PR -->
+                <div class="board-dept" id="dept-pr">
+                    <div class="dept-intro reveal">
+                        <p>Identitatea vizuală, comunicatele de presă, managementul rețelelor sociale și formatarea tehnică avansată a textelor – toate acestea stau sub umbrela PR-ului asociației.</p>
+                    </div>
+                    <div class="team-grid">
+                        <div class="team-member hover-target reveal" onclick="triggerEgg('patru', event)">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Pătru Andrei</div><div class="team-role">Director</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Leontescu Beatrice</div><div class="team-role">Coordonator Grafică</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Brezeanu Mihai</div><div class="team-role">Coordonator Social Media</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Petrescu Erica</div><div class="team-role">Coordonator Text</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FR -->
+                <div class="board-dept" id="dept-fr">
+                    <div class="dept-intro reveal">
+                        <p>Prin stabilirea de parteneriate strategice B2B și atragerea de sponsorizări din mediul corporativ, Fundraising-ul face posibile toate evenimentele majore și proiectele asociației.</p>
+                    </div>
+                    <div class="team-grid">
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Avramov Stefan</div><div class="team-role">Director</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Nuramet Ener</div><div class="team-role">Coordonator Finanțe</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Diacon Cătălin</div><div class="team-role">Coordonator Proiecte</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EV -->
+                <div class="board-dept" id="dept-ev">
+                    <div class="dept-intro reveal">
+                        <p>Echipa de execuție în teren. Ei se ocupă de logistica spațială, gestionarea fluxurilor de invitați și soluționarea oricăror provocări tehnice în timpul desfășurării acțiunilor.</p>
+                    </div>
+                    <div class="team-grid">
+                        <div class="team-member hover-target reveal" onclick="triggerEgg('murakami', event)">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Murakami Alina</div><div class="team-role">Director</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="global-footer"></footer>
+        </section>
+
+        <!-- ================= VIEW: FACULTATE (Conducere, Senatori, Consilieri) ================= -->
+        <section class="view" id="view-facultate">
+            <div class="page-content">
+                <h1 class="title-huge">Reprezentare <i>în Facultate</i></h1>
+
+                <div class="horizontal-nav" id="nav-facultate">
+                    <div class="horizontal-tab active hover-target" onclick="switchFac('fac-conducere', this)">Conducerea Facultății</div>
+                    <div class="horizontal-tab hover-target" onclick="switchFac('fac-senatori', this)">Senatori</div>
+                    <div class="horizontal-tab hover-target" onclick="switchFac('fac-consilieri', this)">Consilieri Facultate</div>
+                </div>
+
+                <!-- Conducerea facultății -->
+                <div class="board-dept active" id="fac-conducere">
+                    <div class="dept-intro reveal">
+                        <p>Conducerea Facultății de Inginerie Chimică și Biotehnologii (UPB), responsabilă de direcțiile academice, administrative și de cercetare ale facultății. Click / tap pe o persoană pentru datele de contact.</p>
+                    </div>
+                    <div class="team-grid">
+                        <div class="team-member hover-target reveal" onclick="openContact('orbeci')">
+                            <div class="team-photo"><img src="https://chimie.upb.ro/administrare/content/img/personal/didactic/chimie-analitica-si-ingineria-mediului/orbeci-cristina/img.jpg" alt="Cristina Orbeci" loading="lazy"></div>
+                            <div class="team-info"><div class="team-name">Cristina Orbeci</div><div class="team-role">Decan</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal" onclick="openContact('stoleriu')">
+                            <div class="team-photo"><img src="https://chimie.upb.ro/administrare/content/img/personal/didactic/stiinta-si-ingineria-materialelor-oxidice-si-nanomaterialelor/stoleriu-stefania-paula/img.jpg" alt="Ștefania Paula Stoleriu" loading="lazy"></div>
+                            <div class="team-info"><div class="team-name">Ștefania Paula Stoleriu</div><div class="team-role">Prodecan</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal" onclick="openContact('pirvu')">
+                            <div class="team-photo"><img src="https://chimie.upb.ro/administrare/content/img/personal/didactic/chimie-generala/pirvu-cristian/img.jpg" alt="Cristian Pîrvu" loading="lazy"></div>
+                            <div class="team-info"><div class="team-name">Cristian Pîrvu</div><div class="team-role">Prodecan</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal" onclick="openContact('todasca')">
+                            <div class="team-photo"><img src="https://chimie.upb.ro/administrare/content/img/personal/didactic/chimie-organica/todasca-maria-cristina/img.jpg" alt="Maria Cristina Todașcă" loading="lazy"></div>
+                            <div class="team-info"><div class="team-name">Maria Cristina Todașcă</div><div class="team-role">Prodecan</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal" onclick="openContact('biru')">
+                            <div class="team-photo"><img src="https://chimie.upb.ro/administrare/content/img/personal/didactic/bioresurse-si-stiinta-polimerilor/biru-elena-iuliana/img.jpg" alt="Elena Iuliana Bîru" loading="lazy"></div>
+                            <div class="team-info"><div class="team-name">Elena Iuliana Bîru</div><div class="team-role">Prodecan</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Senatori -->
+                <div class="board-dept" id="fac-senatori">
+                    <div class="dept-intro reveal">
+                        <p>Studenții care reprezintă facultatea în Senatul Universității POLITEHNICA din București, forul decizional la nivel de universitate.</p>
+                    </div>
+                    <div class="team-grid">
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Constantin Alexandru</div><div class="team-role">Senator</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Geană Maria Larisa</div><div class="team-role">Senator</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Consilieri Facultate -->
+                <div class="board-dept" id="fac-consilieri">
+                    <div class="dept-intro reveal">
+                        <p>Studenții aleși ca reprezentanți în Consiliul Facultății, implicați direct în deciziile academice și administrative ce privesc studenții.</p>
+                    </div>
+                    <div class="team-grid">
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Pătru Andrei</div><div class="team-role">Consilier Facultate</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Catană Ariana Ionela</div><div class="team-role">Consilier Facultate</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Drăghici Sergiu Constantin</div><div class="team-role">Consilier Facultate</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">El Beni Amina</div><div class="team-role">Consilier Facultate</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Vizireanu Andreea</div><div class="team-role">Consilier Facultate</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Nuramet Ener</div><div class="team-role">Consilier Facultate</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Baicu Bianca Paula</div><div class="team-role">Consilier Facultate</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Petrescu Erica Maria</div><div class="team-role">Consilier Facultate</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Soficaru David</div><div class="team-role">Consilier Facultate</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Petrici Anca Maria</div><div class="team-role">Consilier Facultate</div></div>
+                        </div>
+                        <div class="team-member hover-target reveal">
+                            <div class="team-photo"></div>
+                            <div class="team-info"><div class="team-name">Rusu David Simon</div><div class="team-role">Consilier Facultate</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="global-footer"></footer>
+        </section>
+
+        <!-- ================= VIEW: CĂMINE (placeholder — de completat) ================= -->
+        <section class="view" id="view-camine">
+            <div class="page-content">
+                <h1 class="title-huge">Reprezentare în <i>Cămine</i></h1>
+
+                <!-- PLACEHOLDER: secțiune de completat ulterior cu responsabilii/consilierii pe cămine.
+                     Structura de mai jos (dept-intro + team-grid) e identică cu restul site-ului,
+                     e suficient să duplici .team-member și să schimbi numele/rolul/căminul. -->
+                <div class="dept-intro reveal">
+                    <p>Această secțiune va conține studenții care reprezintă interesele colegilor din cămine. Conținutul urmează să fie completat.</p>
+                </div>
+
+                <div class="team-grid">
+                    <div class="team-member hover-target reveal">
+                        <div class="team-photo"></div>
+                        <div class="team-info"><div class="team-name">Nume Prenume</div><div class="team-role">Responsabil Cămin — de completat</div></div>
+                    </div>
+                    <div class="team-member hover-target reveal">
+                        <div class="team-photo"></div>
+                        <div class="team-info"><div class="team-name">Nume Prenume</div><div class="team-role">Responsabil Cămin — de completat</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="global-footer"></footer>
+        </section>
+
+        <!-- ================= VIEW: GALERIE (Masonry 20+ poze) ================= -->
+        <section class="view" id="view-gallery">
+            <div class="page-content">
+                <h1 class="title-huge"><i>Galeria</i> SSIC</h1>
+                <p>Momente surprinse în cadrul activităților noastre, reflectând spiritul și unitatea echipei.</p>
+                
+                <div class="gallery-grid" id="gallery-container"></div>
+            </div>
+            <footer class="global-footer"></footer>
+        </section>
+
+    </main>
+
+    <script>
+        /* ==========================================================================
+           JS: Generare Footer Global (Curat, Profesional, Cu Social Links Specifice)
+           ========================================================================== */
+        const footerHTML = `
+            <div class="footer-grid">
+                <div class="ft-col">
+                    <h4>SS<i style="color:var(--c-accent); font-style:normal;">IC</i> Upb</h4>
+                    <p>Societatea Studenților în Inginerie Chimică și Biotehnologii.</p>
+                    <div class="social-icons">
+                        <a href="https://www.facebook.com/ssic.upb/" target="_blank" class="soc-icon hover-target" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://www.instagram.com/ssic.upb/" target="_blank" class="soc-icon hover-target" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.linkedin.com/posts/ssicb_ficbi-ssic-activity-7123925339956781056-4ugv?originalSubdomain=ro" target="_blank" class="soc-icon hover-target" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.tiktok.com/@ssic.upb" target="_blank" class="soc-icon hover-target" title="TikTok"><i class="fab fa-tiktok"></i></a>
+                    </div>
+                </div>
+                <div class="ft-col">
+                    <h4>Locație</h4>
+                    <p>Campus UPB, București, România</p>
+                    <a href="mailto:ssic.upb@gmail.com" class="ft-mail hover-target" style="margin-top:10px;"><i class="fa-regular fa-envelope"></i> ssic.upb@gmail.com</a>
+                </div>
+                <div class="ft-col">
+                    <h4>Structură</h4>
+                    <p>Consiliu Director | PR | HR | FR | EV</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; ${new Date().getFullYear()} SSIC &mdash; Societatea Studenților în Inginerie Chimică și Biotehnologii. Toate drepturile rezervate.</span>
+                <span>Acest site nu colectează date personale ale vizitatorilor.</span>
+            </div>
+        `;
+        document.querySelectorAll('.global-footer').forEach(f => f.innerHTML = footerHTML);
+
+        /* ==========================================================================
+           JS: Cursor Custom
+           ========================================================================== */
+        const cursor = document.getElementById('cursor');
+        let mX = window.innerWidth/2, mY = window.innerHeight/2;
+        let cX = mX, cY = mY;
+
+        function loopCursor() {
+            cX += (mX - cX) * 0.2;
+            cY += (mY - cY) * 0.2;
+            cursor.style.transform = `translate(calc(${cX}px - 50%), calc(${cY}px - 50%))`;
+            requestAnimationFrame(loopCursor);
+        }
+        loopCursor();
+
+        window.addEventListener('mousemove', e => { mX = e.clientX; mY = e.clientY; });
+
+        /* ==========================================================================
+           JS: fallback grațios pt. video-ul din hero, dacă fișierul local nu există încă
+           ========================================================================== */
+        (function initHeroVideoFallback() {
+            const video = document.getElementById('heroVideo');
+            if (!video) return;
+            video.addEventListener('error', () => video.style.display = 'none', true);
+        })();
+
+        /* ==========================================================================
+           JS: TYPEWRITER — textul din hero se scrie, așteaptă, apoi se șterge
+           ========================================================================== */
+        (function initHeroTypewriter() {
+            const textEl = document.getElementById('heroTyped');
+            const cursorEl = document.getElementById('heroCursor');
+            if (!textEl || !cursorEl) return;
+
+            const phrases = [
+                'Inovație în',
+                'Spirit de echipă în',
+                'Pasiune pentru',
+                'Viitorul tău în',
+                'Excelență în'
+            ];
+
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (reduceMotion) {
+                // Respectăm preferința utilizatorului: text fix, doar cursorul clipește discret (setat deja în CSS).
+                textEl.textContent = phrases[0];
+                return;
+            }
+
+            const TYPE_MIN = 55, TYPE_MAX = 95;   // ms/caracter, la scriere (ritm ușor neregulat, "uman")
+            const DELETE_MIN = 28, DELETE_MAX = 42; // ms/caracter, la ștergere (mai rapid decât scrierea)
+            const HOLD_AFTER_TYPE = 2000;          // pauză cu textul complet + cursor clipind, cerută explicit
+            const HOLD_AFTER_DELETE = 450;         // mică pauză înainte să înceapă următorul cuvânt
+
+            let phraseIndex = 0;
+            let charIndex = 0;
+
+            function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+            function typeStep() {
+                const current = phrases[phraseIndex];
+                cursorEl.classList.add('is-typing'); // cursor solid, opac, cât timp scrie activ
+
+                if (charIndex <= current.length) {
+                    textEl.textContent = current.slice(0, charIndex);
+                    charIndex++;
+                    setTimeout(typeStep, rand(TYPE_MIN, TYPE_MAX));
+                } else {
+                    cursorEl.classList.remove('is-typing'); // reactivăm blink-ul normal în pauză
+                    setTimeout(deleteStep, HOLD_AFTER_TYPE);
+                }
+            }
+
+            function deleteStep() {
+                const current = phrases[phraseIndex];
+                cursorEl.classList.add('is-typing');
+
+                if (charIndex >= 0) {
+                    textEl.textContent = current.slice(0, charIndex);
+                    charIndex--;
+                    setTimeout(deleteStep, rand(DELETE_MIN, DELETE_MAX));
+                } else {
+                    cursorEl.classList.remove('is-typing');
+                    phraseIndex = (phraseIndex + 1) % phrases.length;
+                    charIndex = 0;
+                    setTimeout(typeStep, HOLD_AFTER_DELETE);
+                }
+            }
+
+            // Pornim din poziția 0, cu un mic delay inițial (lasă hero-ul să se așeze vizual)
+            setTimeout(typeStep, 500);
+        })();
+        
+        function bindHover() {
+            document.querySelectorAll('.hover-target, .nav-link, .soc-icon').forEach(t => {
+                t.onmouseenter = () => cursor.classList.add('hovering');
+                t.onmouseleave = () => cursor.classList.remove('hovering');
+            });
+        }
+        bindHover();
+
+        /* ==========================================================================
+           JS: Haptic feedback (mobil) — no-op silențios pe orice device/browser
+           care nu suportă Vibration API (desktop, iOS Safari etc.)
+           ========================================================================== */
+        function haptic(duration = 10) {
+            if (navigator.vibrate) {
+                try { navigator.vibrate(duration); } catch (e) { /* ignorăm */ }
+            }
+        }
+
+        /* ==========================================================================
+           JS: Meniu Mobil (Hamburger)
+           ========================================================================== */
+        const navBurger = document.getElementById('navBurger');
+        const navLinksEl = document.getElementById('navLinks');
+
+        function closeMobileNav() {
+            navLinksEl.classList.remove('nav-open');
+            navBurger.classList.remove('is-active');
+            navBurger.setAttribute('aria-expanded', 'false');
+        }
+
+        navBurger.addEventListener('click', () => {
+            const isOpen = navLinksEl.classList.toggle('nav-open');
+            navBurger.classList.toggle('is-active', isOpen);
+            navBurger.setAttribute('aria-expanded', String(isOpen));
+            haptic(isOpen ? 12 : 8);
+        });
+
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', closeMobileNav);
+        });
+
+        /* ==========================================================================
+           JS: Swipe Routing LTR/RTL
+           ========================================================================== */
+        const navOrder = ['home', 'impact', 'board', 'facultate', 'camine', 'gallery'];
+        let currentViewId = 'home';
+        let isNavigating = false;
+        let suppressHistoryPush = false;
+
+        // Navbar-ul stă ascuns doar pe Acasă, cât timp ești sus de tot (hero fullscreen).
+        // Pe orice altă pagină navbar-ul e mereu vizibil (nu au hero, ci page-content cu padding pt. el).
+        // Pe desktop (dispozitive cu mouse), navbar-ul mai apare și dacă mișcăm cursorul
+        // aproape de marginea de sus a ecranului, chiar dacă n-am scrollat deloc.
+        const supportsHoverNav = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+        let mouseNearTop = false;
+        let lastHomeScrollTop = 0;
+
+        function updateNavForView(viewId, scrollTop = 0) {
+            const navEl = document.querySelector('nav');
+            if (!navEl) return;
+            const revealedByCursor = supportsHoverNav && viewId === 'home' && mouseNearTop;
+            const shouldHide = (viewId === 'home' && scrollTop < 24 && !revealedByCursor);
+            navEl.classList.toggle('nav-hidden', shouldHide);
+        }
+
+        if (supportsHoverNav) {
+            document.addEventListener('mousemove', (e) => {
+                if (currentViewId !== 'home') return;
+                const near = e.clientY < 120;
+                if (near !== mouseNearTop) {
+                    mouseNearTop = near;
+                    updateNavForView('home', lastHomeScrollTop);
+                }
+            });
+        }
+
+        function resetScrollProgress() {
+            const fill = document.getElementById('scrollProgressFill');
+            if (fill) fill.style.width = '0%';
+        }
+
+        function navigate(targetId) {
+            if(isNavigating || currentViewId === targetId) return;
+            const tView = document.getElementById(`view-${targetId}`);
+            const cView = document.getElementById(`view-${currentViewId}`);
+            if(!tView || !cView) return;
+
+            isNavigating = true;
+            haptic(10);
+
+            // Sincronizăm adresa URL cu pagina curentă, ca fiecare secțiune să aibă link-ul ei
+            // (ex: index.html#board). suppressHistoryPush evită dublarea intrării în istoric
+            // când navigate() e chemată ca urmare a unui Back/Forward (vezi popstate mai jos).
+            if (!suppressHistoryPush) {
+                // try/catch e esențial aici: pe iOS (Safari sau WebView-uri in-app), pushState
+                // poate arunca SecurityError în anumite contexte (fișier deschis local cu file://,
+                // browsere in-app ale unor aplicații, sau limita nescrisă de apeluri History API
+                // într-un interval scurt). Fără try/catch, eroarea oprea navigate() exact după ce
+                // isNavigating fusese pus pe true, deci pagina rămânea "înghețată" pe prima secțiune
+                // — orice apăsare ulterioară ieșea imediat din navigate() la verificarea isNavigating.
+                try {
+                    history.pushState({ view: targetId }, '', '#' + targetId);
+                } catch (err) {
+                    console.warn('pushState indisponibil, continuăm fără actualizarea URL-ului:', err);
+                }
+            }
+            
+            const cIdx = navOrder.indexOf(currentViewId);
+            const tIdx = navOrder.indexOf(targetId);
+            const dirClass = tIdx > cIdx ? 'swipe-ltr' : 'swipe-rtl';
+
+            document.querySelectorAll('.nav-link').forEach(l => {
+                l.classList.remove('active');
+                if(l.getAttribute('data-target') === targetId) l.classList.add('active');
+            });
+
+            const swiper = document.getElementById('swiper');
+            swiper.className = 'swipe-container'; void swiper.offsetWidth;
+            swiper.classList.add(dirClass, 'animating');
+
+            setTimeout(() => {
+                cView.classList.remove('active');
+                tView.classList.add('active');
+                currentViewId = targetId;
+                tView.scrollTop = 0;
+                resetScrollProgress();
+                updateNavForView(targetId, 0);
+
+            }, 400);
+
+            setTimeout(() => {
+                swiper.classList.remove('animating', dirClass);
+                isNavigating = false;
+            }, 900);
+        }
+
+        /* ==========================================================================
+           JS: Routing pe URL (#hash) — fiecare pagină are adresa ei
+           ========================================================================== */
+
+        // Back/Forward din browser: navigăm către view-ul din istoric, fără să mai
+        // adăugăm o intrare nouă (deja există în istoric — de-asta e acolo).
+        window.addEventListener('popstate', (e) => {
+            const id = (e.state && e.state.view) || (location.hash.slice(1) || 'home');
+            if (!navOrder.includes(id) || id === currentViewId) return;
+            suppressHistoryPush = true;
+            navigate(id);
+            suppressHistoryPush = false;
+        });
+
+        // La încărcarea paginii: dacă URL-ul conține deja un hash valid (ex: #board,
+        // deschis dintr-un link trimis cuiva), sărim direct pe pagina respectivă,
+        // instant, fără animația de swipe (nu are sens să "aluneci" dintr-un Acasă
+        // care nici n-a fost vreodată afișat).
+        (function initFromURL() {
+            const initial = (location.hash || '').slice(1);
+            if (initial && initial !== 'home' && navOrder.includes(initial)) {
+                const homeView = document.getElementById('view-home');
+                const targetView = document.getElementById(`view-${initial}`);
+                if (homeView && targetView) {
+                    homeView.classList.remove('active');
+                    targetView.classList.add('active');
+                    currentViewId = initial;
+                    document.querySelectorAll('.nav-link').forEach(l => {
+                        l.classList.remove('active');
+                        if (l.getAttribute('data-target') === initial) l.classList.add('active');
+                    });
+                    updateNavForView(initial, 0);
+                }
+            }
+            // Ne asigurăm că prima intrare din istoric reflectă pagina curentă,
+            // ca primul Back să nu iasă direct din site.
+            try {
+                history.replaceState({ view: currentViewId }, '', '#' + currentViewId);
+            } catch (err) {
+                console.warn('replaceState indisponibil la încărcare:', err);
+            }
+        })();
+
+        /* ==========================================================================
+           JS: Interactivitate & Carusele Punctate
+           ========================================================================== */
+        
+        // Setup Carusele (drag to scroll & dots sync)
+        function initDraggableCarousel(trackId, dotsId) {
+            const track = document.getElementById(trackId);
+            const dotsContainer = document.getElementById(dotsId);
+            if(!track || !dotsContainer) return;
+
+            const dots = dotsContainer.querySelectorAll('.carousel-dot');
+
+            track.addEventListener('scroll', () => {
+                let index = Math.round(track.scrollLeft / track.offsetWidth);
+                if (index >= dots.length) index = dots.length - 1;
+                if (index < 0) index = 0;
+                
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === index);
+                });
+            });
+
+            let isD = false, sX, sL;
+            track.onmousedown = e => { isD = true; sX = e.pageX - track.offsetLeft; sL = track.scrollLeft; cursor.classList.add('hovering'); };
+            track.onmouseleave = () => { isD = false; cursor.classList.remove('hovering'); };
+            track.onmouseup = () => { isD = false; cursor.classList.remove('hovering'); };
+            track.onmousemove = e => { if(!isD) return; e.preventDefault(); track.scrollLeft = sL - (e.pageX - track.offsetLeft - sX)*2; };
+        }
+        
+        initDraggableCarousel('carousel-ev0', 'dots-ev0');
+        initDraggableCarousel('carousel-ev1', 'dots-ev1');
+        initDraggableCarousel('carousel-ev2', 'dots-ev2');
+
+        /* ==========================================================================
+           JS: Tranziție crossfade+slide pentru conținutul de tab (fără salt instant)
+           ========================================================================== */
+        function swapTabPanel(allPanels, nextPanel) {
+            // Curățăm FORȚAT orice alt panou din grup (nu doar cel presupus "curent"), ca stările
+            // rămase blocate (ex. tab schimbat rapid, sau animationend care nu se declanșează pe
+            // Safari/iOS când panoul devine invizibil în timpul animației) să nu mai rămână vizibile
+            // la nesfârșit — asta cauza glitch-ul unde textele de la mai multe evenimente apăreau
+            // suprapuse pe iPhone.
+            allPanels.forEach(panel => {
+                if (panel === nextPanel) return;
+                if (!panel.classList.contains('active') && !panel.classList.contains('tab-leaving')) return;
+                panel.classList.remove('active');
+                panel.classList.add('tab-leaving');
+                let done = false;
+                const cleanup = () => {
+                    if (done) return;
+                    done = true;
+                    panel.classList.remove('tab-leaving');
+                    panel.removeEventListener('animationend', cleanup);
+                };
+                panel.addEventListener('animationend', cleanup);
+                // Plasă de siguranță: dacă animationend nu se declanșează deloc (posibil pe iOS
+                // când panoul iese din ecran/din DOM randat înainte ca animația să se termine),
+                // forțăm curățarea oricum, puțin după durata animației (220ms).
+                setTimeout(cleanup, 300);
+            });
+            if (nextPanel && !nextPanel.classList.contains('active')) {
+                nextPanel.classList.remove('tab-leaving');
+                nextPanel.classList.add('active');
+            }
+        }
+
+        // Tab-uri Evenimente (folosind sistemul orizontal)
+        function switchEvent(index, el) {
+            if (el.classList.contains('active')) return;
+            haptic(8);
+            document.querySelectorAll('#view-impact .horizontal-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+
+            const panels = document.querySelectorAll('#view-impact .event-content-wrapper');
+            const next = document.getElementById(`ev-${index}`);
+            swapTabPanel(panels, next);
+        }
+
+        // Tab-uri Board (folosind sistemul orizontal)
+        function switchDept(id, el) {
+            if (el.classList.contains('active')) return;
+            haptic(8);
+            document.querySelectorAll('#view-board .horizontal-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+
+            const panels = document.querySelectorAll('#view-board .board-dept');
+            const next = document.getElementById(id);
+            swapTabPanel(panels, next);
+        }
+
+        // Tab-uri Facultate (Conducere / Senatori / Consilieri), folosind același sistem orizontal
+        function switchFac(id, el) {
+            if (el.classList.contains('active')) return;
+            haptic(8);
+            document.querySelectorAll('#view-facultate .horizontal-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+
+            const panels = document.querySelectorAll('#view-facultate .board-dept');
+            const next = document.getElementById(id);
+            swapTabPanel(panels, next);
+        }
+
+        /* ==========================================================================
+           JS: REVEAL ON SCROLL (declarat ÎNAINTE de orice cod care îl folosește)
+           ========================================================================== */
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    const counter = entry.target.querySelector('[data-count-to]');
+                    if (counter) animateCount(counter);
+                    if (entry.target.hasAttribute('data-count-to')) animateCount(entry.target);
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15 });
+
+        function observeReveals() {
+            document.querySelectorAll('.reveal:not(.is-observed)').forEach(el => {
+                el.classList.add('is-observed');
+                revealObserver.observe(el);
+            });
+        }
+        observeReveals();
+
+        /* ==========================================================================
+           JS: Scroll delegat — bară de progres + navbar ascuns pe Acasă până la scroll
+           (evenimentul 'scroll' nu urcă prin bubbling, deci ascultăm în faza de capture
+           pe document, ca să prindem scroll-ul din interiorul oricărui .view activ)
+           ========================================================================== */
+        const scrollProgressFill = document.getElementById('scrollProgressFill');
+        document.addEventListener('scroll', (e) => {
+            const el = e.target;
+            if (!el.classList || !el.classList.contains('view')) return;
+
+            const max = el.scrollHeight - el.clientHeight;
+            const pct = max > 0 ? Math.min(100, Math.max(0, (el.scrollTop / max) * 100)) : 0;
+            if (scrollProgressFill) scrollProgressFill.style.width = pct + '%';
+
+            if (el.id === 'view-home') {
+                lastHomeScrollTop = el.scrollTop;
+                updateNavForView('home', el.scrollTop);
+            }
+        }, true);
+
+        // Stare inițială a navbar-ului: ținem cont de pagina reală cu care pornim
+        // (poate fi "home", dar poate fi și o subpagină, dacă am intrat direct printr-un
+        // link cu hash, ex. index.html#board — currentViewId a fost deja stabilit mai sus
+        // de initFromURL()). Dacă am fi forțat mereu 'home' aici, navbar-ul rămânea ascuns
+        // (nav-hidden are pointer-events:none) pe orice subpagină deschisă direct printr-un link.
+        updateNavForView(currentViewId, 0);
+
+        function animateCount(el) {
+            if (el.dataset.counted) return;
+            el.dataset.counted = '1';
+            const target = parseInt(el.getAttribute('data-count-to'), 10) || 0;
+            const suffix = el.getAttribute('data-suffix') || '';
+            const duration = 1400;
+            const start = performance.now();
+            function tick(now) {
+                const progress = Math.min((now - start) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                el.textContent = Math.round(target * eased) + suffix;
+                if (progress < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        }
+
+        // Generare fix 24 Poze în Galerie
+        const galContainer = document.getElementById('gallery-container');
+        if(galContainer) {
+            let html = '';
+            const aspects = [1.2, 0.8, 1.5, 0.7, 1.1, 1.4, 0.9, 1.3, 0.6, 1.0, 1.25, 0.85, 1.45, 0.75, 1.15, 1.35, 0.95, 1.6, 0.65, 1.05, 1.2, 0.8, 1.5, 0.7];
+            for(let i=0; i<24; i++) {
+                const delay = (i % 6) * 0.08;
+                // Caută automat assets/gallery/1.jpg, 2.jpg, ... 24.jpg. Dacă fișierul nu există,
+                // imaginea se șterge singură și rămâne iconița decorativă (fără poză spartă vizibil).
+                html += `<div class="gal-item hover-target reveal" style="--aspect: ${aspects[i]}; --r-delay: ${delay}s;"><img src="assets/gallery/${i + 1}.jpg" alt="Fotografie din galeria SSIC" loading="lazy" onerror="this.remove()"></div>`;
+            }
+            galContainer.innerHTML = html;
+            observeReveals();
+        }
+
+        /* ==========================================================================
+           JS: POZE ECHIPĂ — completate automat după numele fiecărui membru
+           ==========================================================================
+           Pentru fiecare membru din Board/Facultate, scriptul deduce singur numele
+           fișierului din textul afișat (ex. "Constantin Alexandru" → "constantin-alexandru.jpg",
+           diacriticele fiind scoase automat) și caută poza în assets/team/.
+           Dacă fișierul nu există, rămâne vizibil gradientul + iconița de siluetă (fără eroare vizibilă).
+           Pur și simplu pune fotografiile în assets/team/, denumite după acest tipar. */
+        function slugifyName(name) {
+            return name.trim().toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // scoate diacriticele (ă, â, î, ș, ț)
+                .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        }
+        document.querySelectorAll('.team-member').forEach(member => {
+            const nameEl = member.querySelector('.team-name');
+            const photoEl = member.querySelector('.team-photo');
+            if (!nameEl || !photoEl) return;
+            const img = document.createElement('img');
+            img.src = `assets/team/${slugifyName(nameEl.textContent)}.jpg`;
+            img.alt = nameEl.textContent.trim();
+            img.loading = 'lazy';
+            img.onerror = function () { this.remove(); };
+            photoEl.appendChild(img);
+        });
+
+        /* ==========================================================================
+           JS: INSTAGRAM — embed manual (fără API)
+           ==========================================================================
+           Nu mai e nevoie de niciun cod aici: dacă lipești un <blockquote class="instagram-media">
+           în HTML (vezi instrucțiunile de lângă IG-EMBED-START/END, mai sus în pagină), scriptul
+           oficial embed.js (încărcat mai jos) îl detectează și îl transformă automat în postarea
+           reală, cu poză și caption. Cât timp nu există niciun blockquote, rămâne vizibil cardul
+           de rezervă cu link către profil.
+        */
+
+        /* ==========================================================================
+           JS: EASTER EGGS (Click Explozii menționate: murakami & patru)
+           ========================================================================== */
+        let clkM = 0;
+        let clkP = 0;
+        let eggTimeout = null;
+
+        function triggerEgg(type, event) {
+            clearTimeout(eggTimeout);
+            eggTimeout = setTimeout(() => { clkM = 0; clkP = 0; }, 3000);
+
+            if (type === 'murakami') {
+                clkM++;
+                if (clkM >= 6) { createExplosion(event.clientX, event.clientY, ['6', '7']); clkM = 0; }
+            } else if (type === 'patru') {
+                clkP++;
+                if (clkP >= 4) { createExplosion(event.clientX, event.clientY, ['3', '4']); clkP = 0; }
+            }
+        }
+
+        function createExplosion(x, y, chars) {
+            for(let i=0; i<30; i++) {
+                let el = document.createElement('div');
+                el.className = 'easter-particle';
+                el.innerText = chars[Math.floor(Math.random() * chars.length)];
+                document.body.appendChild(el);
+                
+                let angle = Math.random() * Math.PI * 2;
+                let velocity = 80 + Math.random() * 150;
+                let tx = Math.cos(angle) * velocity;
+                let ty = Math.sin(angle) * velocity - 80;
+                let rot = (Math.random() - 0.5) * 360 + 'deg';
+                
+                el.style.left = x + 'px';
+                el.style.top = y + 'px';
+                el.style.setProperty('--tx', `${tx}px`);
+                el.style.setProperty('--ty', `${ty}px`);
+                el.style.setProperty('--rot', rot);
+                
+                setTimeout(() => el.remove(), 1200);
+            }
+        }
+
+        /* ==========================================================================
+           JS: SEARCH (Command Palette) — caută secțiuni, evenimente și membri board
+           ========================================================================== */
+        (function () {
+            // Indexul e construit static din conținutul paginii (nume, roluri, evenimente).
+            // Fiecare intrare știe cum să "ajungă" la ținta ei: view + (opțional) tab + element de scroll.
+            const searchIndex = [
+                { group: 'Secțiuni', title: 'Acasă', sub: 'Pagina principală', icon: 'fa-house', view: 'home' },
+                { group: 'Secțiuni', title: 'Evenimente', sub: 'Proiectele SSIC', icon: 'fa-star', view: 'impact' },
+                { group: 'Secțiuni', title: 'Structura Board-ului', sub: 'Echipa de conducere', icon: 'fa-users', view: 'board' },
+                { group: 'Secțiuni', title: 'Reprezentare în Facultate', sub: 'Conducere, senatori, consilieri', icon: 'fa-building-columns', view: 'facultate' },
+                { group: 'Secțiuni', title: 'Reprezentare în Cămine', sub: 'De completat', icon: 'fa-bed', view: 'camine' },
+                { group: 'Secțiuni', title: 'Galerie', sub: 'Poze din activități', icon: 'fa-image', view: 'gallery' },
+
+                { group: 'Evenimente', title: 'Poli Chemistry Fest', sub: 'Evenimente', icon: 'fa-flask', view: 'impact', eventIndex: 0, targetId: 'ev-0' },
+                { group: 'Evenimente', title: 'Poli Fest', sub: 'Evenimente', icon: 'fa-flask', view: 'impact', eventIndex: 1, targetId: 'ev-1' },
+                { group: 'Evenimente', title: 'ChemEx', sub: 'Evenimente', icon: 'fa-flask', view: 'impact', eventIndex: 2, targetId: 'ev-2' },
+
+                { group: 'Board', title: 'Constantin Alexandru', sub: 'Președinte · Consiliu Director', icon: 'fa-user', view: 'board', deptId: 'dept-cd' },
+                { group: 'Board', title: 'Soficaru David', sub: 'Vicepreședinte · Consiliu Director', icon: 'fa-user', view: 'board', deptId: 'dept-cd' },
+                { group: 'Board', title: 'Vizireanu Andreea', sub: 'Secretar General · Consiliu Director', icon: 'fa-user', view: 'board', deptId: 'dept-cd' },
+                { group: 'Board', title: 'Sergiu Drăghici', sub: 'Director · HR', icon: 'fa-user', view: 'board', deptId: 'dept-hr' },
+                { group: 'Board', title: 'Tofan Ana', sub: 'Coordonator Logistică · HR', icon: 'fa-user', view: 'board', deptId: 'dept-hr' },
+                { group: 'Board', title: 'Rusu Simon', sub: 'Coordonator Resurse Umane · HR', icon: 'fa-user', view: 'board', deptId: 'dept-hr' },
+                { group: 'Board', title: 'Pătru Andrei', sub: 'Director · PR', icon: 'fa-user', view: 'board', deptId: 'dept-pr' },
+                { group: 'Board', title: 'Leontescu Beatrice', sub: 'Coordonator Grafică · PR', icon: 'fa-user', view: 'board', deptId: 'dept-pr' },
+                { group: 'Board', title: 'Brezeanu Mihai', sub: 'Coordonator Social Media · PR', icon: 'fa-user', view: 'board', deptId: 'dept-pr' },
+                { group: 'Board', title: 'Petrescu Erica', sub: 'Coordonator Text · PR', icon: 'fa-user', view: 'board', deptId: 'dept-pr' },
+                { group: 'Board', title: 'Avramov Stefan', sub: 'Director · Fundraising', icon: 'fa-user', view: 'board', deptId: 'dept-fr' },
+                { group: 'Board', title: 'Nuramet Ener', sub: 'Coordonator Finanțe · Fundraising', icon: 'fa-user', view: 'board', deptId: 'dept-fr' },
+                { group: 'Board', title: 'Diacon Cătălin', sub: 'Coordonator Proiecte · Fundraising', icon: 'fa-user', view: 'board', deptId: 'dept-fr' },
+                { group: 'Board', title: 'Murakami Alina', sub: 'Director · Evenimente', icon: 'fa-user', view: 'board', deptId: 'dept-ev' },
+
+                { group: 'Facultate', title: 'Cristina Orbeci', sub: 'Decan · Conducerea Facultății', icon: 'fa-user-tie', view: 'facultate', facDeptId: 'fac-conducere', photo: 'https://chimie.upb.ro/administrare/content/img/personal/didactic/chimie-analitica-si-ingineria-mediului/orbeci-cristina/img.jpg', contactId: 'orbeci' },
+                { group: 'Facultate', title: 'Ștefania Paula Stoleriu', sub: 'Prodecan · Conducerea Facultății', icon: 'fa-user-tie', view: 'facultate', facDeptId: 'fac-conducere', photo: 'https://chimie.upb.ro/administrare/content/img/personal/didactic/stiinta-si-ingineria-materialelor-oxidice-si-nanomaterialelor/stoleriu-stefania-paula/img.jpg', contactId: 'stoleriu' },
+                { group: 'Facultate', title: 'Cristian Pîrvu', sub: 'Prodecan · Conducerea Facultății', icon: 'fa-user-tie', view: 'facultate', facDeptId: 'fac-conducere', photo: 'https://chimie.upb.ro/administrare/content/img/personal/didactic/chimie-generala/pirvu-cristian/img.jpg', contactId: 'pirvu' },
+                { group: 'Facultate', title: 'Maria Cristina Todașcă', sub: 'Prodecan · Conducerea Facultății', icon: 'fa-user-tie', view: 'facultate', facDeptId: 'fac-conducere', photo: 'https://chimie.upb.ro/administrare/content/img/personal/didactic/chimie-organica/todasca-maria-cristina/img.jpg', contactId: 'todasca' },
+                { group: 'Facultate', title: 'Elena Iuliana Bîru', sub: 'Prodecan · Conducerea Facultății', icon: 'fa-user-tie', view: 'facultate', facDeptId: 'fac-conducere', photo: 'https://chimie.upb.ro/administrare/content/img/personal/didactic/bioresurse-si-stiinta-polimerilor/biru-elena-iuliana/img.jpg', contactId: 'biru' },
+                { group: 'Facultate', title: 'Constantin Alexandru', sub: 'Senator · Senatul UPB', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-senatori' },
+                { group: 'Facultate', title: 'Geană Maria Larisa', sub: 'Senator · Senatul UPB', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-senatori' },
+                { group: 'Facultate', title: 'Pătru Andrei', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
+                { group: 'Facultate', title: 'Catană Ariana Ionela', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
+                { group: 'Facultate', title: 'Drăghici Sergiu Constantin', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
+                { group: 'Facultate', title: 'El Beni Amina', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
+                { group: 'Facultate', title: 'Vizireanu Andreea', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
+                { group: 'Facultate', title: 'Nuramet Ener', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
+                { group: 'Facultate', title: 'Baicu Bianca Paula', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
+                { group: 'Facultate', title: 'Petrescu Erica Maria', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
+                { group: 'Facultate', title: 'Soficaru David', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
+                { group: 'Facultate', title: 'Petrici Anca Maria', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
+                { group: 'Facultate', title: 'Rusu David Simon', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
+            ];
+
+            const overlay = document.getElementById('searchOverlay');
+            const panel = overlay ? overlay.querySelector('.search-panel') : null;
+            const input = document.getElementById('searchInput');
+            const resultsEl = document.getElementById('searchResults');
+            const openBtn = document.getElementById('navSearchBtn');
+            const closeBtn = document.getElementById('searchCloseBtn');
+            if (!overlay || !input || !resultsEl || !openBtn) return;
+
+            let activeIndex = -1;
+            let currentResults = [];
+
+            const normalize = (str) => str
+                .toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, ''); // scoate diacriticele (ă, â, î, ș, ț)
+
+            function escapeHtml(str) {
+                return str.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+            }
+
+            function highlight(text, query) {
+                if (!query) return escapeHtml(text);
+                const nText = normalize(text);
+                const nQuery = normalize(query);
+                const idx = nText.indexOf(nQuery);
+                if (idx === -1) return escapeHtml(text);
+                return escapeHtml(text.slice(0, idx)) + '<mark>' + escapeHtml(text.slice(idx, idx + query.length)) + '</mark>' + escapeHtml(text.slice(idx + query.length));
+            }
+
+            function renderResults(query) {
+                const q = normalize(query.trim());
+                const filtered = q
+                    ? searchIndex.filter(item => normalize(item.title).includes(q) || normalize(item.sub).includes(q) || normalize(item.group).includes(q))
+                    : searchIndex.filter(item => item.group === 'Secțiuni'); // fără query: arătăm doar secțiunile principale
+
+                currentResults = filtered;
+                activeIndex = filtered.length ? 0 : -1;
+
+                if (!filtered.length) {
+                    resultsEl.innerHTML = `<div class="search-empty">Niciun rezultat pentru „${escapeHtml(query)}”</div>`;
+                    return;
+                }
+
+                let html = '';
+                let lastGroup = null;
+                filtered.forEach((item, i) => {
+                    if (item.group !== lastGroup) {
+                        html += `<div class="search-result-group-label">${escapeHtml(item.group)}</div>`;
+                        lastGroup = item.group;
+                    }
+                    const iconHtml = item.photo
+                        ? `<div class="search-result-icon search-result-photo"><img src="${item.photo}" alt="" loading="lazy"></div>`
+                        : `<div class="search-result-icon"><i class="fa-solid ${item.icon}"></i></div>`;
+                    html += `
+                        <div class="search-result-item${i === 0 ? ' is-active' : ''}" data-index="${i}" role="option">
+                            ${iconHtml}
+                            <div class="search-result-text">
+                                <div class="search-result-title">${highlight(item.title, query)}</div>
+                                <div class="search-result-sub">${escapeHtml(item.sub)}</div>
+                            </div>
+                        </div>`;
+                });
+                resultsEl.innerHTML = html;
+
+                resultsEl.querySelectorAll('.search-result-item').forEach(el => {
+                    el.addEventListener('click', () => selectResult(parseInt(el.dataset.index, 10)));
+                });
+            }
+
+            function setActive(i) {
+                const items = resultsEl.querySelectorAll('.search-result-item');
+                items.forEach(el => el.classList.remove('is-active'));
+                if (items[i]) {
+                    items[i].classList.add('is-active');
+                    items[i].scrollIntoView({ block: 'nearest' });
+                }
+                activeIndex = i;
+            }
+
+            function selectResult(i) {
+                const item = currentResults[i];
+                if (!item) return;
+                haptic(10);
+                closeSearch();
+
+                const goToView = (typeof navigate === 'function' && currentViewId !== item.view);
+                if (goToView) navigate(item.view);
+
+                // Așteptăm finalul tranziției (view-ul devine activ la 400ms) înainte să comutăm tab-uri/scroll.
+                setTimeout(() => {
+                    if (item.eventIndex !== undefined) {
+                        const tab = document.querySelector(`#nav-impact .horizontal-tab:nth-child(${item.eventIndex + 2})`);
+                        if (tab && typeof switchEvent === 'function') switchEvent(item.eventIndex, tab);
+                    }
+                    if (item.deptId && typeof switchDept === 'function') {
+                        const tabs = document.querySelectorAll('#nav-board .horizontal-tab');
+                        const deptOrder = ['dept-cd', 'dept-hr', 'dept-pr', 'dept-fr', 'dept-ev'];
+                        const tabEl = tabs[deptOrder.indexOf(item.deptId)];
+                        if (tabEl) switchDept(item.deptId, tabEl);
+                    }
+                    if (item.facDeptId && typeof switchFac === 'function') {
+                        const tabs = document.querySelectorAll('#nav-facultate .horizontal-tab');
+                        const facOrder = ['fac-conducere', 'fac-senatori', 'fac-consilieri'];
+                        const tabEl = tabs[facOrder.indexOf(item.facDeptId)];
+                        if (tabEl) switchFac(item.facDeptId, tabEl);
+                    }
+
+                    let scrollTarget = null;
+                    const groupId = item.deptId || item.facDeptId;
+                    if (item.targetId) {
+                        scrollTarget = document.getElementById(item.targetId);
+                    } else if (groupId) {
+                        // Găsim cardul membrului chiar în departamentul/tab-ul care tocmai a devenit activ
+                        const group = document.getElementById(groupId);
+                        if (group) {
+                            scrollTarget = Array.from(group.querySelectorAll('.team-name'))
+                                .find(el => el.textContent.trim() === item.title)?.closest('.team-member') || null;
+                        }
+                    }
+                    if (scrollTarget) {
+                        setTimeout(() => {
+                            scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            scrollTarget.classList.add('search-target-highlight');
+                            setTimeout(() => scrollTarget.classList.remove('search-target-highlight'), 2300);
+                        }, 120);
+                    }
+                }, goToView ? 430 : 0);
+            }
+
+            function openSearch() {
+                haptic(10);
+                overlay.classList.add('open');
+                openBtn.setAttribute('aria-expanded', 'true');
+                renderResults('');
+                input.value = '';
+                setTimeout(() => input.focus(), 50);
+            }
+
+            function closeSearch() {
+                overlay.classList.remove('open');
+                openBtn.setAttribute('aria-expanded', 'false');
+            }
+
+            openBtn.addEventListener('click', openSearch);
+            closeBtn.addEventListener('click', closeSearch);
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) closeSearch(); });
+
+            input.addEventListener('input', () => renderResults(input.value));
+
+            document.addEventListener('keydown', (e) => {
+                if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) {
+                    e.preventDefault();
+                    overlay.classList.contains('open') ? closeSearch() : openSearch();
+                    return;
+                }
+                if (!overlay.classList.contains('open')) return;
+                if (e.key === 'Escape') { closeSearch(); }
+                else if (e.key === 'ArrowDown') { e.preventDefault(); if (currentResults.length) setActive((activeIndex + 1) % currentResults.length); }
+                else if (e.key === 'ArrowUp') { e.preventDefault(); if (currentResults.length) setActive((activeIndex - 1 + currentResults.length) % currentResults.length); }
+                else if (e.key === 'Enter') { e.preventDefault(); if (activeIndex > -1) selectResult(activeIndex); }
+            });
+        })();
+    </script>
+    <!-- Script oficial Instagram — procesează automat orice <blockquote class="instagram-media">
+         lipit în pagină (vezi instrucțiunile de lângă IG-EMBED-START, în secțiunea Acasă).
+         E nevoie o singură dată, indiferent de câte postări embedezi. -->
+    <script async src="https://www.instagram.com/embed.js"></script>
+    <!-- Notă privind cookie-urile: site-ul nu colectează date; orice cookie tehnic e șters
+         automat la fiecare inițializare (vezi scriptul din capul <body>). -->
+    <div class="cookie-notice" id="cookieNotice" role="status" aria-live="polite">
+        <p><i class="fa-regular fa-circle-check"></i> Acest site nu colectează date personale. Eventualele cookie-uri tehnice sunt șterse automat la fiecare vizită.</p>
+        <button type="button" class="cookie-notice-btn hover-target" id="cookieNoticeBtn">Am înțeles</button>
+    </div>
+    <script>
+        (function () {
+            const notice = document.getElementById('cookieNotice');
+            const btn = document.getElementById('cookieNoticeBtn');
+            if (!notice || !btn) return;
+            if (sessionStorage.getItem('ssic-cookie-notice-seen') === '1') {
+                notice.style.display = 'none';
+                return;
+            }
+            setTimeout(() => notice.classList.add('is-visible'), 900);
+            btn.addEventListener('click', () => {
+                notice.classList.remove('is-visible');
+                try { sessionStorage.setItem('ssic-cookie-notice-seen', '1'); } catch (e) {}
+                setTimeout(() => { notice.style.display = 'none'; }, 500);
+            });
+        })();
+    </script>
+</body>
+</html>
