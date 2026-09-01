@@ -376,7 +376,8 @@
            dreptunghi alb aruncat pe pagină. */
         .ig-embed-frame {
             background: var(--c-surface-elevated); border: 1px solid var(--c-border-soft);
-            border-radius: 24px; padding: 22px; overflow: hidden;
+            border-radius: 24px; padding: 22px;
+            overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch;
             box-shadow: 0 20px 60px var(--c-shadow-1);
             display: flex; justify-content: center;
             transition: transform var(--transition-fast), box-shadow var(--transition-fast);
@@ -837,6 +838,7 @@
             .home-about-extended h2 { font-size: 2.2rem; }
             .home-about-extended p { font-size: 1.05rem; margin-bottom: 14px; }
             .instagram-embed-wrapper { margin: 0 auto 70px; }
+            .ig-embed-frame { padding: 10px; }
 
             .horizontal-nav { margin-bottom: 36px; justify-content: flex-start; }
             .horizontal-tab { padding: 10px 18px; font-size: 0.92rem; }
@@ -846,6 +848,15 @@
             .team-name { font-size: 1.15rem; }
             .event-desc { font-size: 1.05rem; margin-bottom: 24px; }
             .carousel-container { margin-top: 20px; }
+        }
+        @media (max-width: 430px) {
+            /* Widget-ul oficial Instagram cere min-width:326px pe blockquote. Sub 430px,
+               padding-ul ramei + padding-ul lateral al secțiunii puteau lăsa mai puțin loc
+               decât atât, iar rama tăia/strângea postarea. Reducem paddingurile ca să
+               rămână mereu destul spațiu; overflow-x:auto (mai sus) e plasa de siguranță
+               dacă totuși nu încape pe un telefon foarte îngust. */
+            .home-extended-area { padding: 56px 3vw; }
+            .ig-embed-frame { padding: 6px; }
         }
         @media (max-width: 420px) {
             .team-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1310,7 +1321,7 @@
                         </div>
                         <div class="team-member hover-target reveal">
                             <div class="team-photo"></div>
-                            <div class="team-info"><div class="team-name">Soficaru David Mihai</div><div class="team-role">Consilier Facultate</div></div>
+                            <div class="team-info"><div class="team-name">Soficaru David</div><div class="team-role">Consilier Facultate</div></div>
                         </div>
                         <div class="team-member hover-target reveal">
                             <div class="team-photo"></div>
@@ -1581,7 +1592,17 @@
             // (ex: index.html#board). suppressHistoryPush evită dublarea intrării în istoric
             // când navigate() e chemată ca urmare a unui Back/Forward (vezi popstate mai jos).
             if (!suppressHistoryPush) {
-                history.pushState({ view: targetId }, '', '#' + targetId);
+                // try/catch e esențial aici: pe iOS (Safari sau WebView-uri in-app), pushState
+                // poate arunca SecurityError în anumite contexte (fișier deschis local cu file://,
+                // browsere in-app ale unor aplicații, sau limita nescrisă de apeluri History API
+                // într-un interval scurt). Fără try/catch, eroarea oprea navigate() exact după ce
+                // isNavigating fusese pus pe true, deci pagina rămânea "înghețată" pe prima secțiune
+                // — orice apăsare ulterioară ieșea imediat din navigate() la verificarea isNavigating.
+                try {
+                    history.pushState({ view: targetId }, '', '#' + targetId);
+                } catch (err) {
+                    console.warn('pushState indisponibil, continuăm fără actualizarea URL-ului:', err);
+                }
             }
             
             const cIdx = navOrder.indexOf(currentViewId);
@@ -1649,7 +1670,11 @@
             }
             // Ne asigurăm că prima intrare din istoric reflectă pagina curentă,
             // ca primul Back să nu iasă direct din site.
-            history.replaceState({ view: currentViewId }, '', '#' + currentViewId);
+            try {
+                history.replaceState({ view: currentViewId }, '', '#' + currentViewId);
+            } catch (err) {
+                console.warn('replaceState indisponibil la încărcare:', err);
+            }
         })();
 
         /* ==========================================================================
@@ -1945,7 +1970,7 @@
                 { group: 'Facultate', title: 'Nuramet Ener', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
                 { group: 'Facultate', title: 'Baicu Bianca Paula', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
                 { group: 'Facultate', title: 'Petrescu Erica Maria', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
-                { group: 'Facultate', title: 'Soficaru David Mihai', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
+                { group: 'Facultate', title: 'Soficaru David', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
                 { group: 'Facultate', title: 'Petrici Anca Maria', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
                 { group: 'Facultate', title: 'Rusu David Simon', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
             ];
