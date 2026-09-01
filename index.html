@@ -41,17 +41,12 @@
             --c-overlay-hover: rgba(255,255,255,0.1);
             --c-shadow-1: rgba(0,0,0,0.5);
             --c-shadow-2: rgba(0,0,0,0.6);
-            --c-nav-bg: rgba(20, 13, 30, 0.7);
+            --c-nav-bg: rgba(20, 13, 30, 0.9);
             --c-nav-bg-solid: rgba(20, 13, 30, 0.97);
             --c-footer-bg: #0c0812;
             --c-cursor-ring: rgba(255,255,255,0.4);
             --c-scheme: dark;
 
-            /* Wash-uri pentru fundalul grainy-gradient (mesh), aplicate pe .app */
-            --c-mesh-1: rgba(90, 47, 138, 0.55);
-            --c-mesh-2: rgba(245, 176, 39, 0.14);
-            --c-mesh-3: rgba(201, 166, 242, 0.16);
-            
             --font-main: "Jost", system-ui, sans-serif;
             --font-display: "Jost", system-ui, sans-serif;
             
@@ -71,7 +66,13 @@
             box-sizing: border-box; margin: 0; padding: 0;
         }
         @media (hover: hover) and (pointer: fine) {
-            *, *::before, *::after { cursor: none; }
+            /* !important e necesar aici: fără el, orice regulă cu selector de clasă mai specific
+               (ex. .horizontal-tab { cursor: pointer }, .search-result-item { cursor: pointer },
+               .cookie-notice-btn { cursor: pointer }) câștigă în fața selectorului universal *,
+               indiferent de ordinea din fișier — de-asta apărea ocazional mânuța nativă pe unele
+               butoane. Cu !important, cursorul sistemului rămâne mereu ascuns pe desktop, iar
+               singurul indicator vizual e inelul custom (.cursor / .cursor.hovering). */
+            *, *::before, *::after { cursor: none !important; }
         }
 
         html, body {
@@ -106,13 +107,19 @@
             background: var(--c-accent); border-radius: 50%;
             pointer-events: none; z-index: var(--z-cursor);
             transform: translate(-50%, -50%);
-            transition: width 0.2s var(--ease-out), height 0.2s var(--ease-out), background 0.2s;
+            transition: width 0.2s var(--ease-out), height 0.2s var(--ease-out), background 0.2s, opacity 0.2s var(--ease-out);
             mix-blend-mode: normal;
         }
         @media (hover: none), (pointer: coarse) {
             .cursor { display: none; }
         }
-        
+        /* Peste embed-ul Instagram (iframe cross-origin), browserul nu ne mai lasă să interceptăm
+           mousemove — nu putem "trage" inelul custom acolo, e o limită de securitate, nu un bug
+           de-al nostru. În loc să rămână înghețat/rupt vizual pe ecran, îl estompăm complet cât
+           timp mouse-ul e deasupra widget-ului (vezi JS: initCursor), iar cursorul nativ al
+           Instagram-ului (singurul pe care avem voie să-l vedem acolo) rămâne vizibil normal. */
+        .cursor.is-hidden { opacity: 0; }
+
         .cursor.hovering {
             width: 40px; height: 40px; background: var(--c-overlay-hover);
             border: 1px solid var(--c-cursor-ring);
@@ -128,10 +135,11 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 90px;
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 4vw; z-index: var(--z-nav);
+            /* Opacitate mai mare decât înainte (0.7 → 0.9) special ca gridul decorativ de pe
+               .app să nu se mai citească deloc prin blur pe zona meniului (cerut explicit). */
             background: var(--c-nav-bg);
             backdrop-filter: blur(22px) saturate(var(--glass-saturation));
             -webkit-backdrop-filter: blur(22px) saturate(var(--glass-saturation));
-            border-bottom: 1px solid var(--c-border);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -12px 24px -12px rgba(255,255,255,0.03);
             transition: transform 0.5s var(--ease-out), opacity 0.4s var(--ease-out);
         }
@@ -229,13 +237,15 @@
         .app {
             position: relative; width: 100vw; height: 100vh; height: 100dvh;
             background-color: var(--c-base);
+            /* Grid decorativ simplu, mov, static — din CSS pur (repeating-linear-gradient),
+               nu dintr-un tile SVG, deci fără cusături de tile la niciun zoom/DPI. Fără gold,
+               fără animație — doar liniile de grid, curate. */
             background-image:
-                radial-gradient(ellipse 1300px 900px at 50% -10%, var(--c-mesh-1), transparent 58%),
-                radial-gradient(ellipse 900px 700px at 100% 100%, var(--c-mesh-3), transparent 62%),
-                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cpath d='M64 0H0V64' fill='none' stroke='white' stroke-opacity='0.045' stroke-width='1' shape-rendering='crispEdges'/%3E%3C/svg%3E");
-            background-repeat: no-repeat, no-repeat, repeat;
-            background-size: auto, auto, 64px 64px;
-            background-attachment: fixed, fixed, fixed;
+                repeating-linear-gradient(90deg, rgba(90,47,138,0.14) 0px, rgba(90,47,138,0.14) 1px, transparent 1px, transparent 64px),
+                repeating-linear-gradient(0deg, rgba(90,47,138,0.14) 0px, rgba(90,47,138,0.14) 1px, transparent 1px, transparent 64px);
+            background-repeat: repeat;
+            background-size: 64px 64px;
+            background-attachment: fixed;
         }
         .view {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -287,7 +297,21 @@
             .typed-cursor { animation: cursorBlink 1.4s steps(1) infinite; }
         }
         
-        .page-content { padding: 180px 6vw 100px; max-width: 1600px; margin: 0 auto; }
+        .page-content { position: relative; z-index: 0; padding: 180px 6vw 100px; max-width: 1600px; margin: 0 auto; }
+        /* Gridul decorativ de pe .app nu trebuie să treacă prin titlul subpaginilor (cerut
+           explicit) — o pată difuză, cu fundal solid și margini estompate prin blur (nu o
+           linie/muchie dreaptă), acoperă doar zona titlului și se stinge lin spre restul
+           conținutului, care rămâne cu grid vizibil normal. */
+        .page-content::before {
+            content: '';
+            position: absolute; top: -40px; left: -10%; right: -10%; height: 300px;
+            background: var(--c-base);
+            filter: blur(46px);
+            z-index: -1; pointer-events: none;
+        }
+        @media (max-width: 768px) {
+            .page-content::before { height: 230px; }
+        }
 
         /* ==========================================================================
            5b. REVEAL-ON-SCROLL (animație discretă, nu schimbă layoutul)
@@ -311,7 +335,10 @@
            ========================================================================== */
         #view-home { padding: 0; }
         
-        .hero { position: relative; width: 100%; height: 100vh; height: 100svh; display: flex; align-items: center; padding: 0 6vw; }
+        /* Fundal solid propriu (nu doar video + gradient), ca gridul decorativ de pe .app
+           să nu se vadă deloc pe hero (cerut explicit) — hero-ul are propriul strat opac
+           dedesubtul video-ului/gradientului, indiferent cât de transparente sunt ele. */
+        .hero { position: relative; width: 100%; height: 100vh; height: 100svh; display: flex; align-items: center; padding: 0 6vw; background-color: var(--c-base); }
         .hero-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; object-fit: cover; opacity: 0.55; }
         @media (hover: hover) and (pointer: fine) {
             .hero-video { mix-blend-mode: luminosity; opacity: 0.5; }
@@ -351,7 +378,6 @@
         
         .home-huge-stats {
             display: flex; flex-wrap: wrap; gap: 40px; margin-bottom: 100px;
-            padding-bottom: 60px; border-bottom: 1px solid var(--c-border-hairline);
         }
         
         .home-stat { flex: 1; min-width: 300px; }
@@ -380,7 +406,7 @@
             border-radius: 24px; padding: 14px;
             overflow: hidden; max-width: 100%;
             box-shadow: 0 20px 60px var(--c-shadow-1);
-            display: flex; justify-content: center;
+            position: relative;
             transition: transform var(--transition-fast), box-shadow var(--transition-fast);
         }
         /* Forțăm widget-ul Instagram (blockquote și iframe-ul care îl înlocuiește) să nu
@@ -388,8 +414,50 @@
         .ig-embed-frame blockquote.instagram-media,
         .ig-embed-frame iframe {
             max-width: 100% !important; width: 100% !important; min-width: 0 !important;
+            display: block !important; border-radius: 16px;
         }
         .ig-embed-frame:hover { transform: translateY(-6px); box-shadow: 0 30px 70px var(--c-shadow-2); }
+        /* Cât timp Instagram încă nu a înlocuit blockquote-ul cu iframe-ul real (script extern,
+           necesită rețea), ascundem placeholder-ul alb nativ al Instagram (care nu se încadra
+           corect în ramă — de-asta apărea „widget-ul care nu se încadrează”) și afișăm în loc
+           un loader temat, în culorile site-ului, cu proporție fixă 4:5, care umple mereu
+           exact rama. JS-ul de mai jos comută automat spre embed-ul real imediat ce apare. */
+        .ig-embed-frame blockquote.instagram-media {
+            opacity: 0; position: relative; z-index: 1;
+            transition: opacity 0.5s var(--ease-out);
+        }
+        .ig-embed-frame.ig-ready blockquote.instagram-media,
+        .ig-embed-frame.ig-ready iframe { opacity: 1; }
+        .ig-embed-skeleton {
+            position: absolute; inset: 14px; border-radius: 16px; overflow: hidden;
+            display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px;
+            aspect-ratio: 4 / 5;
+            background: linear-gradient(110deg, var(--c-surface) 30%, var(--c-surface-elevated) 45%, var(--c-surface) 60%);
+            background-size: 220% 100%;
+            animation: igSkeletonShimmer 1.7s linear infinite;
+            transition: opacity 0.4s var(--ease-out);
+            z-index: 0;
+        }
+        .ig-embed-skeleton i { font-size: 2.1rem; color: var(--c-gray); opacity: 0.4; }
+        .ig-embed-skeleton span { font-size: 0.82rem; color: var(--c-gray); font-weight: 600; opacity: 0.6; }
+        .ig-embed-frame.ig-ready .ig-embed-skeleton { opacity: 0; pointer-events: none; }
+        @keyframes igSkeletonShimmer {
+            0% { background-position: 220% 0; }
+            100% { background-position: -220% 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .ig-embed-skeleton { animation: none; }
+        }
+        /* Fallback: dacă embed-ul nu s-a încărcat în câteva secunde (fără internet, script
+           blocat etc.), arătăm un link clar spre postare în loc să lăsăm loaderul la nesfârșit. */
+        .ig-embed-fallback {
+            display: none; align-items: center; gap: 8px;
+            font-weight: 800; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.6px;
+            color: var(--c-accent);
+        }
+        .ig-embed-frame.ig-timeout .ig-embed-skeleton i,
+        .ig-embed-frame.ig-timeout .ig-embed-skeleton span { display: none; }
+        .ig-embed-frame.ig-timeout .ig-embed-fallback { display: inline-flex; }
         .ig-embed-eyebrow {
             display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
             font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.4px;
@@ -540,8 +608,7 @@
            ========================================================================== */
         /* Container modern pentru textul de intro al departamentului — bară gradient, nu chenar plat */
         .dept-intro {
-            position: relative; padding-bottom: 32px; margin-bottom: 56px;
-            border-bottom: 1px solid var(--c-border-hairline);
+            position: relative; margin-bottom: 56px;
             max-width: 780px;
         }
         .dept-intro p {
@@ -565,9 +632,13 @@
             content: '\f007'; font-family: "Font Awesome 6 Free"; font-weight: 900;
             font-size: 2.5rem; opacity: 0.16; color: var(--c-white); transition: opacity 0.3s var(--ease-out);
         }
-        /* Poza reală (dacă există fișierul) acoperă complet fundalul + iconița decorativă */
+        /* Poza reală (dacă există fișierul) acoperă complet fundalul + iconița decorativă.
+           object-position 50% 20% (nu 'center') ca încadrarea să favorizeze partea de sus a
+           cadrului — acolo unde e de regulă fața într-un portret — în loc să taie din cap
+           atunci când poza sursă e mai degrabă verticală decât pătrată. */
         .team-photo img {
-            position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            object-fit: cover; object-position: 50% 20%; z-index: 1;
         }
         .team-member:hover .team-photo {
             transform: translateY(-4px);
@@ -636,7 +707,7 @@
            10. FOOTER GLOBAL PROFESIONIST (Cu Iconițe și Tiktok)
            ========================================================================== */
         footer {
-            background: var(--c-footer-bg); padding: 80px 6vw 0; border-top: 1px solid var(--c-border-hairline);
+            background: var(--c-footer-bg); padding: 80px 6vw 0;
             display: flex; flex-direction: column; position: relative; z-index: 10;
         }
         .footer-grid {
@@ -644,9 +715,23 @@
         }
         .ft-col h4 { font-family: var(--font-display); font-size: 1.2rem; font-weight: 800; color: var(--c-white); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
         .ft-col p { font-size: 1rem; margin-bottom: 10px; color: var(--c-gray); }
+        /* Linkurile din "Structură" (footer) duc direct la departamentul respectiv pe pagina
+           Board — fiecare nume e clickabil, cu underline discret pe hover, ca să se vadă
+           clar că sunt interactive, nu doar text. */
+        .ft-dept-links { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+        .ft-dept-links a {
+            color: var(--c-white-off); font-weight: 700; text-decoration: none;
+            background-image: linear-gradient(var(--c-accent), var(--c-accent));
+            background-repeat: no-repeat; background-size: 0% 1px; background-position: 0 100%;
+            transition: color 0.2s var(--ease-out), background-size 0.25s var(--ease-out);
+            padding-bottom: 1px;
+        }
+        .ft-dept-links a:hover { color: var(--c-accent); background-size: 100% 1px; }
+        .ft-dept-links span { color: var(--c-gray); opacity: 0.5; }
         .ft-mail {
-            display: inline-flex; align-items: center; gap: 8px; color: var(--c-accent) !important;
+            display: flex; align-items: center; gap: 8px; color: var(--c-accent) !important;
             font-weight: 700; transition: color 0.25s var(--ease-out), gap 0.25s var(--ease-out);
+            width: fit-content;
         }
         .ft-mail:hover { color: var(--c-accent-2) !important; gap: 11px; }
         .ft-mail i { font-size: 0.95em; }
@@ -660,7 +745,7 @@
 
         /* Bară inferioară de footer: copyright + notă privind cookie-urile */
         .footer-bottom {
-            border-top: 1px solid var(--c-border-hairline);
+            margin-top: 20px;
             padding: 22px 0 max(22px, env(safe-area-inset-bottom)); display: flex; flex-wrap: wrap; gap: 10px 24px;
             align-items: center; justify-content: space-between;
             font-size: 0.82rem; color: var(--c-gray);
@@ -783,9 +868,12 @@
             overflow: hidden;
         }
         /* Poza unui membru (senator/consilier/board) trebuie să umple aceeași căsuță
-           38x38 ca și iconița-fallback, decupată pătrat, fără să deformeze imaginea. */
+           38x38 ca și iconița-fallback, decupată pătrat, fără să deformeze imaginea.
+           object-position 50% 20% (nu 'center'), ca în restul site-ului: în cutia mică
+           de căutare, un crop centrat exact pe mijloc taie des din cap; ancorând spre
+           partea de sus, fața rămâne încadrată corect. */
         .search-result-photo img {
-            width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;
+            width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; display: block;
         }
         .search-result-text { min-width: 0; }
         .search-result-title { color: var(--c-white); font-weight: 700; font-size: 1rem; }
@@ -839,7 +927,11 @@
             display: flex; flex-direction: column;
             transform: translateY(-16px) scale(0.98); opacity: 0;
             transition: transform 0.3s var(--ease-out), opacity 0.3s var(--ease-out);
+            /* Scroll-ul rămâne activ (conținutul poate depăși 88vh pe ecrane mici), dar bara
+               vizuală e ascunsă — nu vrem "sidebar"-ul de scrollbar peste cardul rotunjit. */
+            scrollbar-width: none; -ms-overflow-style: none;
         }
+        .contact-card::-webkit-scrollbar { display: none; }
         .contact-overlay.open .contact-card { transform: translateY(0) scale(1); opacity: 1; }
         .contact-close-btn {
             position: absolute; top: 16px; right: 16px; z-index: 2;
@@ -858,7 +950,7 @@
             overflow: hidden; background: linear-gradient(145deg, var(--c-surface), var(--c-surface-elevated));
         }
         .contact-photo { position: absolute; inset: 0; }
-        .contact-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .contact-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 18%; }
         .contact-head-overlay {
             position: absolute; left: 0; right: 0; bottom: 0; padding: 60px 28px 22px;
             background: linear-gradient(to top, rgba(8,5,13,0.94) 0%, rgba(8,5,13,0.55) 55%, rgba(8,5,13,0) 100%);
@@ -981,7 +1073,7 @@
 
             .horizontal-nav { margin-bottom: 36px; justify-content: flex-start; }
             .horizontal-tab { padding: 10px 18px; font-size: 0.92rem; }
-            .dept-intro { padding-bottom: 22px; margin-bottom: 32px; }
+            .dept-intro { margin-bottom: 32px; }
             .dept-intro p { font-size: 1.08rem; }
             .team-grid { grid-template-columns: 1fr; gap: 40px; }
             .team-photo { aspect-ratio: 4/5; }
@@ -1297,7 +1389,18 @@
                      Până pui o postare reală, rămâne vizibil cardul de mai jos (linkul către profil). -->
                 <div class="instagram-embed-wrapper reveal" id="ig-embed-wrapper">
                     <div class="ig-embed-eyebrow"><i class="fab fa-instagram"></i> Ultima postare</div>
-                    <div class="ig-embed-frame">
+                    <div class="ig-embed-frame" id="igEmbedFrame">
+
+                    <!-- Loader temat (culorile site-ului), vizibil cât timp scriptul Instagram nu a
+                         înlocuit încă blockquote-ul de mai jos cu postarea reală. Elimină „flash-ul”
+                         alb, needimensionat corect, al placeholder-ului nativ Instagram. -->
+                    <div class="ig-embed-skeleton" id="igEmbedSkeleton">
+                        <i class="fab fa-instagram"></i>
+                        <span>Se încarcă postarea…</span>
+                        <a href="https://www.instagram.com/p/DcoXrGZDYgJ/" target="_blank" rel="noopener" class="ig-embed-fallback hover-target">
+                            Vezi pe Instagram <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.8em;"></i>
+                        </a>
+                    </div>
 
                     <!-- IG-EMBED-START — înlocuiește tot ce e între START și END cu codul copiat de la pasul 4 -->
                     <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/DcoXrGZDYgJ/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" style=" background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px; max-width:400px; min-width:326px; padding:0; width:99.375%; width:-webkit-calc(100% - 2px); width:calc(100% - 2px);"><div style="padding:16px;"> <a href="https://www.instagram.com/p/DcoXrGZDYgJ/?utm_source=ig_embed&amp;utm_campaign=loading" style=" background:#FFFFFF; line-height:0; padding:0 0; text-align:center; text-decoration:none; width:100%;" target="_blank"> <div style=" display: flex; flex-direction: row; align-items: center;"> <div style="background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 40px; margin-right: 14px; width: 40px;"></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 100px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 60px;"></div></div></div><div style="padding: 19% 0;"></div> <div style="display:block; height:50px; margin:0 auto 12px; width:50px;"><svg width="50px" height="50px" viewBox="0 0 60 60" version="1.1" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g transform="translate(-511.000000, -20.000000)" fill="#000000"><g><path d="M556.869,30.41 C554.814,30.41 553.148,32.076 553.148,34.131 C553.148,36.186 554.814,37.852 556.869,37.852 C558.924,37.852 560.59,36.186 560.59,34.131 C560.59,32.076 558.924,30.41 556.869,30.41 M541,60.657 C535.114,60.657 530.342,55.887 530.342,50 C530.342,44.114 535.114,39.342 541,39.342 C546.887,39.342 551.658,44.114 551.658,50 C551.658,55.887 546.887,60.657 541,60.657 M541,33.886 C532.1,33.886 524.886,41.1 524.886,50 C524.886,58.899 532.1,66.113 541,66.113 C549.9,66.113 557.115,58.899 557.115,50 C557.115,41.1 549.9,33.886 541,33.886 M565.378,62.101 C565.244,65.022 564.756,66.606 564.346,67.663 C563.803,69.06 563.154,70.057 562.106,71.106 C561.058,72.155 560.06,72.803 558.662,73.347 C557.607,73.757 556.021,74.244 553.102,74.378 C549.944,74.521 548.997,74.552 541,74.552 C533.003,74.552 532.056,74.521 528.898,74.378 C525.979,74.244 524.393,73.757 523.338,73.347 C521.94,72.803 520.942,72.155 519.894,71.106 C518.846,70.057 518.197,69.06 517.654,67.663 C517.244,66.606 516.755,65.022 516.623,62.101 C516.479,58.943 516.448,57.996 516.448,50 C516.448,42.003 516.479,41.056 516.623,37.899 C516.755,34.978 517.244,33.391 517.654,32.338 C518.197,30.938 518.846,29.942 519.894,28.894 C520.942,27.846 521.94,27.196 523.338,26.654 C524.393,26.244 525.979,25.756 528.898,25.623 C532.057,25.479 533.004,25.448 541,25.448 C548.997,25.448 549.943,25.479 553.102,25.623 C556.021,25.756 557.607,26.244 558.662,26.654 C560.06,27.196 561.058,27.846 562.106,28.894 C563.154,29.942 563.803,30.938 564.346,32.338 C564.756,33.391 565.244,34.978 565.378,37.899 C565.522,41.056 565.552,42.003 565.552,50 C565.552,57.996 565.522,58.943 565.378,62.101 M570.82,37.631 C570.674,34.438 570.167,32.258 569.425,30.349 C568.659,28.377 567.633,26.702 565.965,25.035 C564.297,23.368 562.623,22.342 560.652,21.575 C558.743,20.834 556.562,20.326 553.369,20.18 C550.169,20.033 549.148,20 541,20 C532.853,20 531.831,20.033 528.631,20.18 C525.438,20.326 523.257,20.834 521.349,21.575 C519.376,22.342 517.703,23.368 516.035,25.035 C514.368,26.702 513.342,28.377 512.574,30.349 C511.834,32.258 511.326,34.438 511.181,37.631 C511.035,40.831 511,41.851 511,50 C511,58.147 511.035,59.17 511.181,62.369 C511.326,65.562 511.834,67.743 512.574,69.651 C513.342,71.625 514.368,73.296 516.035,74.965 C517.703,76.634 519.376,77.658 521.349,78.425 C523.257,79.167 525.438,79.673 528.631,79.82 C531.831,79.965 532.853,80.001 541,80.001 C549.148,80.001 550.169,79.965 553.369,79.82 C556.562,79.673 558.743,79.167 560.652,78.425 C562.623,77.658 564.297,76.634 565.965,74.965 C567.633,73.296 568.659,71.625 569.425,69.651 C570.167,67.743 570.674,65.562 570.82,62.369 C570.966,59.17 571,58.147 571,50 C571,41.851 570.966,40.831 570.82,37.631"></path></g></g></g></svg></div><div style="padding-top: 8px;"> <div style=" color:#3897f0; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:550; line-height:18px;">View this post on Instagram</div></div><div style="padding: 12.5% 0;"></div> <div style="display: flex; flex-direction: row; margin-bottom: 14px; align-items: center;"><div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(0px) translateY(7px);"></div> <div style="background-color: #F4F4F4; height: 12.5px; transform: rotate(-45deg) translateX(3px) translateY(1px); width: 12.5px; flex-grow: 0; margin-right: 14px; margin-left: 2px;"></div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(9px) translateY(-18px);"></div></div><div style="margin-left: 8px;"> <div style=" background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 20px; width: 20px;"></div> <div style=" width: 0; height: 0; border-top: 2px solid transparent; border-left: 6px solid #f4f4f4; border-bottom: 2px solid transparent; transform: translateX(16px) translateY(-4px) rotate(30deg)"></div></div><div style="margin-left: auto;"> <div style=" width: 0px; border-top: 8px solid #F4F4F4; border-right: 8px solid transparent; transform: translateY(16px);"></div> <div style=" background-color: #F4F4F4; flex-grow: 0; height: 12px; width: 16px; transform: translateY(-4px);"></div> <div style=" width: 0; height: 0; border-top: 8px solid #F4F4F4; border-left: 8px solid transparent; transform: translateY(-4px) translateX(8px);"></div></div></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center; margin-bottom: 24px;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 224px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 144px;"></div></div></a><p style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; line-height:17px; margin-bottom:0; margin-top:8px; overflow:hidden; padding:8px 0 7px; text-align:center; text-overflow:ellipsis; white-space:nowrap;"><a href="https://www.instagram.com/p/DcoXrGZDYgJ/?utm_source=ig_embed&amp;utm_campaign=loading" style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:normal; line-height:17px; text-decoration:none;" target="_blank">A post shared by SSIC (@ssic.upb)</a></p></div></blockquote>
@@ -1686,12 +1789,19 @@
                 </div>
                 <div class="ft-col">
                     <h4>Locație</h4>
-                    <p>Campus UPB, București, România</p>
+                    <p>Campus Polizu, corp L, sala L028</p>
                     <a href="mailto:ssic.upb@gmail.com" class="ft-mail hover-target" style="margin-top:10px;"><i class="fa-regular fa-envelope"></i> ssic.upb@gmail.com</a>
+                    <a href="https://chimie.upb.ro" target="_blank" rel="noopener" class="ft-mail hover-target" style="margin-top:6px;"><i class="fa-solid fa-building-columns"></i> Pagina Facultății</a>
                 </div>
                 <div class="ft-col">
                     <h4>Structură</h4>
-                    <p>Consiliu Director | PR | HR | FR | EV</p>
+                    <p class="ft-dept-links">
+                        <a href="#board" class="hover-target" onclick="event.preventDefault(); goToDept('dept-cd');">Consiliu Director</a><span>·</span>
+                        <a href="#board" class="hover-target" onclick="event.preventDefault(); goToDept('dept-pr');">PR</a><span>·</span>
+                        <a href="#board" class="hover-target" onclick="event.preventDefault(); goToDept('dept-hr');">HR</a><span>·</span>
+                        <a href="#board" class="hover-target" onclick="event.preventDefault(); goToDept('dept-fr');">Fundraising</a><span>·</span>
+                        <a href="#board" class="hover-target" onclick="event.preventDefault(); goToDept('dept-ev');">Evenimente</a>
+                    </p>
                 </div>
             </div>
             <div class="footer-bottom">
@@ -1717,6 +1827,58 @@
         loopCursor();
 
         window.addEventListener('mousemove', e => { mX = e.clientX; mY = e.clientY; });
+
+        /* Peste widget-ul Instagram (iframe încărcat de pe instagram.com), browserul nu mai
+           trimite evenimente mousemove către pagina noastră — cross-origin, nimic de făcut din
+           CSS/JS de aici. Fără fix-ul de mai jos, inelul rămânea "înghețat" pe ultima poziție
+           dinaintea intrării în widget, ceea ce arăta ca un bug. Detectăm intrarea/ieșirea din
+           wrapper-ul din jurul iframe-ului (acela e al nostru, nu cross-origin) și estompăm
+           inelul cât timp mouse-ul e deasupra — nativul Instagram-ului rămâne vizibil acolo,
+           inevitabil, dar cel puțin al nostru nu mai arată stricat restul timpului. */
+        (function initInstagramCursorFade() {
+            const igWrapper = document.getElementById('ig-embed-wrapper');
+            if (!igWrapper) return;
+            igWrapper.addEventListener('mouseenter', () => cursor.classList.add('is-hidden'));
+            igWrapper.addEventListener('mouseleave', () => cursor.classList.remove('is-hidden'));
+        })();
+
+        /* ==========================================================================
+           JS: Comutare automată de la loader-ul temat la postarea Instagram reală
+           ==========================================================================
+           Scriptul oficial embed.js (încărcat la finalul paginii) înlocuiește
+           <blockquote class="instagram-media"> cu un <iframe> odată ce postarea s-a
+           încărcat de pe instagram.com — necesită conexiune la rețea. Până atunci,
+           rămâne vizibil loaderul temat (.ig-embed-skeleton), nu placeholder-ul alb
+           nativ al Instagram (care nu se încadra corect în ramă). Ne uităm după apariția
+           unui <iframe> în cadru și, când apare, comutăm clasa 'ig-ready' — CSS-ul face
+           restul (fade). Dacă nu apare deloc într-un timp rezonabil (offline, script
+           blocat), arătăm un link simplu spre postare, în loc să lăsăm loaderul la nesfârșit. */
+        (function initInstagramReadySwap() {
+            const frame = document.getElementById('igEmbedFrame');
+            if (!frame) return;
+
+            let settled = false;
+            const markReady = () => {
+                if (settled) return;
+                settled = true;
+                frame.classList.add('ig-ready');
+                observer.disconnect();
+            };
+
+            const observer = new MutationObserver(() => {
+                if (frame.querySelector('iframe')) markReady();
+            });
+            observer.observe(frame, { childList: true, subtree: true });
+
+            // Poate fi deja prezent dacă embed.js a rulat foarte rapid (cache etc.)
+            if (frame.querySelector('iframe')) markReady();
+
+            setTimeout(() => {
+                if (settled) return;
+                if (frame.querySelector('iframe')) { markReady(); return; }
+                frame.classList.add('ig-timeout');
+            }, 6000);
+        })();
 
         /* ==========================================================================
            JS: fallback grațios pt. video-ul din hero, dacă fișierul local nu există încă
@@ -1794,13 +1956,21 @@
             setTimeout(typeStep, 500);
         })();
         
-        function bindHover() {
-            document.querySelectorAll('.hover-target, .nav-link, .soc-icon').forEach(t => {
-                t.onmouseenter = () => cursor.classList.add('hovering');
-                t.onmouseleave = () => cursor.classList.remove('hovering');
-            });
-        }
-        bindHover();
+        /* Delegare de evenimente pe document, în loc de a lega listener-e individual pe fiecare
+           .hover-target la încărcare: acele elemente adăugate DUPĂ acest punct în execuție
+           (rezultatele din search, poze din galerie, notificarea de cookie-uri etc.) nu mai
+           există încă în DOM când s-ar fi rulat un bindHover() clasic, deci rămâneau fără
+           cursor-ul cu "mânuță". Delegarea prinde automat orice element, oricând apare. */
+        const HOVER_SELECTOR = '.hover-target, .nav-link, .soc-icon';
+        document.addEventListener('mouseover', e => {
+            if (e.target.closest(HOVER_SELECTOR)) cursor.classList.add('hovering');
+        });
+        document.addEventListener('mouseout', e => {
+            const leavingTarget = e.target.closest(HOVER_SELECTOR);
+            if (!leavingTarget) return;
+            const enteringTarget = e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest(HOVER_SELECTOR);
+            if (!enteringTarget) cursor.classList.remove('hovering');
+        });
 
         /* ==========================================================================
            JS: Haptic feedback (mobil) — no-op silențios pe orice device/browser
@@ -2076,6 +2246,27 @@
         }
 
         /* ==========================================================================
+           JS: Link-uri directe către un departament (folosit din footer, "Structură")
+           ==========================================================================
+           Duce direct pe pagina Board ȘI comută pe tab-ul departamentului cerut, fără
+           ca vizitatorul să mai trebuiască să navigheze manual și să caute tab-ul. */
+        function goToDept(deptId) {
+            haptic(10);
+            const deptOrder = ['dept-cd', 'dept-hr', 'dept-pr', 'dept-fr', 'dept-ev'];
+            const goToView = (currentViewId !== 'board');
+            if (goToView) navigate('board');
+
+            setTimeout(() => {
+                const tabs = document.querySelectorAll('#nav-board .horizontal-tab');
+                const tabEl = tabs[deptOrder.indexOf(deptId)];
+                if (tabEl) switchDept(deptId, tabEl);
+                const view = document.getElementById('view-board');
+                if (view) view.scrollTop = 0;
+                closeMobileNav();
+            }, goToView ? 430 : 0);
+        }
+
+        /* ==========================================================================
            JS: REVEAL ON SCROLL (declarat ÎNAINTE de orice cod care îl folosește)
            ========================================================================== */
         const revealObserver = new IntersectionObserver((entries) => {
@@ -2336,8 +2527,14 @@
                         html += `<div class="search-result-group-label">${escapeHtml(item.group)}</div>`;
                         lastGroup = item.group;
                     }
-                    const iconHtml = item.photo
-                        ? `<div class="search-result-icon search-result-photo"><img src="${item.photo}" alt="" loading="lazy"></div>`
+                    // Board / Senatori / Consilieri nu au un URL de poză explicit în index (spre
+                    // deosebire de Conducerea Facultății, care are poza de pe chimie.upb.ro), dar
+                    // folosesc același tipar de fișier ca și cardurile din pagină: assets/team/<nume-slug>.jpg
+                    // (vezi slugifyName mai sus). Dacă poza chiar există acolo, apare și în search;
+                    // dacă nu, onerror mai jos cade discret pe iconița generică.
+                    const photoSrc = item.photo || ((item.group === 'Board' || item.group === 'Facultate') ? `assets/team/${slugifyName(item.title)}.jpg` : null);
+                    const iconHtml = photoSrc
+                        ? `<div class="search-result-icon search-result-photo"><img src="${photoSrc}" alt="" loading="lazy"></div>`
                         : `<div class="search-result-icon"><i class="fa-solid ${item.icon}"></i></div>`;
                     html += `
                         <div class="search-result-item${i === 0 ? ' is-active' : ''}" data-index="${i}" role="option">
@@ -2352,6 +2549,14 @@
 
                 resultsEl.querySelectorAll('.search-result-item').forEach(el => {
                     el.addEventListener('click', () => selectResult(parseInt(el.dataset.index, 10)));
+                });
+                resultsEl.querySelectorAll('.search-result-photo img').forEach(img => {
+                    img.addEventListener('error', function () {
+                        const box = this.closest('.search-result-icon');
+                        const item = filtered[parseInt(box.closest('.search-result-item').dataset.index, 10)];
+                        box.classList.remove('search-result-photo');
+                        box.innerHTML = `<i class="fa-solid ${item.icon}"></i>`;
+                    });
                 });
             }
 
