@@ -8,10 +8,11 @@
     <!-- FontAwesome pentru iconițele de Social Media -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Fonturi: Space Grotesk (titluri, modern geometric) + Inter (text) -->
+    <!-- Font: Jost — geometric sans liber, gândit explicit ca alternativă modernă la Futura,
+         cu suport complet pentru diacriticele românești (ă, â, î, ș, ț). -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap" rel="stylesheet">
     
     <style>
         /* ==========================================================================
@@ -51,8 +52,8 @@
             --c-mesh-2: rgba(245, 176, 39, 0.14);
             --c-mesh-3: rgba(201, 166, 242, 0.16);
             
-            --font-main: "Inter", system-ui, sans-serif;
-            --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+            --font-main: "Jost", system-ui, sans-serif;
+            --font-display: "Jost", system-ui, sans-serif;
             
             --ease-out: cubic-bezier(0.2, 1, 0.2, 1);
             --ease-in-out: cubic-bezier(0.8, 0, 0.2, 1);
@@ -367,8 +368,26 @@
         
         /* Secțiune Instagram — ultima postare, preluată automat (vezi CONFIG în JS) */
         .instagram-embed-wrapper {
-            width: 100%; max-width: 420px; margin: 0 auto 150px;
+            width: 100%; max-width: 460px; margin: 0 auto 150px;
         }
+        /* "Ramă" întunecată în jurul widget-ului alb de Instagram — nu-i putem schimba
+           culorile interioare (e un iframe de pe instagram.com, izolat de CSS-ul nostru),
+           dar îl putem prezenta ca pe o fotografie înrămată pe fundal dark, nu ca un
+           dreptunghi alb aruncat pe pagină. */
+        .ig-embed-frame {
+            background: var(--c-surface-elevated); border: 1px solid var(--c-border-soft);
+            border-radius: 24px; padding: 22px; overflow: hidden;
+            box-shadow: 0 20px 60px var(--c-shadow-1);
+            display: flex; justify-content: center;
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+        }
+        .ig-embed-frame:hover { transform: translateY(-6px); box-shadow: 0 30px 70px var(--c-shadow-2); }
+        .ig-embed-eyebrow {
+            display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+            font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.4px;
+            color: var(--c-accent);
+        }
+        .ig-embed-eyebrow i { font-size: 0.95rem; }
         .ig-card {
             background: var(--c-surface-elevated); border-radius: 20px; overflow: hidden;
             box-shadow: 0 20px 60px var(--c-shadow-1); border: 1px solid var(--c-border-soft);
@@ -402,10 +421,6 @@
             text-transform: uppercase; letter-spacing: 1.5px; color: var(--c-accent);
         }
         .ig-card-link i { font-size: 1rem; }
-        .ig-card.is-loading .ig-card-media,
-        .ig-card.is-loading .ig-card-caption { position: relative; color: transparent; }
-        .ig-card.is-loading .ig-card-media { background: linear-gradient(110deg, var(--c-surface) 8%, var(--c-surface-elevated) 18%, var(--c-surface) 33%); background-size: 200% 100%; animation: igShimmer 1.4s linear infinite; }
-        @keyframes igShimmer { to { background-position-x: -200%; } }
 
         /* ==========================================================================
            7. VIEW: IMPACT & EVENIMENTE (Fără Bouncy, Fără Gradient)
@@ -413,7 +428,7 @@
         /* Sistem comun de Tab-uri (Board/Impact) — segmented control modern, cu pastilă-indicator care alunecă */
         .horizontal-nav {
             position: relative; display: flex; gap: 4px; margin-bottom: 60px;
-            padding: 6px; border-radius: 999px;
+            padding: 6px; border-radius: 14px;
             background: var(--c-surface-elevated); border: 1px solid var(--c-border-soft);
             overflow-x: auto; overflow-y: hidden; max-width: 100%;
             scrollbar-width: none; -webkit-overflow-scrolling: touch;
@@ -423,7 +438,7 @@
             flex: 0 0 auto; white-space: nowrap; position: relative;
             padding: 11px 22px; font-size: 1rem; font-weight: 700; color: var(--c-gray);
             cursor: pointer; transition: color 0.25s var(--ease-out), background 0.25s var(--ease-out);
-            border-radius: 999px; letter-spacing: 0.1px; background: transparent;
+            border-radius: 10px; letter-spacing: 0.1px; background: transparent;
         }
         .horizontal-tab:hover { color: var(--c-white); }
         .horizontal-tab.active {
@@ -619,7 +634,7 @@
         .ft-col p { font-size: 1rem; margin-bottom: 10px; color: var(--c-gray); }
         .social-icons { display: flex; gap: 15px; margin-top: 20px; }
         .soc-icon {
-            width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--c-border-strong);
+            width: 45px; height: 45px; border-radius: 12px; border: 1px solid var(--c-border-strong);
             display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--c-white);
             transition: all var(--transition-fast); font-size: 1.2rem;
         }
@@ -629,7 +644,7 @@
            SEARCH (Command Palette)
            ========================================================================== */
         .nav-search-btn {
-            width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--c-border-strong);
+            width: 45px; height: 45px; border-radius: 12px; border: 1px solid var(--c-border-strong);
             background: transparent; display: flex; align-items: center; justify-content: center;
             color: var(--c-white); font-size: 1.05rem; transition: all var(--transition-fast);
         }
@@ -679,7 +694,7 @@
         }
         .search-input::placeholder { color: var(--c-gray); font-weight: 500; }
         .search-close-btn {
-            width: 34px; height: 34px; border-radius: 50%;
+            width: 34px; height: 34px; border-radius: 10px;
             border: 1px solid var(--c-border-strong);
             background: var(--c-surface); color: var(--c-white-off);
             display: flex; align-items: center; justify-content: center; flex-shrink: 0;
@@ -782,7 +797,7 @@
                o culoare de fundal solidă (accent), fără gradient — simplu și robust. */
             .nav-links .nav-link {
                 display: block; width: 100%; text-align: center;
-                font-size: 1.05rem; padding: 16px 20px; border-radius: 999px;
+                font-size: 1.05rem; padding: 16px 20px; border-radius: 12px;
                 position: relative;
                 background: var(--c-surface-elevated);
                 border: 1px solid var(--c-border-soft);
@@ -932,34 +947,39 @@
 
                 <div class="home-about-extended">
                     <div class="reveal">
-                        <h2>Forța Motrice a Studenților</h2>
-                        <p>SSIC s-a impus drept pilonul fundamental al dezvoltării studenților pasionați de științele aplicate. Structura noastră departamentală nu este doar administrativă, ci o simulare exactă a mediului corporativ de nivel executiv, oferind tinerilor o trambulină certă spre succes.</p>
-                        <p>Acest ecosistem permite membrilor să asimileze sarcini analitice de înaltă precizie și să își testeze abilitățile de leadership într-un mediu sigur, dar extrem de provocator.</p>
+                        <h2>Cine suntem</h2>
+                        <p>Societatea Studenților în Inginerie Chimică și Biotehnologii (SSIC) este organizația studențească reprezentativă pentru studenții Facultății de Inginerie Chimică și Biotehnologii din cadrul Universității Politehnica din București. Înființată în anul 2023, din dorința de a sprijini și reprezenta interesele studenților, SSIC s-a afirmat ca un exemplu de implicare și profesionalism în rândul organizațiilor studențești.</p>
                     </div>
                     <div class="reveal" style="--r-delay:0.12s;">
-                        <h2>Dezvoltare Multilaterală</h2>
-                        <p>Membrii asociației sunt recunoscuți pentru standardele înalte de redactare, utilizând frecvent unelte de formatare avansate, inclusiv LaTeX, pentru prezentarea rapoartelor științifice și a documentațiilor complexe.</p>
-                        <p>Pe lângă competențele tehnice, investim constant în abilități de PR, Fundraising și coordonare logistică la scală largă, transformând viziunile teoretice în festivaluri de știință și proiecte de anvergură cu ecou în industria românească.</p>
+                        <h2>Misiunea noastră</h2>
+                        <p>Misiunea SSIC este de a sprijini dezvoltarea academică, profesională și personală a voluntarilor săi, prin cultivarea unui mediu activ, colaborativ și orientat spre excelență. Participarea constantă la evenimente precum PoliFest și PoliChemistryFest, alături de inițierea programului național de schimb de experiență ChemEx, reflectă angajamentul SSIC față de formarea continuă și implicarea comunitară.</p>
+                        <p>Cu activitate susținută și ambițioasă, SSIC contribuie activ la consolidarea unei comunități de tineri ingineri pasionați de știință, inovație și responsabilitate, capabili să dezvolte soluții sustenabile și relevante în domeniile ingineriei chimice și biotehnologiilor.</p>
                     </div>
                 </div>
 
-                <!-- Ultima postare Instagram — preluată automat via Graph API (config + fallback în JS, la finalul paginii) -->
-                <div class="instagram-embed-wrapper hover-target reveal">
-                    <div class="ig-card is-loading" id="ig-card">
-                        <div class="ig-card-head">
-                            <div class="ig-card-avatar"><i class="fab fa-instagram"></i></div>
-                            <div>
-                                <strong>ssic.upb</strong>
-                                <span id="ig-card-time">se încarcă ultima postare…</span>
-                            </div>
-                        </div>
-                        <div class="ig-card-media" id="ig-card-media"><i class="fab fa-instagram ig-placeholder-icon"></i></div>
-                        <div class="ig-card-body">
-                            <p class="ig-card-caption" id="ig-card-caption"></p>
-                            <a href="https://www.instagram.com/ssic.upb/" target="_blank" class="ig-card-link" id="ig-card-link">
-                                Vezi pe Instagram <i class="fa-solid fa-arrow-up-right"></i>
-                            </a>
-                        </div>
+                <!-- ==========================================================================
+                     ULTIMA POSTARE INSTAGRAM — Embed manual (fără API, fără cont de admin necesar)
+
+                     CUM ACTUALIZEZI (durează 30 de secunde, de fiecare dată când postați ceva nou):
+                       1. Deschide postarea dorită pe instagram.com (din browser, nu din aplicație).
+                       2. Click pe cele trei puncte "···" din colțul din dreapta sus al postării.
+                       3. Alege "Embed" (Încorporare).
+                       4. Copiază tot codul care apare (începe cu <blockquote class="instagram-media" ...>).
+                       5. Șterge blocul <blockquote> de mai jos (dintre marcajele START/END) și lipește
+                          codul nou copiat exact în locul lui. Nu șterge și scriptul embed.js de la
+                          finalul paginii — acela e nevoie o singură dată, procesează orice <blockquote>.
+                       6. Salvează fișierul. Gata — postarea reală apare, cu poză, like-uri și caption,
+                          exact ca pe Instagram.
+
+                     Până pui o postare reală, rămâne vizibil cardul de mai jos (linkul către profil). -->
+                <div class="instagram-embed-wrapper reveal" id="ig-embed-wrapper">
+                    <div class="ig-embed-eyebrow"><i class="fab fa-instagram"></i> Ultima postare</div>
+                    <div class="ig-embed-frame">
+
+                    <!-- IG-EMBED-START — înlocuiește tot ce e între START și END cu codul copiat de la pasul 4 -->
+                    <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="https://www.instagram.com/p/DcoXrGZDYgJ/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" style=" background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px; max-width:540px; min-width:326px; padding:0; width:99.375%; width:-webkit-calc(100% - 2px); width:calc(100% - 2px);"><div style="padding:16px;"> <a href="https://www.instagram.com/p/DcoXrGZDYgJ/?utm_source=ig_embed&amp;utm_campaign=loading" style=" background:#FFFFFF; line-height:0; padding:0 0; text-align:center; text-decoration:none; width:100%;" target="_blank"> <div style=" display: flex; flex-direction: row; align-items: center;"> <div style="background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 40px; margin-right: 14px; width: 40px;"></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 100px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 60px;"></div></div></div><div style="padding: 19% 0;"></div> <div style="display:block; height:50px; margin:0 auto 12px; width:50px;"><svg width="50px" height="50px" viewBox="0 0 60 60" version="1.1" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g transform="translate(-511.000000, -20.000000)" fill="#000000"><g><path d="M556.869,30.41 C554.814,30.41 553.148,32.076 553.148,34.131 C553.148,36.186 554.814,37.852 556.869,37.852 C558.924,37.852 560.59,36.186 560.59,34.131 C560.59,32.076 558.924,30.41 556.869,30.41 M541,60.657 C535.114,60.657 530.342,55.887 530.342,50 C530.342,44.114 535.114,39.342 541,39.342 C546.887,39.342 551.658,44.114 551.658,50 C551.658,55.887 546.887,60.657 541,60.657 M541,33.886 C532.1,33.886 524.886,41.1 524.886,50 C524.886,58.899 532.1,66.113 541,66.113 C549.9,66.113 557.115,58.899 557.115,50 C557.115,41.1 549.9,33.886 541,33.886 M565.378,62.101 C565.244,65.022 564.756,66.606 564.346,67.663 C563.803,69.06 563.154,70.057 562.106,71.106 C561.058,72.155 560.06,72.803 558.662,73.347 C557.607,73.757 556.021,74.244 553.102,74.378 C549.944,74.521 548.997,74.552 541,74.552 C533.003,74.552 532.056,74.521 528.898,74.378 C525.979,74.244 524.393,73.757 523.338,73.347 C521.94,72.803 520.942,72.155 519.894,71.106 C518.846,70.057 518.197,69.06 517.654,67.663 C517.244,66.606 516.755,65.022 516.623,62.101 C516.479,58.943 516.448,57.996 516.448,50 C516.448,42.003 516.479,41.056 516.623,37.899 C516.755,34.978 517.244,33.391 517.654,32.338 C518.197,30.938 518.846,29.942 519.894,28.894 C520.942,27.846 521.94,27.196 523.338,26.654 C524.393,26.244 525.979,25.756 528.898,25.623 C532.057,25.479 533.004,25.448 541,25.448 C548.997,25.448 549.943,25.479 553.102,25.623 C556.021,25.756 557.607,26.244 558.662,26.654 C560.06,27.196 561.058,27.846 562.106,28.894 C563.154,29.942 563.803,30.938 564.346,32.338 C564.756,33.391 565.244,34.978 565.378,37.899 C565.522,41.056 565.552,42.003 565.552,50 C565.552,57.996 565.522,58.943 565.378,62.101 M570.82,37.631 C570.674,34.438 570.167,32.258 569.425,30.349 C568.659,28.377 567.633,26.702 565.965,25.035 C564.297,23.368 562.623,22.342 560.652,21.575 C558.743,20.834 556.562,20.326 553.369,20.18 C550.169,20.033 549.148,20 541,20 C532.853,20 531.831,20.033 528.631,20.18 C525.438,20.326 523.257,20.834 521.349,21.575 C519.376,22.342 517.703,23.368 516.035,25.035 C514.368,26.702 513.342,28.377 512.574,30.349 C511.834,32.258 511.326,34.438 511.181,37.631 C511.035,40.831 511,41.851 511,50 C511,58.147 511.035,59.17 511.181,62.369 C511.326,65.562 511.834,67.743 512.574,69.651 C513.342,71.625 514.368,73.296 516.035,74.965 C517.703,76.634 519.376,77.658 521.349,78.425 C523.257,79.167 525.438,79.673 528.631,79.82 C531.831,79.965 532.853,80.001 541,80.001 C549.148,80.001 550.169,79.965 553.369,79.82 C556.562,79.673 558.743,79.167 560.652,78.425 C562.623,77.658 564.297,76.634 565.965,74.965 C567.633,73.296 568.659,71.625 569.425,69.651 C570.167,67.743 570.674,65.562 570.82,62.369 C570.966,59.17 571,58.147 571,50 C571,41.851 570.966,40.831 570.82,37.631"></path></g></g></g></svg></div><div style="padding-top: 8px;"> <div style=" color:#3897f0; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:550; line-height:18px;">View this post on Instagram</div></div><div style="padding: 12.5% 0;"></div> <div style="display: flex; flex-direction: row; margin-bottom: 14px; align-items: center;"><div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(0px) translateY(7px);"></div> <div style="background-color: #F4F4F4; height: 12.5px; transform: rotate(-45deg) translateX(3px) translateY(1px); width: 12.5px; flex-grow: 0; margin-right: 14px; margin-left: 2px;"></div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(9px) translateY(-18px);"></div></div><div style="margin-left: 8px;"> <div style=" background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 20px; width: 20px;"></div> <div style=" width: 0; height: 0; border-top: 2px solid transparent; border-left: 6px solid #f4f4f4; border-bottom: 2px solid transparent; transform: translateX(16px) translateY(-4px) rotate(30deg)"></div></div><div style="margin-left: auto;"> <div style=" width: 0px; border-top: 8px solid #F4F4F4; border-right: 8px solid transparent; transform: translateY(16px);"></div> <div style=" background-color: #F4F4F4; flex-grow: 0; height: 12px; width: 16px; transform: translateY(-4px);"></div> <div style=" width: 0; height: 0; border-top: 8px solid #F4F4F4; border-left: 8px solid transparent; transform: translateY(-4px) translateX(8px);"></div></div></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center; margin-bottom: 24px;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 224px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 144px;"></div></div></a><p style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; line-height:17px; margin-bottom:0; margin-top:8px; overflow:hidden; padding:8px 0 7px; text-align:center; text-overflow:ellipsis; white-space:nowrap;"><a href="https://www.instagram.com/p/DcoXrGZDYgJ/?utm_source=ig_embed&amp;utm_campaign=loading" style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:normal; line-height:17px; text-decoration:none;" target="_blank">A post shared by SSIC (@ssic.upb)</a></p></div></blockquote>
+                    <!-- IG-EMBED-END -->
+
                     </div>
                 </div>
 
@@ -1353,7 +1373,7 @@
             <div class="ft-col">
                 <h4>Locație</h4>
                 <p>Campus UPB, București, România</p>
-                <p style="color: var(--c-accent); margin-top:10px;">contact@ssic.ro</p>
+                <p style="color: var(--c-accent); margin-top:10px;">ssic.upb@gmail.com</p>
             </div>
             <div class="ft-col">
                 <h4>Structură</h4>
@@ -1782,71 +1802,14 @@
         }
 
         /* ==========================================================================
-           JS: INSTAGRAM — ultima postare, preluată automat
+           JS: INSTAGRAM — embed manual (fără API)
            ==========================================================================
-           Cardul afișează implicit un fallback elegant (link direct către profil).
-           Pentru a afișa AUTOMAT ultima postare reală, completează IG_CONFIG mai jos:
-           
-           1. Ai nevoie de un cont Instagram Business/Creator conectat la o Pagină Facebook.
-           2. Creează o aplicație pe https://developers.facebook.com/ și activează
-              produsul "Instagram Graph API".
-           3. Obține un Access Token de lungă durată (long-lived, ~60 zile, se poate
-              reînnoi automat prin propriul tău backend dacă vrei "veșnic valabil").
-           4. Găsește IG_USER_ID-ul contului (Instagram Business Account ID).
-           5. Completează valorile de mai jos. Fără ele, site-ul afișează fallback-ul
-              (funcțional, doar că nu se actualizează singur).
-           
-           Documentație oficială: https://developers.facebook.com/docs/instagram-platform/instagram-graph-api
+           Nu mai e nevoie de niciun cod aici: dacă lipești un <blockquote class="instagram-media">
+           în HTML (vezi instrucțiunile de lângă IG-EMBED-START/END, mai sus în pagină), scriptul
+           oficial embed.js (încărcat mai jos) îl detectează și îl transformă automat în postarea
+           reală, cu poză și caption. Cât timp nu există niciun blockquote, rămâne vizibil cardul
+           de rezervă cu link către profil.
         */
-        const IG_CONFIG = {
-            userId: '',       // ex: '17841400000000000'
-            accessToken: ''   // ex: 'EAAG...'
-        };
-
-        async function loadInstagramFeed() {
-            const timeEl = document.getElementById('ig-card-time');
-            const card = document.getElementById('ig-card');
-            if (!card) return;
-
-            if (!IG_CONFIG.userId || !IG_CONFIG.accessToken) {
-                renderInstagramFallback('Configurare necesară pentru actualizare automată');
-                return;
-            }
-
-            try {
-                const fields = 'caption,media_type,media_url,thumbnail_url,permalink,timestamp';
-                const url = `https://graph.facebook.com/v19.0/${IG_CONFIG.userId}/media?fields=${fields}&limit=1&access_token=${IG_CONFIG.accessToken}`;
-                const res = await fetch(url);
-                if (!res.ok) throw new Error('Instagram API a răspuns cu eroare');
-                const data = await res.json();
-                const post = data && data.data && data.data[0];
-                if (!post) throw new Error('Nicio postare găsită');
-
-                const mediaEl = document.getElementById('ig-card-media');
-                const isVideo = post.media_type === 'VIDEO';
-                const imgSrc = isVideo ? (post.thumbnail_url || post.media_url) : post.media_url;
-                mediaEl.innerHTML = `<img src="${imgSrc}" alt="Ultima postare Instagram SSIC" loading="lazy">`;
-
-                document.getElementById('ig-card-caption').textContent = post.caption || 'Vezi ultima noastră postare pe Instagram.';
-                document.getElementById('ig-card-link').href = post.permalink || 'https://www.instagram.com/ssic.upb/';
-                if (timeEl) timeEl.textContent = new Date(post.timestamp).toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' });
-                card.classList.remove('is-loading');
-            } catch (err) {
-                renderInstagramFallback('Nu am putut încărca ultima postare acum');
-            }
-        }
-
-        function renderInstagramFallback(message) {
-            const card = document.getElementById('ig-card');
-            if (!card) return;
-            card.classList.remove('is-loading');
-            document.getElementById('ig-card-time').textContent = message;
-            document.getElementById('ig-card-media').innerHTML = '<i class="fab fa-instagram ig-placeholder-icon"></i>';
-            document.getElementById('ig-card-caption').textContent = 'Cele mai noi fotografii, culise și anunțuri de la SSIC apar mereu întâi pe Instagram.';
-            document.getElementById('ig-card-link').href = 'https://www.instagram.com/ssic.upb/';
-        }
-
-        loadInstagramFeed();
 
         /* ==========================================================================
            JS: EASTER EGGS (Click Explozii menționate: murakami & patru)
@@ -2103,5 +2066,9 @@
             });
         })();
     </script>
+    <!-- Script oficial Instagram — procesează automat orice <blockquote class="instagram-media">
+         lipit în pagină (vezi instrucțiunile de lângă IG-EMBED-START, în secțiunea Acasă).
+         E nevoie o singură dată, indiferent de câte postări embedezi. -->
+    <script async src="https://www.instagram.com/embed.js"></script>
 </body>
 </html>
