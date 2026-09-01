@@ -1141,7 +1141,7 @@
                         </div>
                         <div class="team-member hover-target reveal">
                             <div class="team-photo"></div>
-                            <div class="team-info"><div class="team-name">Ana Tofan</div><div class="team-role">Coordonator Logistică</div></div>
+                            <div class="team-info"><div class="team-name">Tofan Ana</div><div class="team-role">Coordonator Logistică</div></div>
                         </div>
                         <div class="team-member hover-target reveal">
                             <div class="team-photo"></div>
@@ -1204,7 +1204,7 @@
                     <div class="team-grid">
                         <div class="team-member hover-target reveal" onclick="triggerEgg('murakami', event)">
                             <div class="team-photo"></div>
-                            <div class="team-info"><div class="team-name">Alina Murakami</div><div class="team-role">Director</div></div>
+                            <div class="team-info"><div class="team-name">Murakami Alina</div><div class="team-role">Director</div></div>
                         </div>
                     </div>
                 </div>
@@ -1781,8 +1781,12 @@
             }
         }, true);
 
-        // Stare inițială: pornim pe Acasă, sus de tot — hero pe tot ecranul, navbar ascuns.
-        updateNavForView('home', 0);
+        // Stare inițială a navbar-ului: ținem cont de pagina reală cu care pornim
+        // (poate fi "home", dar poate fi și o subpagină, dacă am intrat direct printr-un
+        // link cu hash, ex. index.html#board — currentViewId a fost deja stabilit mai sus
+        // de initFromURL()). Dacă am fi forțat mereu 'home' aici, navbar-ul rămânea ascuns
+        // (nav-hidden are pointer-events:none) pe orice subpagină deschisă direct printr-un link.
+        updateNavForView(currentViewId, 0);
 
         function animateCount(el) {
             if (el.dataset.counted) return;
@@ -1915,7 +1919,7 @@
                 { group: 'Board', title: 'Soficaru David', sub: 'Vicepreședinte · Consiliu Director', icon: 'fa-user', view: 'board', deptId: 'dept-cd' },
                 { group: 'Board', title: 'Vizireanu Andreea', sub: 'Secretar General · Consiliu Director', icon: 'fa-user', view: 'board', deptId: 'dept-cd' },
                 { group: 'Board', title: 'Sergiu Drăghici', sub: 'Director · HR', icon: 'fa-user', view: 'board', deptId: 'dept-hr' },
-                { group: 'Board', title: 'Ana Tofan', sub: 'Coordonator Logistică · HR', icon: 'fa-user', view: 'board', deptId: 'dept-hr' },
+                { group: 'Board', title: 'Tofan Ana', sub: 'Coordonator Logistică · HR', icon: 'fa-user', view: 'board', deptId: 'dept-hr' },
                 { group: 'Board', title: 'Rusu Simon', sub: 'Coordonator Resurse Umane · HR', icon: 'fa-user', view: 'board', deptId: 'dept-hr' },
                 { group: 'Board', title: 'Pătru Andrei', sub: 'Director · PR', icon: 'fa-user', view: 'board', deptId: 'dept-pr' },
                 { group: 'Board', title: 'Leontescu Beatrice', sub: 'Coordonator Grafică · PR', icon: 'fa-user', view: 'board', deptId: 'dept-pr' },
@@ -1924,7 +1928,7 @@
                 { group: 'Board', title: 'Avramov Stefan', sub: 'Director · Fundraising', icon: 'fa-user', view: 'board', deptId: 'dept-fr' },
                 { group: 'Board', title: 'Nuramet Ener', sub: 'Coordonator Finanțe · Fundraising', icon: 'fa-user', view: 'board', deptId: 'dept-fr' },
                 { group: 'Board', title: 'Diacon Cătălin', sub: 'Coordonator Proiecte · Fundraising', icon: 'fa-user', view: 'board', deptId: 'dept-fr' },
-                { group: 'Board', title: 'Alina Murakami', sub: 'Director · Evenimente', icon: 'fa-user', view: 'board', deptId: 'dept-ev' },
+                { group: 'Board', title: 'Murakami Alina', sub: 'Director · Evenimente', icon: 'fa-user', view: 'board', deptId: 'dept-ev' },
 
                 { group: 'Facultate', title: 'Cristina Orbeci', sub: 'Decan · Conducerea Facultății', icon: 'fa-user-tie', view: 'facultate', facDeptId: 'fac-conducere' },
                 { group: 'Facultate', title: 'Ștefania Paula Stoleriu', sub: 'Prodecan · Conducerea Facultății', icon: 'fa-user-tie', view: 'facultate', facDeptId: 'fac-conducere' },
