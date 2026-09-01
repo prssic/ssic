@@ -565,6 +565,10 @@
             content: '\f007'; font-family: "Font Awesome 6 Free"; font-weight: 900;
             font-size: 2.5rem; opacity: 0.14; color: var(--c-white); transition: opacity 0.3s var(--ease-out);
         }
+        /* Poza reală (dacă există fișierul) acoperă complet gradientul + iconița decorativă */
+        .team-photo img {
+            position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;
+        }
         .team-member:hover .team-photo {
             transform: translateY(-6px);
             border-color: var(--c-accent-2);
@@ -610,6 +614,10 @@
             font-size: 1.6rem; opacity: 0.16; color: var(--c-white); transition: opacity 0.3s var(--ease-out);
         }
         .gal-item:hover::after { opacity: 0.28; }
+        /* Poza reală (dacă există fișierul) acoperă complet iconița decorativă */
+        .gal-item img {
+            position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;
+        }
 
         /* Easter Egg Particle Styles */
         .easter-particle {
@@ -992,7 +1000,11 @@
         <section class="view" id="view-impact">
             <div class="page-content">
                 <h1 class="title-huge"><i>Evenimente</i></h1>
-                
+
+                <!-- Poze evenimente: creează folderul assets/events/ lângă acest index.html și
+                     pune acolo poza pentru fiecare eveniment, denumită exact ca în src="..." de mai
+                     jos (ex. poli-chemistry-fest-1.jpg). Dacă un fișier lipsește, acel slide dispare
+                     automat din carusel (fără poză spartă vizibilă). -->
                 <div class="horizontal-nav" id="nav-impact">
                     <div class="horizontal-tab active hover-target" onclick="switchEvent(0, this)">Poli Chemistry Fest</div>
                     <div class="horizontal-tab hover-target" onclick="switchEvent(1, this)">Poli Fest</div>
@@ -1006,8 +1018,8 @@
                     <!-- Carusel Simplu Insta-Style (Fără gradient) -->
                     <div class="carousel-container hover-target reveal">
                         <div class="carousel-track" id="carousel-ev0">
-                            <div class="carousel-slide"><img src="image_0abdbd.jpg" alt="Poli Chemistry Fest 1" onerror="this.style.display='none'"></div>
-                            <div class="carousel-slide"><img src="image_0a4658.jpg" alt="Poli Chemistry Fest 2" onerror="this.style.display='none'"></div>
+                            <div class="carousel-slide"><img src="assets/events/poli-chemistry-fest-1.jpg" alt="Poli Chemistry Fest 1" onerror="this.parentElement.remove()"></div>
+                            <div class="carousel-slide"><img src="assets/events/poli-chemistry-fest-2.jpg" alt="Poli Chemistry Fest 2" onerror="this.parentElement.remove()"></div>
                         </div>
                         <div class="carousel-dots" id="dots-ev0">
                             <div class="carousel-dot active"></div>
@@ -1022,9 +1034,9 @@
                     </div>
                     <div class="carousel-container hover-target reveal">
                         <div class="carousel-track" id="carousel-ev1">
-                            <div class="carousel-slide"><img src="image_09ef66.jpg" alt="Poli Fest 1" onerror="this.style.display='none'"></div>
-                            <div class="carousel-slide"><img src="image_0abdbd.jpg" alt="Poli Fest 2" onerror="this.style.display='none'"></div>
-                            <div class="carousel-slide"><img src="image_0a6844.jpg" alt="Poli Fest 3" onerror="this.style.display='none'"></div>
+                            <div class="carousel-slide"><img src="assets/events/poli-fest-1.jpg" alt="Poli Fest 1" onerror="this.parentElement.remove()"></div>
+                            <div class="carousel-slide"><img src="assets/events/poli-fest-2.jpg" alt="Poli Fest 2" onerror="this.parentElement.remove()"></div>
+                            <div class="carousel-slide"><img src="assets/events/poli-fest-3.jpg" alt="Poli Fest 3" onerror="this.parentElement.remove()"></div>
                         </div>
                         <div class="carousel-dots" id="dots-ev1">
                             <div class="carousel-dot active"></div>
@@ -1040,8 +1052,8 @@
                     </div>
                     <div class="carousel-container hover-target reveal">
                         <div class="carousel-track" id="carousel-ev2">
-                            <div class="carousel-slide"><img src="image_0a6844.jpg" alt="ChemEx 1" onerror="this.style.display='none'"></div>
-                            <div class="carousel-slide"><img src="image_0a4658.jpg" alt="ChemEx 2" onerror="this.style.display='none'"></div>
+                            <div class="carousel-slide"><img src="assets/events/chemex-1.jpg" alt="ChemEx 1" onerror="this.parentElement.remove()"></div>
+                            <div class="carousel-slide"><img src="assets/events/chemex-2.jpg" alt="ChemEx 2" onerror="this.parentElement.remove()"></div>
                         </div>
                         <div class="carousel-dots" id="dots-ev2">
                             <div class="carousel-dot active"></div>
@@ -1795,11 +1807,38 @@
             const aspects = [1.2, 0.8, 1.5, 0.7, 1.1, 1.4, 0.9, 1.3, 0.6, 1.0, 1.25, 0.85, 1.45, 0.75, 1.15, 1.35, 0.95, 1.6, 0.65, 1.05, 1.2, 0.8, 1.5, 0.7];
             for(let i=0; i<24; i++) {
                 const delay = (i % 6) * 0.08;
-                html += `<div class="gal-item hover-target reveal" style="--aspect: ${aspects[i]}; --r-delay: ${delay}s;"></div>`;
+                // Caută automat assets/gallery/1.jpg, 2.jpg, ... 24.jpg. Dacă fișierul nu există,
+                // imaginea se șterge singură și rămâne iconița decorativă (fără poză spartă vizibil).
+                html += `<div class="gal-item hover-target reveal" style="--aspect: ${aspects[i]}; --r-delay: ${delay}s;"><img src="assets/gallery/${i + 1}.jpg" alt="Fotografie din galeria SSIC" loading="lazy" onerror="this.remove()"></div>`;
             }
             galContainer.innerHTML = html;
             observeReveals();
         }
+
+        /* ==========================================================================
+           JS: POZE ECHIPĂ — completate automat după numele fiecărui membru
+           ==========================================================================
+           Pentru fiecare membru din Board/Facultate, scriptul deduce singur numele
+           fișierului din textul afișat (ex. "Constantin Alexandru" → "constantin-alexandru.jpg",
+           diacriticele fiind scoase automat) și caută poza în assets/team/.
+           Dacă fișierul nu există, rămâne vizibil gradientul + iconița de siluetă (fără eroare vizibilă).
+           Pur și simplu pune fotografiile în assets/team/, denumite după acest tipar. */
+        function slugifyName(name) {
+            return name.trim().toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // scoate diacriticele (ă, â, î, ș, ț)
+                .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        }
+        document.querySelectorAll('.team-member').forEach(member => {
+            const nameEl = member.querySelector('.team-name');
+            const photoEl = member.querySelector('.team-photo');
+            if (!nameEl || !photoEl) return;
+            const img = document.createElement('img');
+            img.src = `assets/team/${slugifyName(nameEl.textContent)}.jpg`;
+            img.alt = nameEl.textContent.trim();
+            img.loading = 'lazy';
+            img.onerror = function () { this.remove(); };
+            photoEl.appendChild(img);
+        });
 
         /* ==========================================================================
            JS: INSTAGRAM — embed manual (fără API)
