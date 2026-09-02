@@ -1074,6 +1074,10 @@
                 font-size: 0.78rem;
             }
             .title-huge { font-size: 2.1rem; line-height: 1.18; letter-spacing: -0.4px; }
+            /* Rândul care se scrie/șterge poate fi ceva mai mare decât titlul static de dedesubt —
+               JS-ul (initHeroTypewriter) micșorează automat, pe loc, dacă vreo variantă nu încape
+               pe un rând, deci mărimea de-aici e un maxim "confortabil", nu un risc de overflow. */
+            .typed-line { font-size: clamp(2.1rem, 7.2vw, 2.6rem); }
             .home-stat span { font-size: 4rem; }
 
             /* Mai puțin spațiu "mort": clearance-uri și margini uriașe recalibrate pt. ecrane mici */
@@ -1111,6 +1115,11 @@
             /* Text hero + mic pe telefoane înguste (majoritatea Android-urilor), ca titlul
                să nu domine tot ecranul. */
             .title-huge { font-size: 1.75rem; line-height: 1.2; }
+            /* Rândul care se scrie/șterge rămâne puțin mai mare decât "Inginerie Chimică" de
+               dedesubt, chiar și pe telefoane foarte înguste — plasa de siguranță e fitLineToViewport()
+               din JS, care micșorează pe loc dacă o variantă anume nu încape (fără despărțire în silabe,
+               fără text tăiat de margine). */
+            .typed-line { font-size: clamp(1.9rem, 8.5vw, 2.3rem); }
 
             /* "200+" și "3+" stăteau prea aproape unul de altul pe ecrane înguste (Android) —
                le forțăm câte unul pe rând, cu spațiu clar între ele, în loc să se înghesuie
@@ -1930,15 +1939,31 @@
         (function initHeroTypewriter() {
             const textEl = document.getElementById('heroTyped');
             const cursorEl = document.getElementById('heroCursor');
+            const lineEl = textEl ? textEl.closest('.typed-line') : null;
             if (!textEl || !cursorEl) return;
 
+            // 8 variante — toate gândite să curgă natural în propoziția fixă de dedesubt
+            // ("... Inginerie Chimică"), ca sensul să rămână corect indiferent care apare.
             const phrases = [
                 'Inovație în',
                 'Spirit de echipă în',
                 'Pasiune pentru',
                 'Viitorul tău în',
-                'Excelență în'
+                'Excelență în',
+                'Curiozitate pentru',
+                'Ambiție în',
+                'Determinare în'
             ];
+            // Easter eggs: variante glumețe, care apar foarte rar și nu se repetă niciodată
+            // de două ori la rând. Niciuna nu poate apărea ca PRIMA variantă afișată la
+            // deschiderea paginii (nici măcar la prima tranziție) — vizitatorul vede mereu
+            // întâi o variantă normală, easter egg-urile apar doar ulterior, aleatoriu.
+            const EASTER_EGG_CAFFEINE = '99% cofeină, 1%';
+            const EASTER_EGG_CAFFEINE_CHANCE = 0.035;   // ~3.5% la fiecare tranziție
+            const EASTER_EGG_67 = '67 în';
+            const EASTER_EGG_67_CHANCE = 0.0067;        // 0.67% — cerut explicit
+            const EASTER_EGG_ALEX = 'Alexandru, dictator în';
+            const EASTER_EGG_ALEX_CHANCE = 0.001;       // 0.1% — și mai rar decât "67", foarte foarte rar
 
             const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             if (reduceMotion) {
@@ -1954,15 +1979,64 @@
 
             let phraseIndex = 0;
             let charIndex = 0;
+            let currentPhrase = phrases[0];
+            let lastWasEasterEgg = false;
+            let isFirstTransition = true; // blochează orice easter egg la prima tranziție de pe pagină
 
             function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
+            function pickNextPhrase() {
+                if (!isFirstTransition && !lastWasEasterEgg) {
+                    const r = Math.random();
+                    if (r < EASTER_EGG_ALEX_CHANCE) {
+                        lastWasEasterEgg = true;
+                        return EASTER_EGG_ALEX;
+                    }
+                    if (r < EASTER_EGG_ALEX_CHANCE + EASTER_EGG_67_CHANCE) {
+                        lastWasEasterEgg = true;
+                        return EASTER_EGG_67;
+                    }
+                    if (r < EASTER_EGG_ALEX_CHANCE + EASTER_EGG_67_CHANCE + EASTER_EGG_CAFFEINE_CHANCE) {
+                        lastWasEasterEgg = true;
+                        return EASTER_EGG_CAFFEINE;
+                    }
+                }
+                isFirstTransition = false;
+                lastWasEasterEgg = false;
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                return phrases[phraseIndex];
+            }
+
+            /* Auto-scalare pe rând: măsurăm varianta curentă cu un canvas invizibil, la mărimea
+               de bază definită în CSS pentru breakpoint-ul curent. Dacă nu încape pe un rând,
+               micșorăm punctual doar acel rând (fără să afectăm "Inginerie Chimică" de dedesubt),
+               ca niciodată să nu iasă din ecran și nici să nu se despartă în silabe. Pe desktop,
+               unde lățimea disponibilă e generoasă, scala rămâne mereu 1 (fără efect vizibil). */
+            const measureCanvas = document.createElement('canvas');
+            const measureCtx = measureCanvas.getContext('2d');
+            function fitLineToViewport(text) {
+                if (!lineEl || !measureCtx) return;
+                lineEl.style.fontSize = ''; // revenim la mărimea de bază din CSS, apoi verificăm dacă e nevoie de ajustare
+                const container = lineEl.closest('.hero-content');
+                if (!container) return;
+                const style = getComputedStyle(lineEl);
+                const baseSize = parseFloat(style.fontSize);
+                if (!baseSize) return;
+                measureCtx.font = `${style.fontWeight} ${baseSize}px ${style.fontFamily}`;
+                const textWidth = measureCtx.measureText(text).width;
+                const cursorAllowance = 16; // spațiu rezervat pt. cursorul care clipește lângă text
+                const available = container.clientWidth - cursorAllowance;
+                if (available > 0 && textWidth > available) {
+                    const scale = Math.max(0.6, available / textWidth);
+                    lineEl.style.fontSize = (baseSize * scale) + 'px';
+                }
+            }
+
             function typeStep() {
-                const current = phrases[phraseIndex];
                 cursorEl.classList.add('is-typing'); // cursor solid, opac, cât timp scrie activ
 
-                if (charIndex <= current.length) {
-                    textEl.textContent = current.slice(0, charIndex);
+                if (charIndex <= currentPhrase.length) {
+                    textEl.textContent = currentPhrase.slice(0, charIndex);
                     charIndex++;
                     setTimeout(typeStep, rand(TYPE_MIN, TYPE_MAX));
                 } else {
@@ -1972,20 +2046,27 @@
             }
 
             function deleteStep() {
-                const current = phrases[phraseIndex];
                 cursorEl.classList.add('is-typing');
 
                 if (charIndex >= 0) {
-                    textEl.textContent = current.slice(0, charIndex);
+                    textEl.textContent = currentPhrase.slice(0, charIndex);
                     charIndex--;
                     setTimeout(deleteStep, rand(DELETE_MIN, DELETE_MAX));
                 } else {
                     cursorEl.classList.remove('is-typing');
-                    phraseIndex = (phraseIndex + 1) % phrases.length;
+                    currentPhrase = pickNextPhrase();
+                    fitLineToViewport(currentPhrase);
                     charIndex = 0;
                     setTimeout(typeStep, HOLD_AFTER_DELETE);
                 }
             }
+
+            fitLineToViewport(currentPhrase);
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => fitLineToViewport(currentPhrase), 150);
+            });
 
             // Pornim din poziția 0, cu un mic delay inițial (lasă hero-ul să se așeze vizual)
             setTimeout(typeStep, 500);
