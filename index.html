@@ -977,6 +977,24 @@
             color: var(--c-accent);
         }
         .contact-link:hover { color: var(--c-accent-2); }
+        /* Indicator subtil de scroll — apare doar dacă textul depășește cardul vizibil,
+           și dispare treptat pe măsură ce utilizatorul scrollează sau ajunge la final. */
+        .contact-scroll-hint {
+            position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);
+            width: 34px; height: 34px; border-radius: 50%; z-index: 5;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(16, 11, 25, 0.35); color: rgba(255, 255, 255, 0.55);
+            border: 1px solid var(--c-border-strong);
+            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+            pointer-events: none; opacity: 0;
+            transition: opacity 0.35s var(--ease-out);
+        }
+        .contact-scroll-hint.visible { opacity: 1; animation: contactScrollBounce 1.8s ease-in-out infinite; }
+        .contact-scroll-hint i { font-size: 0.8rem; }
+        @keyframes contactScrollBounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(5px); }
+        }
         @media (max-width: 700px) {
             .contact-card { max-height: 90vh; }
             .contact-head-overlay { padding: 44px 22px 18px; }
@@ -1199,6 +1217,7 @@
                     Pagina personală UPB <i class="fa-solid fa-arrow-up-right-from-square"></i>
                 </a>
             </div>
+            <div class="contact-scroll-hint" id="contactScrollHint" aria-hidden="true"><i class="fa-solid fa-chevron-down"></i></div>
         </div>
     </div>
 
@@ -1268,6 +1287,7 @@
 
         (function () {
             const overlay = document.getElementById('contactOverlay');
+            const card = overlay ? overlay.querySelector('.contact-card') : null;
             const closeBtn = document.getElementById('contactCloseBtn');
             const photoEl = document.getElementById('contactPhoto');
             const roleEl = document.getElementById('contactRole');
@@ -1275,7 +1295,19 @@
             const titleEl = document.getElementById('contactTitle');
             const linesEl = document.getElementById('contactLines');
             const personalLink = document.getElementById('contactPersonalLink');
+            const scrollHint = document.getElementById('contactScrollHint');
             if (!overlay) return;
+
+            function refreshScrollHint() {
+                if (!scrollHint || !card) return;
+                const canScroll = card.scrollHeight > card.clientHeight + 8;
+                const nearBottom = card.scrollTop + card.clientHeight >= card.scrollHeight - 12;
+                scrollHint.classList.toggle('visible', canScroll && card.scrollTop < 24 && !nearBottom);
+            }
+            if (card) {
+                card.addEventListener('scroll', refreshScrollHint);
+                window.addEventListener('resize', refreshScrollHint);
+            }
 
             let lastFocused = null;
 
@@ -1299,7 +1331,10 @@
                 lastFocused = document.activeElement;
                 overlay.classList.add('open');
                 overlay.setAttribute('aria-hidden', 'false');
+                if (card) card.scrollTop = 0;
                 setTimeout(() => closeBtn.focus(), 50);
+                requestAnimationFrame(refreshScrollHint);
+                setTimeout(refreshScrollHint, 350);
             };
 
             function closeContact() {
@@ -1686,7 +1721,7 @@
                         </div>
                         <div class="team-member hover-target reveal">
                             <div class="team-photo"></div>
-                            <div class="team-info"><div class="team-name">Catană Ariana Ionela</div><div class="team-role">Consilier Facultate</div></div>
+                            <div class="team-info"><div class="team-name">Catană Ariana</div><div class="team-role">Consilier Facultate</div></div>
                         </div>
                         <div class="team-member hover-target reveal">
                             <div class="team-photo"></div>
@@ -1706,11 +1741,11 @@
                         </div>
                         <div class="team-member hover-target reveal">
                             <div class="team-photo"></div>
-                            <div class="team-info"><div class="team-name">Baicu Bianca Paula</div><div class="team-role">Consilier Facultate</div></div>
+                            <div class="team-info"><div class="team-name">Baicu Bianca</div><div class="team-role">Consilier Facultate</div></div>
                         </div>
                         <div class="team-member hover-target reveal">
                             <div class="team-photo"></div>
-                            <div class="team-info"><div class="team-name">Petrescu Erica Maria</div><div class="team-role">Consilier Facultate</div></div>
+                            <div class="team-info"><div class="team-name">Petrescu Erica</div><div class="team-role">Consilier Facultate</div></div>
                         </div>
                         <div class="team-member hover-target reveal">
                             <div class="team-photo"></div>
@@ -1718,11 +1753,11 @@
                         </div>
                         <div class="team-member hover-target reveal">
                             <div class="team-photo"></div>
-                            <div class="team-info"><div class="team-name">Petrici Anca Maria</div><div class="team-role">Consilier Facultate</div></div>
+                            <div class="team-info"><div class="team-name">Petrici Anca</div><div class="team-role">Consilier Facultate</div></div>
                         </div>
                         <div class="team-member hover-target reveal">
                             <div class="team-photo"></div>
-                            <div class="team-info"><div class="team-name">Rusu David Simon</div><div class="team-role">Consilier Facultate</div></div>
+                            <div class="team-info"><div class="team-name">Rusu Simon</div><div class="team-role">Consilier Facultate</div></div>
                         </div>
                     </div>
                 </div>
@@ -2466,16 +2501,16 @@
                 { group: 'Facultate', title: 'Constantin Alexandru', sub: 'Senator · Senatul UPB', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-senatori' },
                 { group: 'Facultate', title: 'Geană Maria Larisa', sub: 'Senator · Senatul UPB', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-senatori' },
                 { group: 'Facultate', title: 'Pătru Andrei', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
-                { group: 'Facultate', title: 'Catană Ariana Ionela', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
+                { group: 'Facultate', title: 'Catană Ariana', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
                 { group: 'Facultate', title: 'Drăghici Sergiu', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
                 { group: 'Facultate', title: 'El Beni Amina', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
                 { group: 'Facultate', title: 'Vizireanu Andreea', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
                 { group: 'Facultate', title: 'Nuramet Ener', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
-                { group: 'Facultate', title: 'Baicu Bianca Paula', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
-                { group: 'Facultate', title: 'Petrescu Erica Maria', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
+                { group: 'Facultate', title: 'Baicu Bianca', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
+                { group: 'Facultate', title: 'Petrescu Erica', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
                 { group: 'Facultate', title: 'Soficaru David', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
-                { group: 'Facultate', title: 'Petrici Anca Maria', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
-                { group: 'Facultate', title: 'Rusu David Simon', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
+                { group: 'Facultate', title: 'Petrici Anca', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
+                { group: 'Facultate', title: 'Rusu Simon', sub: 'Consilier · Consiliul Facultății', icon: 'fa-user', view: 'facultate', facDeptId: 'fac-consilieri' },
             ];
 
             const overlay = document.getElementById('searchOverlay');
