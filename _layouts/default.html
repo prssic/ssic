@@ -2542,6 +2542,34 @@
                 // de exemplu) până la următoarea acțiune care apela createIcons() din altă parte.
                 if (window.lucide) lucide.createIcons();
                 if (typeof observeReveals === 'function') observeReveals();
+                // Fix real pt. bug-ul de comutare rapidă (Evenimente <-> Calendar, dar afectează
+                // orice tab): elementele .reveal așteaptă IntersectionObserver-ul de scroll ca să
+                // devină vizibile (opacity 0 -> 1). La un tab abia deschis prin click, conținutul
+                // e deja pe ecran — n-are niciun motiv să mai aștepte după intersecție. Dacă
+                // utilizatorul comută mai repede decât apucă browser-ul să calculeze intersecția
+                // (ex. click-click-click rapid între Evenimente și Calendar), acel calcul poate
+                // fi "sărit" complet cât timp panoul era ascuns, iar elementul rămânea blocat la
+                // opacity:0 pentru totdeauna — exact bug-ul raportat ("nu mai e text la
+                // calendar"). Soluția: la fiecare activare de tab, marcăm direct .is-visible pe
+                // tot ce e .reveal în panoul nou-activat, fără să mai așteptăm observer-ul.
+                //
+                // Dublu requestAnimationFrame, NU adăugare sincronă: dacă puneam .is-visible în
+                // aceeași secvență sincronă cu .active (fără niciun cadru de randare între ele),
+                // browserul nu mai avea ce stare "de dinainte" să anime — sărea direct la
+                // rezultatul final, adică textul apărea brusc, dintr-o dată ("sare aiurea"), în
+                // loc de fade-ul lin, "fancy", pe care îl are la încărcarea inițială a paginii
+                // (acolo IntersectionObserver-ul are, natural, cadre de randare între stările
+                // opacity:0 și opacity:1). Cele două rAF-uri imbricate garantează un cadru complet
+                // randat cu opacity:0 înainte să cerem tranziția spre opacity:1, deci tab-urile
+                // primesc exact aceeași animație lină ca restul site-ului, nu doar o apariție
+                // instantă.
+                const revealTargets = nextPanel.querySelectorAll('.reveal:not(.is-visible)');
+                revealTargets.forEach(el => el.classList.add('is-observed'));
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        revealTargets.forEach(el => el.classList.add('is-visible'));
+                    });
+                });
             }
         }
 
