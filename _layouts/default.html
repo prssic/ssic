@@ -354,27 +354,15 @@
         .app {
             position: relative; width: 100vw; height: 100vh; height: 100dvh;
             background-color: var(--c-base);
-            /* Grid decorativ tip "hârtie milimetrică": linii fine (16px, pas mic) + linii mai
-               vizibile (64px, pas mare) din CSS pur (repeating-linear-gradient), fără tile SVG,
-               deci fără cusături la niciun zoom/DPI. Peste el, JS adaugă câteva numere mici,
-               discrete, la unele intersecții (vezi #gridNumbers mai jos în body). */
+            /* Grid decorativ simplu, mov, static — din CSS pur (repeating-linear-gradient),
+               nu dintr-un tile SVG, deci fără cusături de tile la niciun zoom/DPI. Fără gold,
+               fără animație — doar liniile de grid, curate. */
             background-image:
-                repeating-linear-gradient(90deg, rgba(90,47,138,0.06) 0px, rgba(90,47,138,0.06) 1px, transparent 1px, transparent 16px),
-                repeating-linear-gradient(0deg, rgba(90,47,138,0.06) 0px, rgba(90,47,138,0.06) 1px, transparent 1px, transparent 16px),
-                repeating-linear-gradient(90deg, rgba(90,47,138,0.16) 0px, rgba(90,47,138,0.16) 1px, transparent 1px, transparent 64px),
-                repeating-linear-gradient(0deg, rgba(90,47,138,0.16) 0px, rgba(90,47,138,0.16) 1px, transparent 1px, transparent 64px);
+                repeating-linear-gradient(90deg, rgba(90,47,138,0.14) 0px, rgba(90,47,138,0.14) 1px, transparent 1px, transparent 64px),
+                repeating-linear-gradient(0deg, rgba(90,47,138,0.14) 0px, rgba(90,47,138,0.14) 1px, transparent 1px, transparent 64px);
             background-repeat: repeat;
-            background-size: 16px 16px, 16px 16px, 64px 64px, 64px 64px;
+            background-size: 64px 64px;
             background-attachment: fixed;
-        }
-        /* Numerele discrete "de inginer" de pe grid — vezi #gridNumbers, generate în JS,
-           poziționate pe aceleași intersecții de 64px ca liniile principale ale gridului. */
-        .grid-numbers { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
-        .grid-number {
-            position: absolute; transform: translate(-50%, -50%);
-            font-family: 'Courier New', ui-monospace, SFMono-Regular, monospace;
-            font-size: 9px; letter-spacing: 0.5px; line-height: 1;
-            color: var(--c-primary-light); white-space: nowrap; user-select: none;
         }
         .view {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -456,9 +444,6 @@
         }
         .reveal.is-visible { opacity: 1; transform: translateY(0); filter: blur(0); }
         .reveal-stagger.is-visible { transition-delay: var(--r-delay, 0s); }
-        /* Folosit doar la comutarea de tab-uri (vezi swapTabPanel în JS): conținutul apare
-           instant, fără fade/alunecare — animația de reveal rămâne doar la scroll-ul natural. */
-        .reveal.reveal-instant { transition: none !important; }
         @media (prefers-reduced-motion: reduce) {
             .reveal { opacity: 1 !important; transform: none !important; filter: none !important; transition: none !important; }
         }
@@ -830,7 +815,14 @@
            Reducem doar spațiul de sub filtru, ca harta să nu fie împinsă prea jos. */
         .map-filters {
             margin-bottom: 20px;
-            overflow: hidden; max-height: 300px; opacity: 1;
+            /* Era "overflow: hidden" (shorthand) — tăia și overflow-x, care vine din
+               .horizontal-nav (overflow-x:auto) și e ce permite derularea orizontală a
+               butoanelor pe mobil. Cu shorthand-ul de aici declarat DUPĂ .horizontal-nav în
+               foaia de stil, câștiga el în cascadă și bloca scroll-ul orizontal complet —
+               de-asta ribbonul de filtre nu se derula pe telefon, nici în fullscreen, nici
+               fără. Acum tăiem doar pe verticală (necesar pt. animația de collapse), scroll-ul
+               orizontal rămâne intact. */
+            overflow-x: auto; overflow-y: hidden; max-height: 300px; opacity: 1;
             transition: max-height 0.25s ease, opacity 0.2s ease, margin-bottom 0.2s ease;
         }
         .map-filters.is-collapsed { max-height: 0; opacity: 0; margin-bottom: 0; pointer-events: none; }
@@ -1663,7 +1655,6 @@
 
     <!-- SPA Root -->
     <main class="app">
-        <div class="grid-numbers" id="gridNumbers" aria-hidden="true"></div>
 {{ content }}
     </main>
 
@@ -1853,89 +1844,6 @@
             });
         }
         observeReveals();
-
-        /* ==========================================================================
-           JS: Grid tip hârtie milimetrică — numere mici, discrete, la unele intersecții
-           ale gridului de fundal (stil hârtie inginerească/arhitecturală). Setul de numere
-           se generează dintr-un seed stocat în sessionStorage: rămâne identic pe toate
-           paginile în aceeași sesiune de navigare (fiecare click de nav e un load de
-           pagină nou, în arhitectura MPA de mai jos), dar se schimbă la un load complet
-           nou (tab nou / sesiune nouă a browserului). 67 și 34 au incidență vizibil mai
-           mare decât restul, cerut explicit — restul sunt uniform aleatorii.
-           ========================================================================== */
-        (function initGridNumbers() {
-            const container = document.getElementById('gridNumbers');
-            if (!container) return;
-
-            // PRNG mic, determinist (mulberry32) — Math.random() nu poate fi "reluat" de la
-            // un seed dat, avem nevoie de reproductibilitate ca să regenerăm identic la resize.
-            function mulberry32(seed) {
-                return function () {
-                    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
-                    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-                    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-                    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-                };
-            }
-
-            let seed;
-            try {
-                const stored = sessionStorage.getItem('ssicGridSeed');
-                if (stored) {
-                    seed = parseInt(stored, 10);
-                } else {
-                    seed = (Date.now() ^ Math.floor(Math.random() * 0xFFFFFFFF)) >>> 0;
-                    sessionStorage.setItem('ssicGridSeed', String(seed));
-                }
-            } catch (e) {
-                // sessionStorage indisponibil (mod privat strict etc.) — numerele tot apar,
-                // doar că nu mai persistă identic între pagini; degradare acceptabilă.
-                seed = (Date.now() ^ Math.floor(Math.random() * 0xFFFFFFFF)) >>> 0;
-            }
-
-            const STEP = 64;               // identic cu pasul liniilor "mari" ale gridului CSS
-            const DENSITY = 0.045;         // ~4-5% din intersecții primesc un număr — discret
-            const FEATURED = [67, 34];     // incidență mare, cerut explicit
-            const FEATURED_WEIGHT = 0.45;  // șansă ca un număr apărut să fie unul "featured"
-
-            function render() {
-                // Rand-ul se reconstruiește din același seed la fiecare render (inclusiv la
-                // resize) — altfel, reluarea secvenței de unde rămăsese ar amesteca aleator
-                // numerele la fiecare redimensionare a ferestrei.
-                const rand = mulberry32(seed);
-                container.innerHTML = '';
-                const cols = Math.ceil(window.innerWidth / STEP) + 1;
-                const rows = Math.ceil(window.innerHeight / STEP) + 1;
-                const frag = document.createDocumentFragment();
-                for (let r = 0; r <= rows; r++) {
-                    for (let c = 0; c <= cols; c++) {
-                        const roll = rand();
-                        const opacityRoll = rand();
-                        const valueRoll = rand();
-                        const featuredPick = rand();
-                        if (roll >= DENSITY) continue;
-                        const value = valueRoll < FEATURED_WEIGHT
-                            ? FEATURED[featuredPick < 0.5 ? 0 : 1]
-                            : Math.floor(valueRoll * 100) % 100;
-                        const span = document.createElement('span');
-                        span.className = 'grid-number';
-                        span.textContent = String(value).padStart(2, '0');
-                        span.style.left = (c * STEP) + 'px';
-                        span.style.top = (r * STEP) + 'px';
-                        span.style.opacity = (0.05 + opacityRoll * 0.06).toFixed(3);
-                        frag.appendChild(span);
-                    }
-                }
-                container.appendChild(frag);
-            }
-
-            render();
-            let gridResizeTimer;
-            window.addEventListener('resize', () => {
-                clearTimeout(gridResizeTimer);
-                gridResizeTimer = setTimeout(render, 200);
-            });
-        })();
 
         /* ==========================================================================
            JS: TYPEWRITER — textul din hero se scrie, așteaptă, apoi se șterge
@@ -2184,19 +2092,21 @@
                 // Catena Non-Stop scoasă de pe hartă: era etichetată greșit "(Polizu)" — adresa
                 // (Bd. Ion Mihalache 70-82) e de fapt în zona Aviatorilor, nu lângă Polizu.
                 // Transport — circuitul de metrou Crângași -> Grozăvești -> Petrache Poenaru -> Basarab -> Gara de Nord
-                { cat: 'transport', name: 'Metrou Crângași (M1)', addr: 'Șoseaua Virtuții',
+                { cat: 'transport', name: 'Metrou Crângași (M1)', addr: 'Șoseaua Crângași, lângă Lacul Morii',
                   lat: 44.451839, lng: 26.047722, icon: 'train-front' },
-                { cat: 'transport', name: 'Metrou Grozăvești (M1)', addr: 'Grozăvești',
+                { cat: 'transport', name: 'Metrou Grozăvești (M1)', addr: 'Șoseaua Grozăvești',
                   lat: 44.4427413, lng: 26.0604824, icon: 'train-front' },
-                { cat: 'transport', name: 'Metrou Petrache Poenaru (M1)', addr: 'Splaiul Independenței',
+                { cat: 'transport', name: 'Metrou Petrache Poenaru (M1)', addr: 'Splaiul Independenței, lângă Podul Grozăvești',
                   lat: 44.4453043, lng: 26.0467146, icon: 'train-front' },
-                { cat: 'transport', name: 'Metrou Basarab (M1/M4)', addr: 'Calea Griviței',
+                { cat: 'transport', name: 'Metrou Basarab (M1/M4)', addr: 'Calea Griviței, lângă Gara de Nord',
                   lat: 44.44998, lng: 26.068089, icon: 'train-front' },
-                { cat: 'transport', name: 'Gara de Nord', addr: 'Bulevardul Gării de Nord',
+                { cat: 'transport', name: 'Gara de Nord', addr: 'Bulevardul Gării de Nord 1',
                   lat: 44.446634, lng: 26.073892, icon: 'train-front' },
                 // Studiu — biblioteci + librării/anticariate din lista studenților
                 { cat: 'studiu',    name: 'Biblioteca Centrală UNSTPB', addr: 'Splaiul Independenței 313',
                   lat: 44.441191391143455, lng: 26.051440564343125, icon: 'book-open' },
+                { cat: 'studiu',    name: 'Biblioteca Națională a României', addr: 'Bulevardul Unirii 22',
+                  lat: 44.42614835130018, lng: 26.11023615767798, icon: 'book-open' },
                 { cat: 'studiu',    name: 'Anticariat UNU', addr: 'Pasajul Universității',
                   lat: 44.434361124075856, lng: 26.099743768545743, icon: 'book-marked' },
                 { cat: 'studiu',    name: 'Târgul Cărții', addr: 'Pasajul Universității',
@@ -2357,6 +2267,15 @@
         const mapRealEl = document.getElementById('realMap');
         let mapIsFullscreen = false;
 
+        // Ancore invizibile, lăsate în locul original al fiecărui element mutat, ca să știm
+        // exact unde să-l punem înapoi la ieșirea din fullscreen.
+        const mapRealAnchor = document.createComment('realMap-anchor');
+        const mapFiltersAnchor = document.createComment('mapFilters-anchor');
+        const mapExitAnchor = document.createComment('mapExit-anchor');
+        if (mapRealEl && mapRealEl.parentNode) mapRealEl.parentNode.insertBefore(mapRealAnchor, mapRealEl);
+        if (mapFiltersEl && mapFiltersEl.parentNode) mapFiltersEl.parentNode.insertBefore(mapFiltersAnchor, mapFiltersEl);
+        if (mapFullscreenExit && mapFullscreenExit.parentNode) mapFullscreenExit.parentNode.insertBefore(mapExitAnchor, mapFullscreenExit);
+
         if (mapFilterToggle && mapFiltersEl) {
             mapFilterToggle.addEventListener('click', () => {
                 const collapsed = mapFiltersEl.classList.toggle('is-collapsed');
@@ -2370,6 +2289,26 @@
             if (!mapRealEl) return;
             mapIsFullscreen = on;
             mapRealEl.classList.toggle('is-fullscreen', on);
+
+            // De ce mutăm nodurile în <body>: harta stă în interiorul .board-dept.stu-block,
+            // care primește animația tabEnter/tabLeave — animație care setează "transform"
+            // (translateY/scale) pe element. Orice ancestor cu transform (chiar și cu valoarea
+            // finală translate(0) scale(1)) devine "containing block" pentru descendenții cu
+            // position:fixed, în loc de viewport. Rezultatul: harta "fullscreen" nu acoperea
+            // tot ecranul, ci doar dreptunghiul lui .stu-block, iar panoul de filtre/butonul X
+            // apăreau decalate — de-asta fullscreenul arăta complet stricat. Mutând efectiv
+            // elementele ca și copii direcți ai <body> cât timp fullscreen e activ, position:
+            // fixed redevine relativă la viewport, ca la orice modal normal.
+            if (on) {
+                if (mapRealEl) document.body.appendChild(mapRealEl);
+                if (mapFiltersEl) document.body.appendChild(mapFiltersEl);
+                if (mapFullscreenExit) document.body.appendChild(mapFullscreenExit);
+            } else {
+                if (mapRealAnchor.parentNode && mapRealEl) mapRealAnchor.parentNode.insertBefore(mapRealEl, mapRealAnchor);
+                if (mapFiltersAnchor.parentNode && mapFiltersEl) mapFiltersAnchor.parentNode.insertBefore(mapFiltersEl, mapFiltersAnchor);
+                if (mapExitAnchor.parentNode && mapFullscreenExit) mapExitAnchor.parentNode.insertBefore(mapFullscreenExit, mapExitAnchor);
+            }
+
             if (mapFiltersEl) {
                 mapFiltersEl.classList.toggle('map-filters-overlay', on);
                 // La intrarea în fullscreen, panoul de filtre pornește collapsat (doar butonul
@@ -2748,20 +2687,33 @@
                 // de exemplu) până la următoarea acțiune care apela createIcons() din altă parte.
                 if (window.lucide) lucide.createIcons();
                 if (typeof observeReveals === 'function') observeReveals();
-                // Fix pt. bug-ul de comutare rapidă (Evenimente <-> Calendar, dar afectează
+                // Fix real pt. bug-ul de comutare rapidă (Evenimente <-> Calendar, dar afectează
                 // orice tab): elementele .reveal așteaptă IntersectionObserver-ul de scroll ca să
                 // devină vizibile (opacity 0 -> 1). La un tab abia deschis prin click, conținutul
-                // e deja pe ecran — n-are niciun motiv să mai aștepte după intersecție.
+                // e deja pe ecran — n-are niciun motiv să mai aștepte după intersecție. Dacă
+                // utilizatorul comută mai repede decât apucă browser-ul să calculeze intersecția
+                // (ex. click-click-click rapid între Evenimente și Calendar), acel calcul poate
+                // fi "sărit" complet cât timp panoul era ascuns, iar elementul rămânea blocat la
+                // opacity:0 pentru totdeauna — exact bug-ul raportat ("nu mai e text la
+                // calendar"). Soluția: la fiecare activare de tab, marcăm direct .is-visible pe
+                // tot ce e .reveal în panoul nou-activat, fără să mai așteptăm observer-ul.
                 //
-                // La cerere, tab-urile NU mai redau animația de fade-in-cu-alunecare-de-jos (care
-                // arăta "janky" la fiecare comutare) — acel efect rămâne doar pentru reveal-ul
-                // natural la scroll (prima încărcare a paginii). Aici dezactivăm tranziția
-                // temporar (.reveal-instant → transition:none) și marcăm direct .is-visible, ca
-                // tot conținutul tab-ului nou să apară instant, fără sărituri de poziție/blur.
+                // Dublu requestAnimationFrame, NU adăugare sincronă: dacă puneam .is-visible în
+                // aceeași secvență sincronă cu .active (fără niciun cadru de randare între ele),
+                // browserul nu mai avea ce stare "de dinainte" să anime — sărea direct la
+                // rezultatul final, adică textul apărea brusc, dintr-o dată ("sare aiurea"), în
+                // loc de fade-ul lin, "fancy", pe care îl are la încărcarea inițială a paginii
+                // (acolo IntersectionObserver-ul are, natural, cadre de randare între stările
+                // opacity:0 și opacity:1). Cele două rAF-uri imbricate garantează un cadru complet
+                // randat cu opacity:0 înainte să cerem tranziția spre opacity:1, deci tab-urile
+                // primesc exact aceeași animație lină ca restul site-ului, nu doar o apariție
+                // instantă.
                 const revealTargets = nextPanel.querySelectorAll('.reveal:not(.is-visible)');
-                revealTargets.forEach(el => el.classList.add('is-observed', 'reveal-instant', 'is-visible'));
+                revealTargets.forEach(el => el.classList.add('is-observed'));
                 requestAnimationFrame(() => {
-                    revealTargets.forEach(el => el.classList.remove('reveal-instant'));
+                    requestAnimationFrame(() => {
+                        revealTargets.forEach(el => el.classList.add('is-visible'));
+                    });
                 });
             }
         }
