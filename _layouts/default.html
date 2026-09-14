@@ -75,7 +75,10 @@
             --transition-fast: 0.3s var(--ease-out);
             --transition-smooth: 0.8s var(--ease-out);
             
-            --z-bg: 0; --z-content: 10; --z-nav: 100; --z-cursor: 9998; --z-swipe: 9999;
+            /* z-swipe > z-ului barei de progres (10001), ca animația de tranziție să acopere
+               complet și bara subțire de sus, nu doar navbar-ul/conținutul — altfel bara de
+               progres rămânea vizibilă, "plutind" peste bara de swipe în timpul tranziției. */
+            --z-bg: 0; --z-content: 10; --z-nav: 100; --z-cursor: 9998; --z-swipe: 10010;
 
             /* Liquid Glass — saturație + blur folosite peste tot unde e nevoie de efect de sticlă
                (navbar, meniu mobil, search overlay, cursor). */
@@ -171,9 +174,12 @@
             /* Opacitate mai mare decât înainte (0.7 → 0.9) special ca gridul decorativ de pe
                .app să nu se mai citească deloc prin blur pe zona meniului (cerut explicit).
                Rămâne fundalul implicit — pentru browsere fără backdrop-filter/mask-image
-               (vezi @supports mai jos), nav-ul tot arată bine, doar fără sticlă. */
+               (vezi @supports mai jos), nav-ul tot arată bine, doar fără sticlă.
+               Fără inset-uri de highlight sus/jos: acele linii subțiri de lumină creau exact
+               separatorul vizibil peste blur, rupând continuitatea efectului de sticlă —
+               cerut explicit să dispară. Rămâne doar umbra exterioară, pentru profunzime. */
             background: var(--c-nav-bg);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -12px 24px -12px rgba(255,255,255,0.03);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             transition: transform 0.5s var(--ease-out), opacity 0.4s var(--ease-out);
         }
         /* Sticlă "reală" (tehnica Josh Comeau: joshwcomeau.com/css/backdrop-filter) — un copil
@@ -1123,11 +1129,17 @@
         @media (max-width: 768px) {
             .nav-burger { display: flex; }
             .nav-links {
-                position: fixed; top: 90px; left: 0; width: 100%; height: calc(100vh - 90px);
+                position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+                padding-top: 90px;
                 flex-direction: column; align-items: center; justify-content: center; gap: 20px;
                 /* Fundal solid, opac, ca fallback — pentru WebView-uri mobile care nu suportă
                    backdrop-filter, panoul rămâne complet opac (nimic riscant dedesubt). Pe
-                   device-urile care suportă, @supports mai jos îl transformă în sticlă. */
+                   device-urile care suportă, @supports mai jos îl transformă în sticlă.
+                   Pornește de la top:0 (nu top:90px) — se întinde ȘI în spatele navbar-ului,
+                   ca stratul lui de blur să se suprapună cu cel al nav-ului chiar în zona unde
+                   blur-ul navbar-ului se stinge (vezi mask-image de la .nav-backdrop), în loc
+                   să pornească brusc, la putere maximă, exact la granița de 90px — asta era
+                   separatorul vizibil dintre cele două straturi de sticlă. */
                 background: #0e0916;
                 border-left: 1px solid var(--c-border-soft);
                 transform: translateX(4%); opacity: 0; visibility: hidden;
@@ -2228,6 +2240,20 @@
             });
         })();
 
+        // Plasă de siguranță pt. bfcache: dacă utilizatorul dă "înapoi"/"înainte" din browser,
+        // pagina poate reveni din back/forward-cache exact în starea DOM de la momentul în care
+        // a fost părăsită — inclusiv la mijlocul animației de "covering" (ecran acoperit de bară),
+        // dacă tocmai plecase de pe ea printr-un click intern chiar când s-a apăsat "înapoi".
+        // Fără reset, bara rămâne "înghețată" peste tot ecranul și pagina pare complet blocată
+        // (exact genul de blocaj vechi de la navbar, dar acum pe swiper). La orice revenire din
+        // bfcache (event.persisted), curățăm swiper-ul necondiționat, ca pagina să fie mereu
+        // vizibilă, indiferent în ce stare a rămas la ieșire.
+        window.addEventListener('pageshow', (e) => {
+            if (!e.persisted) return;
+            const swiper = document.getElementById('swiper');
+            if (swiper) swiper.className = 'swipe-container';
+        });
+
         /* ==========================================================================
            JS: Deep-link la încărcarea paginii — dacă URL-ul are un #hash (ex.
            /board/#dept-pr, venit dintr-un link din footer sau din căutare), deschidem
@@ -2331,22 +2357,44 @@
                 if (!panel.classList.contains('active') && !panel.classList.contains('tab-leaving')) return;
                 panel.classList.remove('active');
                 panel.classList.add('tab-leaving');
+                // Dacă panoul ăsta avea deja un cleanup de la un ciclu de ieșire anterior,
+                // întrerupt de un click rapid (ex. A -> B -> A -> B în mai puțin de 300ms),
+                // îl anulăm explicit înainte să pornim unul nou — altfel rămâneau două
+                // cleanup-uri "în cursă" pe același element, cu risc real ca cel vechi să
+                // șteargă starea nou-setată mai jos, la nextPanel.
+                if (panel._tabCleanup) {
+                    panel.removeEventListener('animationend', panel._tabCleanup);
+                    clearTimeout(panel._tabTimeout);
+                }
                 let done = false;
                 const cleanup = () => {
                     if (done) return;
                     done = true;
                     panel.classList.remove('tab-leaving');
                     panel.removeEventListener('animationend', cleanup);
+                    if (panel._tabCleanup === cleanup) panel._tabCleanup = null;
                 };
+                panel._tabCleanup = cleanup;
                 panel.addEventListener('animationend', cleanup);
                 // Plasă de siguranță: dacă animationend nu se declanșează deloc (posibil pe iOS
                 // când panoul iese din ecran/din DOM randat înainte ca animația să se termine),
-                // forțăm curățarea oricum, puțin după durata animației (220ms).
-                setTimeout(cleanup, 300);
+                // forțăm curățarea oricum, puțin după durata animației (300ms).
+                panel._tabTimeout = setTimeout(cleanup, 300);
             });
-            if (nextPanel && !nextPanel.classList.contains('active')) {
+            if (nextPanel) {
+                // Panoul care redevine activ poate fi el însuși încă "pe jumătate" în propria
+                // animație de ieșire, dacă utilizatorul a comutat dus-întors suficient de rapid
+                // (ex. Evenimente -> Calendar -> Evenimente, toate în mai puțin de 300ms) — avea
+                // deci un cleanup vechi încă în așteptare (listener + setTimeout), care mai
+                // târziu i-ar fi scos clasa 'active'/'tab-leaving' pe la spate și ar fi lăsat
+                // conținutul invizibil. Îl anulăm explicit înainte să-l marcăm activ din nou.
+                if (nextPanel._tabCleanup) {
+                    nextPanel.removeEventListener('animationend', nextPanel._tabCleanup);
+                    clearTimeout(nextPanel._tabTimeout);
+                    nextPanel._tabCleanup = null;
+                }
                 nextPanel.classList.remove('tab-leaving');
-                nextPanel.classList.add('active');
+                if (!nextPanel.classList.contains('active')) nextPanel.classList.add('active');
             }
         }
 
@@ -2503,26 +2551,39 @@
         /* ==========================================================================
            JS: POZE ECHIPĂ — completate automat după numele fiecărui membru
            ==========================================================================
-           Pentru fiecare membru din Board/Facultate, scriptul deduce singur numele
-           fișierului din textul afișat (ex. "Constantin Alexandru" → "constantin-alexandru.jpg",
-           diacriticele fiind scoase automat) și caută poza în assets/team/.
-           Dacă fișierul nu există, rămâne vizibil gradientul + iconița de siluetă (fără eroare vizibilă).
-           Pur și simplu pune fotografiile în assets/team/, denumite după acest tipar. */
+           Pentru fiecare membru din Board/Facultate/Studenți, scriptul deduce singur numele
+           fișierului din textul afișat (ex. "Constantin Alexandru" → "constantin-alexandru",
+           diacriticele fiind scoase automat) și caută poza în assets/team/, încercând pe rând
+           .jpg, .jpeg și .png — ca să nu conteze formatul în care primești poza de la cineva.
+           Dacă niciuna dintre cele 3 nu există, rămâne vizibil gradientul + iconița de siluetă
+           (fără eroare vizibilă). Un singur folder, un singur tipar, valabil pe orice pagină —
+           nu trebuie editat niciun .html ca să adaugi/schimbi o poză, doar pui fișierul în
+           assets/team/, denumit după acest tipar. */
         function slugifyName(name) {
             return name.trim().toLowerCase()
                 .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // scoate diacriticele (ă, â, î, ș, ț)
                 .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
         }
+        const TEAM_PHOTO_EXTS = ['jpg', 'jpeg', 'png'];
         document.querySelectorAll('.team-member').forEach(member => {
             const nameEl = member.querySelector('.team-name');
             const photoEl = member.querySelector('.team-photo');
             if (!nameEl || !photoEl) return;
+            const slug = slugifyName(nameEl.textContent);
             const img = document.createElement('img');
-            img.src = `/assets/team/${slugifyName(nameEl.textContent)}.jpg`;
             img.alt = nameEl.textContent.trim();
             img.loading = 'lazy';
             img.decoding = 'async';
-            img.onerror = function () { this.remove(); };
+            let extIndex = 0;
+            img.onerror = function () {
+                extIndex++;
+                if (extIndex < TEAM_PHOTO_EXTS.length) {
+                    img.src = `/assets/team/${slug}.${TEAM_PHOTO_EXTS[extIndex]}`;
+                } else {
+                    img.remove();
+                }
+            };
+            img.src = `/assets/team/${slug}.${TEAM_PHOTO_EXTS[0]}`;
             photoEl.appendChild(img);
         });
 
