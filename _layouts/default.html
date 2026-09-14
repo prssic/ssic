@@ -212,7 +212,7 @@
                    culoare de la marginea de sus a viewport-ului (elementele ies din zona
                    considerată de blur chiar la graniță; fără acest gradient s-ar vedea o
                    pâlpâire, explicat în articol la secțiunea "Flickering top"). */
-                background: linear-gradient(to bottom, var(--c-nav-bg) 0%, transparent 50%);
+                background: linear-gradient(to bottom, var(--c-nav-bg) 0%, transparent 56%);
                 backdrop-filter: blur(22px) saturate(var(--glass-saturation));
                 -webkit-backdrop-filter: blur(22px) saturate(var(--glass-saturation));
             }
@@ -220,8 +220,16 @@
         @supports (mask-image: linear-gradient(#000, #000)) or (-webkit-mask-image: linear-gradient(#000, #000)) {
             .nav-backdrop {
                 height: 200%;
-                -webkit-mask-image: linear-gradient(to bottom, black 0% 50%, transparent 50% 100%);
-                mask-image: linear-gradient(to bottom, black 0% 50%, transparent 50% 100%);
+                /* Tăietura era exact la 50% (negru → transparent instantaneu, pe aceeași oprire),
+                   deci pixelul de deasupra graniței e complet blurat, iar cel de sub e complet
+                   nefiltrat — diferența bruscă se vede ca o linie subțire, chiar dacă gradientul
+                   de fundal de mai sus se stinge "lin" în aceeași zonă. Rezolvarea reală e să
+                   estompăm și masca pe o bandă mică (44%→56% din cei 200%, adică ±10px în jurul
+                   marginii de 90px a nav-ului), nu doar culoarea — așa intensitatea blur-ului
+                   scade treptat spre 0 exact acolo unde și culoarea dispare, și granița nu se mai
+                   vede deloc, pe niciun fundal (deschis sau închis) din spate. */
+                -webkit-mask-image: linear-gradient(to bottom, black 0% 44%, transparent 56% 100%);
+                mask-image: linear-gradient(to bottom, black 0% 44%, transparent 56% 100%);
             }
         }
         /* Hero pe tot ecranul la Acasă: navbar-ul stă ascuns până la primul scroll,
@@ -278,9 +286,15 @@
             font-weight: 800; font-size: 13px; color: #a394b5;
             text-transform: uppercase; letter-spacing: 2px;
             padding: 10px 0; position: relative; display: inline-block;
-            transition: color var(--transition-fast);
+            /* Aliniat la aceeași durată/easing ca .horizontal-tab și restul butoanelor de
+               navigare din site (var(--transition-fast) = 0.3s), plus un mic feedback la
+               apăsare (scale), care înainte exista doar pe meniul mobil — acum toate
+               butoanele de navigare (nav de sus, tab-uri orizontale, meniu mobil) reacționează
+               la fel la click/tap, nu doar unele dintre ele. */
+            transition: color var(--transition-fast), transform var(--transition-fast);
         }
         .nav-link.active { color: var(--c-white); }
+        .nav-link:active { transform: scale(0.96); }
         .nav-link::after {
             content: ''; position: absolute; bottom: 0; left: 50%;
             width: 5px; height: 5px; border-radius: 50%; background: var(--c-accent);
@@ -593,15 +607,22 @@
         .horizontal-tab {
             flex: 0 0 auto; white-space: nowrap; position: relative;
             padding: 11px 22px; font-size: 1rem; font-weight: 700; color: var(--c-gray);
-            cursor: pointer; transition: color 0.25s var(--ease-out), background 0.25s var(--ease-out);
+            cursor: pointer;
+            /* Aceeași durată (var(--transition-fast), 0.3s) și același efect de apăsare
+               (scale 0.96) ca .nav-link/meniul mobil — înainte era 0.25s aici, 0.3s acolo, și
+               doar meniul mobil avea feedback la tap; acum toate butoanele de navigare din
+               site se simt la fel. */
+            transition: color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
             border-radius: 10px; letter-spacing: 0.1px; background: transparent;
         }
         .horizontal-tab.active {
             color: var(--c-base); font-weight: 800;
             background: var(--c-accent);
         }
+        .horizontal-tab:active { transform: scale(0.96); }
         @media (prefers-reduced-motion: reduce) {
-            .horizontal-tab { transition: none; }
+            .horizontal-tab { transition: color var(--transition-fast), background var(--transition-fast); }
+            .horizontal-tab:active { transform: none; }
         }
 
         /* Conținut tab — crossfade + slide, fără sărituri de layout, identic pe desktop/mobil.
@@ -749,17 +770,22 @@
             font-family: var(--font-display);
         }
         .stu-section-title:first-child { margin-top: 0; }
-        .stu-block p { color: var(--c-white-off); font-size: 1.02rem; line-height: 1.65; max-width: 760px; }
+        /* Era 1.02rem — mult sub .dept-intro p (1.35rem), care e mărimea de bază de text de pe
+           Board/Facultate. Studenți are majoritatea conținutului în .stu-block p (nu doar un
+           intro scurt ca celelalte pagini), deci diferența de 0.33rem se vedea pe tot parcursul
+           paginii, nu doar la primul paragraf — de-asta arăta vizibil mai mic. Aliniat acum
+           exact la aceeași mărime/line-height ca restul site-ului. */
+        .stu-block p { color: var(--c-white-off); font-size: 1.35rem; font-weight: 400; line-height: 1.65; letter-spacing: -0.01em; max-width: 780px; }
 
         /* Listă simplă cu iconiță — reutilizează exact limbajul vizual al .contact-lines
            (icon auriu în stânga, text la dreapta), fără chenar/fundal/umbră. */
-        .stu-list { display: flex; flex-direction: column; gap: 20px; max-width: 760px; margin-bottom: 10px; }
+        .stu-list { display: flex; flex-direction: column; gap: 20px; max-width: 780px; margin-bottom: 10px; }
         .stu-list-item { display: flex; gap: 16px; align-items: flex-start; }
         .stu-list-item i, .stu-list-item .lucide {
             color: var(--c-accent); width: 20px; height: 20px; flex-shrink: 0; margin-top: 3px;
         }
-        .stu-list-item strong { display: block; color: var(--c-white); font-size: 1.02rem; margin-bottom: 4px; }
-        .stu-list-item span { color: var(--c-white-off); font-size: 0.96rem; line-height: 1.55; }
+        .stu-list-item strong { display: block; color: var(--c-white); font-size: 1.12rem; margin-bottom: 4px; }
+        .stu-list-item span { color: var(--c-white-off); font-size: 1.05rem; line-height: 1.6; }
         .stu-list-item.tbd span { color: var(--c-gray); font-style: italic; }
 
         /* Hartă reală (Leaflet + OpenStreetMap) — fără machetă/SVG decorativ */
@@ -1130,8 +1156,13 @@
             .nav-burger { display: flex; }
             .nav-links {
                 position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-                padding-top: 90px;
-                flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+                /* justify-content:center + doar padding-top (fără padding-bottom) centra
+                   butoanele în cutia rămasă SUB cei 90px ai bării de sus, nu în tot ecranul —
+                   vizual ajungeau puțin mai jos de mijlocul real al telefonului. flex-start +
+                   un padding-top mai generos (bara + puțin aer) le aduce sus, predictibil, pe
+                   orice înălțime de ecran, în loc să depindă de o centrare "oarbă". */
+                padding: 120px 0 40px;
+                flex-direction: column; align-items: center; justify-content: flex-start; gap: 16px;
                 /* Fundal solid, opac, ca fallback — pentru WebView-uri mobile care nu suportă
                    backdrop-filter, panoul rămâne complet opac (nimic riscant dedesubt). Pe
                    device-urile care suportă, @supports mai jos îl transformă în sticlă.
@@ -1228,7 +1259,7 @@
             .horizontal-nav { margin-bottom: 32px; justify-content: flex-start; }
             .horizontal-tab { padding: 10px 18px; font-size: 0.92rem; }
             .dept-intro { margin-bottom: 32px; }
-            .dept-intro p { font-size: 1.08rem; }
+            .dept-intro p, .stu-block p { font-size: 1.08rem; }
             .team-grid { grid-template-columns: 1fr; gap: 40px; }
             .team-photo { aspect-ratio: 4/5; }
             .team-name { font-size: 1.15rem; }
@@ -1597,7 +1628,7 @@
                 </div>
                 <div class="ft-col">
                     <h4>Locație</h4>
-                    <p>Strada Gheorghe Polizu 1-3, Campus Polizu, Corp L, sala L028, Sectorul 1, București, România</p>
+                    <p>Strada Gheorghe Polizu 1-7, Campus Polizu, Corp L, sala L028, Sectorul 1, București, România</p>
                     <a href="mailto:ssic.upb@gmail.com" class="ft-mail hover-target" style="margin-top:10px;"><i data-lucide="mail"></i> ssic.upb@gmail.com</a>
                     <a href="https://chimie.upb.ro" target="_blank" rel="noopener" class="ft-mail hover-target" style="margin-top:6px;"><i data-lucide="landmark"></i> Pagina Facultății</a>
                 </div>
@@ -1706,7 +1737,39 @@
         (function initHeroVideoFallback() {
             const video = document.getElementById('heroVideo');
             if (!video) return;
-            video.addEventListener('error', () => video.style.display = 'none', true);
+            // Raport: pe unele iPhone-uri videoul din hero nu pornea deloc. 'error' singur nu
+            // prindea cazul real — pe iOS, autoplay-ul poate fi blocat silențios (fără eveniment
+            // 'error') de Low Power Mode, Low Data Mode sau de un browser in-app (Instagram/
+            // TikTok webview), caz în care videoul rămâne "înghețat" pe primul cadru, nu apare
+            // nicio eroare. Fix: setăm explicit .muted (proprietatea JS, nu doar atributul HTML —
+            // pe unele versiuni vechi de iOS doar atributul nu e suficient) și încercăm play()
+            // manual, cu retry, în loc să ne bazăm doar pe autoplay declarativ.
+            let settled = false;
+            const giveUp = () => {
+                if (settled) return;
+                settled = true;
+                video.style.display = 'none'; // rămâne gridul/gradientul din fundal, arată bine oricum
+            };
+            video.addEventListener('error', giveUp, true);
+            video.muted = true;
+            const tryPlay = () => {
+                if (settled) return;
+                const p = video.play();
+                if (p && typeof p.catch === 'function') {
+                    p.then(() => { settled = true; }).catch(() => {
+                        // Prima încercare eșuează des dacă play() se cheamă înainte ca browserul
+                        // să considere videoul "gata" — mai încercăm o dată la evenimentul canplay.
+                        video.addEventListener('canplay', () => { if (!settled) video.play().catch(giveUp); }, { once: true });
+                    });
+                }
+            };
+            tryPlay();
+            // Plasă de siguranță: dacă după 5s videoul tot nu a apucat să pornească (readyState
+            // sub HAVE_FUTURE_DATA), renunțăm — mai bine fundalul static decât un cadru înghețat
+            // la infinit, pe o conexiune foarte lentă sau un webview care blochează video complet.
+            setTimeout(() => {
+                if (!settled && video.readyState < 3) giveUp();
+            }, 5000);
         })();
 
         /* ==========================================================================
@@ -1931,29 +1994,43 @@
                 sanatate:  { label: 'Farmacii',  color: '#e0645f', iconColor: '#ffffff' },
                 transport: { label: 'Transport', color: '#4fd1c5', iconColor: '#0c1f1e' },
                 studiu:    { label: 'Studiu',    color: '#c9a6f2', iconColor: '#1a1206' },
-                facultate: { label: 'Facultate', color: '#e9e2ef', iconColor: '#1a1206' }
+                facultate: { label: 'Facultate', color: '#e9e2ef', iconColor: '#1a1206' },
+                parcuri:   { label: 'Parcuri',   color: '#5fb85a', iconColor: '#0d1f0a' },
+                cafenele:  { label: 'Cafenele',  color: '#d98e4a', iconColor: '#241505' }
             };
 
             const POIS = [
-                // Cazare — căminele FICBi din Regie
+                // Cazare — căminele FICBi din Regie (coordonate corectate, verificate din lista oficială)
                 { cat: 'cazare',    name: 'Cămin P7 (fete)', addr: 'Complexul Studențesc Regie',
-                  lat: 44.4465, lng: 26.0570, icon: 'home' },
+                  lat: 44.44519624683363, lng: 26.05274543132701, icon: 'home' },
                 { cat: 'cazare',    name: 'Cămin P8 (băieți)', addr: 'Complexul Studențesc Regie',
-                  lat: 44.4462, lng: 26.0563, icon: 'home' },
+                  lat: 44.44526404275452, lng: 26.052563042012075, icon: 'home' },
                 { cat: 'cazare',    name: 'Cămin P26', addr: 'Complexul Studențesc Regie',
                   lat: 44.4455, lng: 26.0578, icon: 'home' },
                 // Cantine
                 { cat: 'cantina',   name: 'Cantina Rectorat', addr: 'Splaiul Independenței 313, etaj 5',
                   lat: 44.4386195, lng: 26.051572, icon: 'utensils' },
                 { cat: 'cantina',   name: 'Cantina Regie (R3)', addr: 'Splaiul Independenței 299',
-                  lat: 44.4458547, lng: 26.0520714, icon: 'utensils' },
-                // Magazine (Orhideea + Polizu)
+                  lat: 44.44588912250304, lng: 26.052088174889764, icon: 'utensils' },
+                // Magazine (Orhideea + Polizu) + centre comerciale/magazine utile din lista studenților
                 { cat: 'mancare',   name: 'Carrefour Orhideea', addr: 'Splaiul Independenței 210-210B',
                   lat: 44.4447231, lng: 26.0632957, icon: 'shopping-cart' },
                 { cat: 'mancare',   name: 'Profi (Polizu)', addr: 'Calea Griviței 134-138',
                   lat: 44.4473738, lng: 26.0769589, icon: 'shopping-cart' },
                 { cat: 'mancare',   name: 'Froo (Polizu)', addr: 'Calea Griviței 134',
                   lat: 44.4474305, lng: 26.0768052, icon: 'shopping-basket' },
+                { cat: 'mancare',   name: 'LivrăriRegie.ro', addr: 'Complexul Studențesc Regie',
+                  lat: 44.44561438049759, lng: 26.052337960736235, icon: 'shopping-basket' },
+                { cat: 'mancare',   name: 'Centrul Comercial Orhideea', addr: 'Splaiul Independenței 210',
+                  lat: 44.446216420016455, lng: 26.062524102927426, icon: 'shopping-cart' },
+                { cat: 'mancare',   name: 'Lidl', addr: 'zona Regie',
+                  lat: 44.45183937710921, lng: 26.04796908790601, icon: 'shopping-cart' },
+                { cat: 'mancare',   name: 'AFI Cotroceni', addr: 'Bulevardul Vasile Milea 4',
+                  lat: 44.431861085702685, lng: 26.053697810379354, icon: 'shopping-bag' },
+                { cat: 'mancare',   name: 'Jumbo Center', addr: 'Șoseaua Berceni',
+                  lat: 44.41584285362142, lng: 26.079416133915537, icon: 'shopping-bag' },
+                { cat: 'mancare',   name: 'Socului Kebap Obor', addr: 'zona Obor',
+                  lat: 44.44955369942694, lng: 26.123559772905622, icon: 'utensils' },
                 // Farmacii din zonă
                 { cat: 'sanatate',  name: 'Farmacia Dr. Max (Orhideea)', addr: 'Splaiul Independenței 210-210B',
                   lat: 44.4442865, lng: 26.0625989, icon: 'cross' },
@@ -1963,8 +2040,8 @@
                   lat: 44.4466748, lng: 26.0583114, icon: 'cross' },
                 { cat: 'sanatate',  name: 'Farmacia Catena', addr: 'Calea Plevnei 132B',
                   lat: 44.4416661, lng: 26.0721785, icon: 'cross' },
-                { cat: 'sanatate',  name: 'Catena Non-Stop (Polizu)', addr: 'Bulevardul Ion Mihalache 70-82',
-                  lat: 44.4602258, lng: 26.0755967, icon: 'cross' },
+                // Catena Non-Stop scoasă de pe hartă: era etichetată greșit "(Polizu)" — adresa
+                // (Bd. Ion Mihalache 70-82) e de fapt în zona Aviatorilor, nu lângă Polizu.
                 // Transport — circuitul de metrou Crângași -> Grozăvești -> Petrache Poenaru -> Basarab -> Gara de Nord
                 { cat: 'transport', name: 'Metrou Crângași (M1)', addr: 'Șoseaua Virtuții',
                   lat: 44.451839, lng: 26.047722, icon: 'train-front' },
@@ -1976,12 +2053,60 @@
                   lat: 44.44998, lng: 26.068089, icon: 'train-front' },
                 { cat: 'transport', name: 'Gara de Nord', addr: 'Bulevardul Gării de Nord',
                   lat: 44.446634, lng: 26.073892, icon: 'train-front' },
-                // Studiu
+                // Studiu — biblioteci + librării/anticariate din lista studenților
                 { cat: 'studiu',    name: 'Biblioteca Centrală UNSTPB', addr: 'Splaiul Independenței 313',
-                  lat: 44.441065, lng: 26.0514352, icon: 'book-open' },
+                  lat: 44.441191391143455, lng: 26.051440564343125, icon: 'book-open' },
+                { cat: 'studiu',    name: 'Anticariat UNU', addr: 'zona Universitate',
+                  lat: 44.434361124075856, lng: 26.099743768545743, icon: 'book-marked' },
+                { cat: 'studiu',    name: 'Târgul Cărții', addr: 'zona Universitate',
+                  lat: 44.43388374873857, lng: 26.102744490471178, icon: 'book-marked' },
+                { cat: 'studiu',    name: 'Antic ExLibris', addr: 'zona Universitate',
+                  lat: 44.43353325604077, lng: 26.102226824139255, icon: 'book-marked' },
                 // Facultate
                 { cat: 'facultate', name: 'FICBi — Clădirea Polizu', addr: 'Strada Gheorghe Polizu 1-7',
-                  lat: 44.4476566, lng: 26.079642, icon: 'graduation-cap' }
+                  lat: 44.447844250433064, lng: 26.079711737380148, icon: 'graduation-cap' },
+                { cat: 'facultate', name: 'Facultatea de Științe Aplicate', addr: 'Splaiul Independenței 313',
+                  lat: 44.439817879671835, lng: 26.050660021659674, icon: 'graduation-cap' },
+                // Parcuri
+                { cat: 'parcuri',   name: 'Parcul Politehnica', addr: 'Splaiul Independenței',
+                  lat: 44.440772552182615, lng: 26.052555677857647, icon: 'trees' },
+                { cat: 'parcuri',   name: 'Parcul Regele Mihai I (Herăstrău)', addr: 'Șoseaua Kiseleff',
+                  lat: 44.47035845304378, lng: 26.082682962470503, icon: 'trees' },
+                { cat: 'parcuri',   name: 'Parcul Liniei', addr: 'zona Grivița',
+                  lat: 44.431644541658464, lng: 26.035633820772407, icon: 'trees' },
+                { cat: 'parcuri',   name: 'Parcul Tineretului', addr: 'zona Tineretului',
+                  lat: 44.40800839176741, lng: 26.105009791334325, icon: 'trees' },
+                { cat: 'parcuri',   name: 'Grădina Cișmigiu', addr: 'zona Cișmigiu',
+                  lat: 44.437480734880126, lng: 26.091078049163023, icon: 'trees' },
+                { cat: 'parcuri',   name: 'Grădina Botanică „Dimitrie Brândză”', addr: 'Șoseaua Cotroceni 32',
+                  lat: 44.43743926558714, lng: 26.06280048150343, icon: 'leaf' },
+                { cat: 'parcuri',   name: 'Parcul Alexandru Ioan Cuza', addr: 'zona Titan',
+                  lat: 44.42625931231126, lng: 26.155142083698404, icon: 'trees' },
+                { cat: 'parcuri',   name: 'Parcul Izvor', addr: 'zona Izvor',
+                  lat: 44.432071410671874, lng: 26.08773258712462, icon: 'trees' },
+                { cat: 'parcuri',   name: 'Parcul Crângași', addr: 'zona Crângași',
+                  lat: 44.452639588998714, lng: 26.045747502810457, icon: 'trees' },
+                { cat: 'parcuri',   name: 'Morii Lake Promenad', addr: 'Lacul Morii',
+                  lat: 44.45271100158281, lng: 26.03964800008108, icon: 'trees' },
+                { cat: 'parcuri',   name: 'Parcul Insula Lacul Morii', addr: 'Lacul Morii',
+                  lat: 44.45973742949955, lng: 26.02960230713795, icon: 'trees' },
+                { cat: 'parcuri',   name: 'Parcul Drumul Taberei', addr: 'zona Drumul Taberei',
+                  lat: 44.42280821664365, lng: 26.030859983291197, icon: 'trees' },
+                // Cafenele/baruri
+                { cat: 'cafenele',  name: 'Leonard Caffe Polizu', addr: 'zona Polizu',
+                  lat: 44.447805514471334, lng: 26.07778854666857, icon: 'coffee' },
+                { cat: 'cafenele',  name: 'B17 COFFEELAB Polizu', addr: 'zona Polizu',
+                  lat: 44.44749627368328, lng: 26.07734329997222, icon: 'coffee' },
+                { cat: 'cafenele',  name: 'Beans & Dots', addr: 'zona Universitate',
+                  lat: 44.43569315780523, lng: 26.09396696090108, icon: 'coffee' },
+                { cat: 'cafenele',  name: 'Meron', addr: 'zona Universitate',
+                  lat: 44.43484521301282, lng: 26.09459777537656, icon: 'coffee' },
+                { cat: 'cafenele',  name: 'Quantic', addr: 'zona Cișmigiu',
+                  lat: 44.43827284286915, lng: 26.059362463505245, icon: 'coffee' },
+                { cat: 'cafenele',  name: 'Mechano Pub', addr: 'zona Regie',
+                  lat: 44.44687491494298, lng: 26.051812904006496, icon: 'beer' },
+                { cat: 'cafenele',  name: 'Wicked Bar', addr: 'zona Universitate',
+                  lat: 44.4378826641658, lng: 26.11236936694795, icon: 'beer' }
             ];
 
             const map = L.map('realMap', { scrollWheelZoom: false });
@@ -2314,6 +2439,21 @@
            JS: Interactivitate & Carusele Punctate
            ========================================================================== */
         
+        // Poze evenimente lipsă (assets/events/ încă necompletat sau un fișier individual
+        // absent): slide-ul dispare, ca până acum — dar dacă TOATE pozele unui carusel lipsesc,
+        // rămânea o cutie goală, rotunjită, fără nimic vizibil în ea (arăta "stricat", nu
+        // pur și simplu absent). Acum, dacă un carusel ajunge la 0 slide-uri, ascundem tot
+        // containerul (poză + puncte), nu doar poza individuală.
+        function handleEventImgError(img) {
+            const slide = img.closest('.carousel-slide');
+            const container = img.closest('.carousel-container');
+            if (slide) slide.remove();
+            if (container) {
+                const track = container.querySelector('.carousel-track');
+                if (track && track.children.length === 0) container.style.display = 'none';
+            }
+        }
+
         // Setup Carusele (drag to scroll & dots sync)
         function initDraggableCarousel(trackId, dotsId) {
             const track = document.getElementById(trackId);
@@ -2395,6 +2535,13 @@
                 }
                 nextPanel.classList.remove('tab-leaving');
                 if (!nextPanel.classList.contains('active')) nextPanel.classList.add('active');
+                // Plasă de siguranță: dacă panoul nou-activat are iconițe <i data-lucide> care
+                // n-au apucat să fie convertite în SVG la încărcarea paginii (ex. conținut
+                // adăugat/schimbat rapid, imediat după DOMContentLoaded), le randăm acum —
+                // altfel rămâneau spații goale în loc de iconițe (calendarul din Evenimente,
+                // de exemplu) până la următoarea acțiune care apela createIcons() din altă parte.
+                if (window.lucide) lucide.createIcons();
+                if (typeof observeReveals === 'function') observeReveals();
             }
         }
 
