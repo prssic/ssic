@@ -240,26 +240,9 @@
             nav.nav-hidden { transform: none; }
         }
 
-        /* Bară subțire de progres al scroll-ului, deasupra a tot (inclusiv navbar-ul ascuns) */
-        .scroll-progress {
-            position: fixed; top: 0; left: 0; width: 100%; height: 3px;
-            z-index: 10001; pointer-events: none; background: transparent;
-        }
-        .scroll-progress-fill {
-            height: 100%; width: 0%;
-            background: linear-gradient(90deg, var(--c-accent), var(--c-accent-2), var(--c-primary-light), var(--c-accent));
-            background-size: 300% 100%;
-            box-shadow: 0 0 12px var(--c-accent-glow);
-            transition: width 0.12s linear;
-            animation: progressGradientMove 6s linear infinite;
-        }
-        @keyframes progressGradientMove {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 300% 50%; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .scroll-progress-fill { animation: none; }
-        }
+        /* Bara de progres al scroll-ului a fost eliminată complet (cerut explicit) — era
+           dungă orange-mov animată, fixă în vârful ecranului, peste tot (inclusiv peste
+           notch/status bar pe mobil), prea stridentă vizual ("mă enervează pe retină"). */
         .logo { display: flex; align-items: center; gap: 15px; }
         .logo img { height: 40px; }
         .logo span { font-family: var(--font-display); font-weight: 700; font-size: 24px; color: var(--c-white); letter-spacing: 1px; }
@@ -354,14 +337,23 @@
         .app {
             position: relative; width: 100vw; height: 100vh; height: 100dvh;
             background-color: var(--c-base);
-            /* Grid decorativ simplu, mov, static — din CSS pur (repeating-linear-gradient),
-               nu dintr-un tile SVG, deci fără cusături de tile la niciun zoom/DPI. Fără gold,
-               fără animație — doar liniile de grid, curate. */
+            /* Grid decorativ tip "hârtie milimetrică" — din CSS pur (repeating-linear-gradient),
+               nu dintr-un tile SVG, deci fără cusături de tile la niciun zoom/DPI/lățime de ecran
+               (pattern-ul se repetă infinit de la 0,0, deci nu poate "sări" sau tăia pătrățele
+               ciudat pe mobil — dacă părea inconsistent, era doar din cauza opacității foarte mici
+               de mai jos, nu a alinierii). Acum are DOUĂ straturi, ca hârtia milimetrică reală:
+               linii minore fine la fiecare 16px + linii majore, mai groase și mai vizibile, la
+               fiecare 64px (a 4-a linie) — contrastul dintre ele e ce dă senzația de "cifre"/
+               reper pe grilă, fără să adăugăm text. Opacitate crescută pe ambele, ca liniile să
+               se vadă clar pe orice fundal din site, nu doar ocazional. */
             background-image:
-                repeating-linear-gradient(90deg, rgba(90,47,138,0.14) 0px, rgba(90,47,138,0.14) 1px, transparent 1px, transparent 64px),
-                repeating-linear-gradient(0deg, rgba(90,47,138,0.14) 0px, rgba(90,47,138,0.14) 1px, transparent 1px, transparent 64px);
+                repeating-linear-gradient(90deg, rgba(140,90,190,0.22) 0px, rgba(140,90,190,0.22) 1.5px, transparent 1.5px, transparent 64px),
+                repeating-linear-gradient(0deg, rgba(140,90,190,0.22) 0px, rgba(140,90,190,0.22) 1.5px, transparent 1.5px, transparent 64px),
+                repeating-linear-gradient(90deg, rgba(140,90,190,0.09) 0px, rgba(140,90,190,0.09) 1px, transparent 1px, transparent 16px),
+                repeating-linear-gradient(0deg, rgba(140,90,190,0.09) 0px, rgba(140,90,190,0.09) 1px, transparent 1px, transparent 16px);
             background-repeat: repeat;
-            background-size: 64px 64px;
+            background-size: 64px 64px, 64px 64px, 16px 16px, 16px 16px;
+            background-position: 0 0;
             background-attachment: fixed;
         }
         .view {
@@ -432,6 +424,11 @@
         }
         @media (max-width: 768px) {
             .page-content::before { height: 290px; }
+            /* background-attachment:fixed e cunoscut ca fiind instabil pe Safari iOS —
+               repictează inconsistent la scroll, ceea ce probabil dădea senzația de grilă
+               care "apare random" pe mobil. Pe ecrane mici trecem pe scroll normal, unde
+               browserul randează constant, fără artefacte. */
+            .app { background-attachment: scroll; }
         }
 
         /* ==========================================================================
@@ -1426,7 +1423,7 @@
     <div class="cursor" id="cursor"></div>
 
     <!-- Bară de progres al scroll-ului -->
-    <div class="scroll-progress" aria-hidden="true"><div class="scroll-progress-fill" id="scrollProgressFill"></div></div>
+    <!-- Bara de progres al scroll-ului a fost eliminată (vezi CSS, secțiunea 3b) -->
 
     <!-- Swipe Trans — "falsă" tranziție LTR/RTL între pagini reale (fiecare navigare
          internă e acum un load de pagină nou, real; asta doar acoperă/descoperă ecranul
