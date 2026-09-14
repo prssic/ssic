@@ -306,6 +306,28 @@
         @keyframes swipeLTR { 0% { transform: translateX(-100%); } 45%, 55% { transform: translateX(0); } 100% { transform: translateX(100%); } }
         @keyframes swipeRTL { 0% { transform: translateX(100%); } 45%, 55% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
 
+        /* Variantă "split" a swipe-ului de mai sus, pe două jumătăți — una pt. pagina pe care
+           o părăsești (covering, acoperă ecranul), una pt. pagina nouă la care ajungi
+           (uncovering, descoperă ecranul) — pentru că acum sunt două document-load-uri
+           separate (MPA), nu un singur JS care schimba un div ascuns. Împreună, cele două
+           jumătăți dau aceeași senzație ca animația originală, doar întinsă peste navigare. */
+        .swipe-ltr.covered .swipe-bar, .swipe-rtl.covered .swipe-bar { transform: translateX(0); }
+        .swipe-ltr.covering .swipe-bar:nth-child(1) { animation: swipeCoverLTR 0.36s var(--ease-in-out) forwards; }
+        .swipe-ltr.covering .swipe-bar:nth-child(2) { animation: swipeCoverLTR 0.36s var(--ease-in-out) 0.05s forwards; }
+        .swipe-rtl.covering .swipe-bar:nth-child(1) { animation: swipeCoverRTL 0.36s var(--ease-in-out) forwards; }
+        .swipe-rtl.covering .swipe-bar:nth-child(2) { animation: swipeCoverRTL 0.36s var(--ease-in-out) 0.05s forwards; }
+        .swipe-ltr.uncovering .swipe-bar:nth-child(1) { animation: swipeUncoverLTR 0.4s var(--ease-in-out) forwards; }
+        .swipe-ltr.uncovering .swipe-bar:nth-child(2) { animation: swipeUncoverLTR 0.4s var(--ease-in-out) 0.05s forwards; }
+        .swipe-rtl.uncovering .swipe-bar:nth-child(1) { animation: swipeUncoverRTL 0.4s var(--ease-in-out) forwards; }
+        .swipe-rtl.uncovering .swipe-bar:nth-child(2) { animation: swipeUncoverRTL 0.4s var(--ease-in-out) 0.05s forwards; }
+        @keyframes swipeCoverLTR { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+        @keyframes swipeUncoverLTR { from { transform: translateX(0); } to { transform: translateX(100%); } }
+        @keyframes swipeCoverRTL { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        @keyframes swipeUncoverRTL { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+        @media (prefers-reduced-motion: reduce) {
+            .swipe-container, .swipe-ltr, .swipe-rtl, .swipe-ltr .swipe-bar, .swipe-rtl .swipe-bar { animation: none !important; }
+        }
+
         /* ==========================================================================
            5. SPA CORE & LAYOUTS
            ========================================================================== */
@@ -1315,6 +1337,31 @@
     <!-- Bară de progres al scroll-ului -->
     <div class="scroll-progress" aria-hidden="true"><div class="scroll-progress-fill" id="scrollProgressFill"></div></div>
 
+    <!-- Swipe Trans — "falsă" tranziție LTR/RTL între pagini reale (fiecare navigare
+         internă e acum un load de pagină nou, real; asta doar acoperă/descoperă ecranul
+         la ieșire/intrare, ca să pară o continuare a aceleiași animații, nu un salt sec).
+         Vezi goToUrl()/applySwipeEntrance() mai jos, în JS. -->
+    <div class="swipe-container" id="swiper">
+        <div class="swipe-bar"></div>
+        <div class="swipe-bar"></div>
+    </div>
+    <script>
+        // Rulează SINCRON, cât mai devreme posibil (înainte ca restul paginii să apuce să
+        // se vadă), ca bara să acopere ecranul din primul frame dacă tocmai am "sărit" aici
+        // dintr-o altă pagină a site-ului — altfel s-ar vedea un fulger al paginii noi
+        // înainte ca animația de descoperire să apuce să pornească.
+        (function () {
+            var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            var dir = null;
+            try { dir = sessionStorage.getItem('ssicSwipeDir'); sessionStorage.removeItem('ssicSwipeDir'); } catch (e) { /* ignorăm */ }
+            if (!dir || (dir !== 'ltr' && dir !== 'rtl') || reduceMotion) return;
+            var swiper = document.getElementById('swiper');
+            if (!swiper) return;
+            swiper.classList.add('swipe-' + dir, 'covered');
+            window.__ssicUncoverDir = dir;
+        })();
+    </script>
+
     <!-- Nav (Liquid Glass) -->
     <nav>
         <div class="nav-backdrop" aria-hidden="true"></div>
@@ -2076,7 +2123,15 @@
            id-ul paginii curente vine direct din front matter-ul paginii Jekyll.
            ========================================================================== */
         const viewUrls = { home: '/', evenimente: '/evenimente/', board: '/board/', facultate: '/facultate/', studenti: '/studenti/', gallery: '/gallery/' };
+        const navOrder = ['home', 'evenimente', 'board', 'facultate', 'studenti', 'gallery'];
         let currentViewId = '{{ page.view }}';
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        function resolveViewFromPath(pathname) {
+            const clean = (pathname === '' || pathname === '/') ? '/' : (pathname.endsWith('/') ? pathname : pathname + '/');
+            for (const key in viewUrls) { if (viewUrls[key] === clean) return key; }
+            return null;
+        }
 
         // Navbar-ul stă ascuns doar pe Acasă, cât timp ești sus de tot (hero fullscreen).
         // Pe orice altă pagină navbar-ul e mereu vizibil (nu au hero, ci page-content cu padding pt. el).
@@ -2110,14 +2165,68 @@
             if (fill) fill.style.width = '0%';
         }
 
-        // navigate() acum e doar o redirecționare reală de pagină (URL propriu pt. fiecare
-        // secțiune) — păstrat ca funcție (în loc de a înlocui peste tot cu location.href),
-        // ca restul codului (goToDept, rezultatele din căutare) să rămână neschimbat ca formă.
+        // Navigare reală (MPA), dar cu aceeași "senzație" de swipe LTR/RTL ca-n monolit:
+        // acoperim ecranul cu bara (direcția depinde de poziția în navOrder), apoi abia
+        // după aia navigăm efectiv la noul URL. sessionStorage duce direcția mai departe,
+        // ca pagina nouă să știe cum să se "descopere" la încărcare (vezi scriptul sincron
+        // de lângă #swiper, sus în <body>, și applySwipeEntrance() mai jos).
+        function goToUrl(url, targetView) {
+            const view = targetView || resolveViewFromPath(new URL(url, location.href).pathname);
+            const swiper = document.getElementById('swiper');
+            if (!view || view === currentViewId || !swiper || reduceMotion) {
+                location.href = url;
+                return;
+            }
+            haptic(10);
+            const dir = navOrder.indexOf(view) > navOrder.indexOf(currentViewId) ? 'ltr' : 'rtl';
+            try { sessionStorage.setItem('ssicSwipeDir', dir); } catch (e) { /* ignorăm */ }
+
+            swiper.className = 'swipe-container';
+            void swiper.offsetWidth;
+            swiper.classList.add('swipe-' + dir, 'covering');
+
+            setTimeout(() => { location.href = url; }, 360);
+        }
+
+        // navigate() rămâne ca funcție (nu doar location.href direct), ca restul codului
+        // (goToDept, rezultatele din căutare) să rămână neschimbat ca formă.
         function navigate(targetId) {
             if (targetId === currentViewId) return;
-            haptic(10);
-            location.href = viewUrls[targetId] || '/';
+            goToUrl(viewUrls[targetId] || '/', targetId);
         }
+
+        // Interceptăm orice click pe un <a> intern care duce spre o altă pagină a site-ului
+        // (nav, logo, meniul mobil ...) ca să rulăm swipe-ul de mai sus în loc de un salt sec.
+        // Linkurile care au deja propriul onclick+preventDefault (ex. cele din footer, care
+        // cheamă goToDept) sunt sărite automat, prin verificarea e.defaultPrevented.
+        document.addEventListener('click', (e) => {
+            if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+            const a = e.target.closest('a[href]');
+            if (!a || a.target === '_blank' || a.hasAttribute('download')) return;
+            let url;
+            try { url = new URL(a.getAttribute('href'), location.href); } catch (err) { return; }
+            if (url.origin !== location.origin) return;
+            const targetView = resolveViewFromPath(url.pathname);
+            if (!targetView || targetView === currentViewId) return; // ancoră pe aceeași pagină — comportament normal
+            e.preventDefault();
+            goToUrl(url.pathname + url.hash, targetView);
+        });
+
+        // La încărcare: dacă am ajuns aici cu o direcție de swipe "în așteptare" (setată de
+        // goToUrl() pe pagina anterioară), bara e deja randată acoperind ecranul (vezi
+        // scriptul sincron de sus); acum o "descoperim" cu o mică animație, dezvăluind pagina.
+        (function applySwipeEntrance() {
+            const dir = window.__ssicUncoverDir;
+            const swiper = document.getElementById('swiper');
+            if (!dir || !swiper) return;
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    swiper.classList.remove('covered');
+                    swiper.classList.add('uncovering');
+                    setTimeout(() => { swiper.className = 'swipe-container'; }, 420);
+                }, 40);
+            });
+        })();
 
         /* ==========================================================================
            JS: Deep-link la încărcarea paginii — dacă URL-ul are un #hash (ex.
@@ -2323,7 +2432,7 @@
         function goToDept(deptId) {
             haptic(10);
             if (currentViewId !== 'board') {
-                location.href = '/board/#' + deptId;
+                goToUrl('/board/#' + deptId, 'board');
                 return;
             }
             const deptOrder = ['dept-cd', 'dept-hr', 'dept-pr', 'dept-fr', 'dept-ev'];
@@ -2385,7 +2494,7 @@
                 const delay = (i % 6) * 0.08;
                 // Caută automat assets/gallery/1.jpg, 2.jpg, ... 24.jpg. Dacă fișierul nu există,
                 // imaginea se șterge singură și rămâne iconița decorativă (fără poză spartă vizibil).
-                html += `<div class="gal-item hover-target reveal" style="--aspect: ${aspects[i]}; --r-delay: ${delay}s;"><img src="assets/gallery/${i + 1}.jpg" alt="Fotografie din galeria SSIC" loading="lazy" decoding="async" onerror="this.remove()"></div>`;
+                html += `<div class="gal-item hover-target reveal" style="--aspect: ${aspects[i]}; --r-delay: ${delay}s;"><img src="/assets/gallery/${i + 1}.jpg" alt="Fotografie din galeria SSIC" loading="lazy" decoding="async" onerror="this.remove()"></div>`;
             }
             galContainer.innerHTML = html;
             observeReveals();
@@ -2409,7 +2518,7 @@
             const photoEl = member.querySelector('.team-photo');
             if (!nameEl || !photoEl) return;
             const img = document.createElement('img');
-            img.src = `assets/team/${slugifyName(nameEl.textContent)}.jpg`;
+            img.src = `/assets/team/${slugifyName(nameEl.textContent)}.jpg`;
             img.alt = nameEl.textContent.trim();
             img.loading = 'lazy';
             img.decoding = 'async';
@@ -2577,7 +2686,7 @@
                     // folosesc același tipar de fișier ca și cardurile din pagină: assets/team/<nume-slug>.jpg
                     // (vezi slugifyName mai sus). Dacă poza chiar există acolo, apare și în search;
                     // dacă nu, onerror mai jos cade discret pe iconița generică.
-                    const photoSrc = item.photo || ((item.group === 'Board' || item.group === 'Facultate') ? `assets/team/${slugifyName(item.title)}.jpg` : null);
+                    const photoSrc = item.photo || ((item.group === 'Board' || item.group === 'Facultate') ? `/assets/team/${slugifyName(item.title)}.jpg` : null);
                     const iconHtml = photoSrc
                         ? `<div class="search-result-icon search-result-photo"><img src="${photoSrc}" alt="" loading="lazy" decoding="async"></div>`
                         : `<div class="search-result-icon"><i data-lucide="${item.icon}"></i></div>`;
@@ -2631,7 +2740,7 @@
                     if (item.deptId || item.facDeptId) {
                         try { sessionStorage.setItem('ssicScrollTarget', item.title); } catch (e) { /* ignorăm */ }
                     }
-                    location.href = (viewUrls[item.view] || '/') + (hash ? '#' + hash : '');
+                    goToUrl((viewUrls[item.view] || '/') + (hash ? '#' + hash : ''), item.view);
                     return;
                 }
 
@@ -2716,8 +2825,11 @@
     <script async src="https://www.instagram.com/embed.js"></script>
     <!-- Notă privind cookie-urile: site-ul nu colectează date; orice cookie tehnic e șters
          automat la fiecare inițializare (vezi scriptul din capul <body>).
-         Notificarea apare la fiecare încărcare/refresh a paginii (nu se ține minte
-         că a fost închisă), tocmai fiindcă site-ul nu ține nimic persistent despre vizitator. -->
+         Notificarea apare o singură dată per sesiune de navigare (nu la fiecare pagină
+         internă vizitată), via sessionStorage — care nu e "colectare de date" (nu pleacă
+         nicăieri, nu identifică vizitatorul, se șterge automat la închiderea tab-ului/
+         browserului), doar o bifă locală ca să nu vadă aceeași notificare la fiecare click
+         prin site. -->
     <div class="cookie-notice" id="cookieNotice" role="status" aria-live="polite">
         <p>Acest site nu colectează date personale. Eventualele cookie-uri tehnice sunt șterse automat la fiecare vizită.</p>
         <button type="button" class="cookie-notice-btn hover-target" id="cookieNoticeBtn">Am înțeles</button>
@@ -2727,7 +2839,15 @@
             const notice = document.getElementById('cookieNotice');
             const btn = document.getElementById('cookieNoticeBtn');
             if (!notice || !btn) return;
-            setTimeout(() => notice.classList.add('is-visible'), 900);
+
+            let alreadyShown = false;
+            try { alreadyShown = sessionStorage.getItem('ssicCookieNoticeShown') === '1'; } catch (e) { /* ignorăm */ }
+            if (alreadyShown) return;
+
+            setTimeout(() => {
+                notice.classList.add('is-visible');
+                try { sessionStorage.setItem('ssicCookieNoticeShown', '1'); } catch (e) { /* ignorăm */ }
+            }, 900);
             btn.addEventListener('click', () => {
                 notice.classList.remove('is-visible');
                 setTimeout(() => { notice.style.display = 'none'; }, 500);
