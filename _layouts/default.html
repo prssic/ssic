@@ -174,12 +174,14 @@
             /* Opacitate mai mare decât înainte (0.7 → 0.9) special ca gridul decorativ de pe
                .app să nu se mai citească deloc prin blur pe zona meniului (cerut explicit).
                Rămâne fundalul implicit — pentru browsere fără backdrop-filter/mask-image
-               (vezi @supports mai jos), nav-ul tot arată bine, doar fără sticlă.
-               Fără inset-uri de highlight sus/jos: acele linii subțiri de lumină creau exact
-               separatorul vizibil peste blur, rupând continuitatea efectului de sticlă —
-               cerut explicit să dispară. Rămâne doar umbra exterioară, pentru profunzime. */
+               (vezi @supports mai jos), nav-ul tot arată bine, doar fără sticlă. */
             background: var(--c-nav-bg);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            /* Umbra era 0 10px 30px la 0.5 opacitate — suficient de fermă încât, chiar dacă
+               estomparea de dedesubt (.nav-backdrop) mergea perfect, umbra ei se citea ca o
+               dungă orizontală proprie exact la marginea de jos a nav-ului (asta era
+               "separatorul" din screenshot, nu masca). Redusă mult + rază mai mare, ca umbra
+               să se difuzeze pe o zonă largă în loc să adune contrast pe o linie subțire. */
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.22);
             transition: transform 0.5s var(--ease-out), opacity 0.4s var(--ease-out);
         }
         /* Sticlă "reală" (tehnica Josh Comeau: joshwcomeau.com/css/backdrop-filter) — un copil
@@ -192,6 +194,7 @@
            clickabile prin acest strat. */
         .nav-backdrop {
             position: absolute; inset: 0; z-index: -1; pointer-events: none;
+            background: var(--c-nav-bg);
             /* Fix pt. glitch la scroll rapid: fără promovare explicită pe strat GPU propriu,
                browserul poate "rata" recompunerea stratului de blur când conținutul de dedesubt
                se mișcă foarte repede (mai ales momentum scroll pe iOS/Safari) — se vede ca blur-ul
@@ -208,11 +211,6 @@
         @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
             nav { background: transparent; }
             .nav-backdrop {
-                /* Gradient opac sus, spre transparent la jumătate — acoperă "flicker-ul" de
-                   culoare de la marginea de sus a viewport-ului (elementele ies din zona
-                   considerată de blur chiar la graniță; fără acest gradient s-ar vedea o
-                   pâlpâire, explicat în articol la secțiunea "Flickering top"). */
-                background: linear-gradient(to bottom, var(--c-nav-bg) 0%, transparent 56%);
                 backdrop-filter: blur(22px) saturate(var(--glass-saturation));
                 -webkit-backdrop-filter: blur(22px) saturate(var(--glass-saturation));
             }
@@ -220,16 +218,29 @@
         @supports (mask-image: linear-gradient(#000, #000)) or (-webkit-mask-image: linear-gradient(#000, #000)) {
             .nav-backdrop {
                 height: 200%;
-                /* Tăietura era exact la 50% (negru → transparent instantaneu, pe aceeași oprire),
-                   deci pixelul de deasupra graniței e complet blurat, iar cel de sub e complet
-                   nefiltrat — diferența bruscă se vede ca o linie subțire, chiar dacă gradientul
-                   de fundal de mai sus se stinge "lin" în aceeași zonă. Rezolvarea reală e să
-                   estompăm și masca pe o bandă mică (44%→56% din cei 200%, adică ±10px în jurul
-                   marginii de 90px a nav-ului), nu doar culoarea — așa intensitatea blur-ului
-                   scade treptat spre 0 exact acolo unde și culoarea dispare, și granița nu se mai
-                   vede deloc, pe niciun fundal (deschis sau închis) din spate. */
-                -webkit-mask-image: linear-gradient(to bottom, black 0% 44%, transparent 56% 100%);
-                mask-image: linear-gradient(to bottom, black 0% 44%, transparent 56% 100%);
+                /* Era o mască în 2 trepte (black 0%→44%, transparent 56%→100%) ȘI, separat,
+                   un gradient de culoare propriu pe fundal (var(--c-nav-bg) 0%→transparent 56%)
+                   care se stingea complet ÎNAINTE ca masca să termine de estompat blur-ul —
+                   între cele două rate de stingere diferite apărea exact acea linie subțire,
+                   pentru că ochiul vede granița unde culoarea a dispărut deja dar blur-ul mai
+                   avea puțin de estompat. Acum fundalul e o culoare plată (mai sus), iar
+                   ESTOMPAREA se face într-un singur loc, cu mai multe trepte intermediare (nu
+                   doar 2), ca o curbă continuă, fără nicio treaptă bruscă unde s-ar putea vedea
+                   o graniță — asta e diferența reală față de varianta veche care "nu estompa". */
+                -webkit-mask-image: linear-gradient(to bottom,
+                    black 0%, black 44%,
+                    rgba(0,0,0,0.75) 52%,
+                    rgba(0,0,0,0.45) 60%,
+                    rgba(0,0,0,0.22) 70%,
+                    rgba(0,0,0,0.08) 82%,
+                    transparent 96%, transparent 100%);
+                mask-image: linear-gradient(to bottom,
+                    black 0%, black 44%,
+                    rgba(0,0,0,0.75) 52%,
+                    rgba(0,0,0,0.45) 60%,
+                    rgba(0,0,0,0.22) 70%,
+                    rgba(0,0,0,0.08) 82%,
+                    transparent 96%, transparent 100%);
             }
         }
         /* Hero pe tot ecranul la Acasă: navbar-ul stă ascuns până la primul scroll,
@@ -240,9 +251,26 @@
             nav.nav-hidden { transform: none; }
         }
 
-        /* Bara de progres al scroll-ului a fost eliminată complet (cerut explicit) — era
-           dungă orange-mov animată, fixă în vârful ecranului, peste tot (inclusiv peste
-           notch/status bar pe mobil), prea stridentă vizual ("mă enervează pe retină"). */
+        /* Bară subțire de progres al scroll-ului, deasupra a tot (inclusiv navbar-ul ascuns) */
+        .scroll-progress {
+            position: fixed; top: 0; left: 0; width: 100%; height: 3px;
+            z-index: 10001; pointer-events: none; background: transparent;
+        }
+        .scroll-progress-fill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, var(--c-accent), var(--c-accent-2), var(--c-primary-light), var(--c-accent));
+            background-size: 300% 100%;
+            box-shadow: 0 0 12px var(--c-accent-glow);
+            transition: width 0.12s linear;
+            animation: progressGradientMove 6s linear infinite;
+        }
+        @keyframes progressGradientMove {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 300% 50%; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .scroll-progress-fill { animation: none; }
+        }
         .logo { display: flex; align-items: center; gap: 15px; }
         .logo img { height: 40px; }
         .logo span { font-family: var(--font-display); font-weight: 700; font-size: 24px; color: var(--c-white); letter-spacing: 1px; }
@@ -347,8 +375,8 @@
                reper pe grilă, fără să adăugăm text. Opacitate crescută pe ambele, ca liniile să
                se vadă clar pe orice fundal din site, nu doar ocazional. */
             background-image:
-                repeating-linear-gradient(90deg, rgba(140,90,190,0.22) 0px, rgba(140,90,190,0.22) 1.5px, transparent 1.5px, transparent 64px),
-                repeating-linear-gradient(0deg, rgba(140,90,190,0.22) 0px, rgba(140,90,190,0.22) 1.5px, transparent 1.5px, transparent 64px),
+                repeating-linear-gradient(90deg, rgba(140,90,190,0.12) 0px, rgba(140,90,190,0.12) 1.5px, transparent 1.5px, transparent 64px),
+                repeating-linear-gradient(0deg, rgba(140,90,190,0.12) 0px, rgba(140,90,190,0.12) 1.5px, transparent 1.5px, transparent 64px),
                 repeating-linear-gradient(90deg, rgba(140,90,190,0.09) 0px, rgba(140,90,190,0.09) 1px, transparent 1px, transparent 16px),
                 repeating-linear-gradient(0deg, rgba(140,90,190,0.09) 0px, rgba(140,90,190,0.09) 1px, transparent 1px, transparent 16px);
             background-repeat: repeat;
@@ -369,6 +397,16 @@
         
         .view::-webkit-scrollbar { display: none; }
         .view { scrollbar-width: none; -ms-overflow-style: none; }
+
+        /* Cifrele de pe grila milimetrică — mici, discrete, aliniate exact în centrul
+           pătrățelelor mari (64px), ca pe o riglă/hârtie milimetrică reală. Fixe pe durata
+           vizitei (generate o singură dată, ținute în sessionStorage — vezi JS, initGridNumbers). */
+        .grid-numbers { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+        .grid-num {
+            position: absolute; transform: translate(-50%, -50%);
+            font-family: var(--font-main); font-size: 10px; font-weight: 600;
+            color: rgba(160, 120, 210, 0.4); letter-spacing: 0.3px; user-select: none;
+        }
 
         .title-huge { font-size: clamp(3.8rem, 8.5vw, 7.4rem); line-height: 1.06; color: var(--c-white); margin-bottom: 2.5rem; letter-spacing: -1px; hyphens: manual; word-break: keep-all; overflow-wrap: normal; }
         .title-huge i {
@@ -843,6 +881,16 @@
             z-index: 9999; border-radius: 0; border: none;
         }
         body.map-fullscreen-active { overflow: hidden; }
+        /* Anulează transform-ul de pe ancestorii hărții (.view are transform:translateZ(0)
+           permanent, .board-dept.active primește transform prin animația tabEnter) cât timp
+           fullscreenul e activ — orice transform pe un ancestor transformă position:fixed
+           al descendenților într-un fixed "relativ la acel ancestor", nu la ecran, ceea ce
+           făcea ca fullscreenul să nu acopere tot viewport-ul. Fără !important nu ar câștiga
+           în fața animației tabEnter, care altfel ar rescrie transformul la fiecare re-render. */
+        body.map-fullscreen-active .view.active,
+        body.map-fullscreen-active .board-dept.active {
+            transform: none !important;
+        }
         .map-filters.map-filters-overlay {
             position: fixed; top: 20px; left: 20px; right: 20px; z-index: 10000;
             max-width: 900px; margin: 0 auto; background: var(--c-surface-elevated);
@@ -1423,7 +1471,7 @@
     <div class="cursor" id="cursor"></div>
 
     <!-- Bară de progres al scroll-ului -->
-    <!-- Bara de progres al scroll-ului a fost eliminată (vezi CSS, secțiunea 3b) -->
+    <div class="scroll-progress" aria-hidden="true"><div class="scroll-progress-fill" id="scrollProgressFill"></div></div>
 
     <!-- Swipe Trans — "falsă" tranziție LTR/RTL între pagini reale (fiecare navigare
          internă e acum un load de pagină nou, real; asta doar acoperă/descoperă ecranul
@@ -2264,15 +2312,6 @@
         const mapRealEl = document.getElementById('realMap');
         let mapIsFullscreen = false;
 
-        // Ancore invizibile, lăsate în locul original al fiecărui element mutat, ca să știm
-        // exact unde să-l punem înapoi la ieșirea din fullscreen.
-        const mapRealAnchor = document.createComment('realMap-anchor');
-        const mapFiltersAnchor = document.createComment('mapFilters-anchor');
-        const mapExitAnchor = document.createComment('mapExit-anchor');
-        if (mapRealEl && mapRealEl.parentNode) mapRealEl.parentNode.insertBefore(mapRealAnchor, mapRealEl);
-        if (mapFiltersEl && mapFiltersEl.parentNode) mapFiltersEl.parentNode.insertBefore(mapFiltersAnchor, mapFiltersEl);
-        if (mapFullscreenExit && mapFullscreenExit.parentNode) mapFullscreenExit.parentNode.insertBefore(mapExitAnchor, mapFullscreenExit);
-
         if (mapFilterToggle && mapFiltersEl) {
             mapFilterToggle.addEventListener('click', () => {
                 const collapsed = mapFiltersEl.classList.toggle('is-collapsed');
@@ -2287,25 +2326,18 @@
             mapIsFullscreen = on;
             mapRealEl.classList.toggle('is-fullscreen', on);
 
-            // De ce mutăm nodurile în <body>: harta stă în interiorul .board-dept.stu-block,
-            // care primește animația tabEnter/tabLeave — animație care setează "transform"
-            // (translateY/scale) pe element. Orice ancestor cu transform (chiar și cu valoarea
-            // finală translate(0) scale(1)) devine "containing block" pentru descendenții cu
-            // position:fixed, în loc de viewport. Rezultatul: harta "fullscreen" nu acoperea
-            // tot ecranul, ci doar dreptunghiul lui .stu-block, iar panoul de filtre/butonul X
-            // apăreau decalate — de-asta fullscreenul arăta complet stricat. Mutând efectiv
-            // elementele ca și copii direcți ai <body> cât timp fullscreen e activ, position:
-            // fixed redevine relativă la viewport, ca la orice modal normal.
-            if (on) {
-                if (mapRealEl) document.body.appendChild(mapRealEl);
-                if (mapFiltersEl) document.body.appendChild(mapFiltersEl);
-                if (mapFullscreenExit) document.body.appendChild(mapFullscreenExit);
-            } else {
-                if (mapRealAnchor.parentNode && mapRealEl) mapRealAnchor.parentNode.insertBefore(mapRealEl, mapRealAnchor);
-                if (mapFiltersAnchor.parentNode && mapFiltersEl) mapFiltersAnchor.parentNode.insertBefore(mapFiltersEl, mapFiltersAnchor);
-                if (mapExitAnchor.parentNode && mapFullscreenExit) mapExitAnchor.parentNode.insertBefore(mapFullscreenExit, mapExitAnchor);
-            }
-
+            // NU mutăm harta în <body> (variantă încercată anterior): reparentarea unui
+            // container Leaflet deja inițializat îi strică randarea tile-urilor (rămâne
+            // gol/dispare, exact ce ai raportat, pe mobil și pe desktop deopotrivă) —
+            // Leaflet ține poziții/dimensiuni calculate pentru vechiul loc din DOM și nu se
+            // recuperează complet doar cu invalidateSize() după o mutare de nod.
+            // În loc de asta, rezolvăm cauza reală altfel: #realMap.is-fullscreen e
+            // position:fixed, dar stă în interiorul .view/.board-dept, care au "transform"
+            // pe ele (compositing pe .view, animația tabEnter pe .board-dept) — orice
+            // ancestor cu transform devine "containing block" pentru un descendent fixed,
+            // în loc de viewport, și de-asta fullscreenul nu acoperea tot ecranul. Clasa
+            // body.map-fullscreen-active de mai jos anulează explicit acel transform pe
+            // ancestori (vezi CSS) cât timp fullscreen e activ — fără să atingem harta.
             if (mapFiltersEl) {
                 mapFiltersEl.classList.toggle('map-filters-overlay', on);
                 // La intrarea în fullscreen, panoul de filtre pornește collapsat (doar butonul
@@ -3244,6 +3276,76 @@
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
         });
+    </script>
+    <!-- Cifrele random de pe grila milimetrică (.app), generate o singură dată per vizită și
+         păstrate în sessionStorage — rămân identice la navigare între pagini (fiecare pagină e
+         un load separat, nu un SPA), dar se regenerează la o sesiune nouă de browser. 67 și 34
+         apar cel mai des în "pool"-ul din care tragem (de 6x mai des decât restul), poziționate
+         exact în centrul pătrățelelor mari de 64px ale grilei, ca să rămână aliniate cu liniile,
+         nu plasate la coordonate arbitrare. -->
+    <script>
+        (function initGridNumbers() {
+            const container = document.querySelector('.app');
+            if (!container) return;
+            const CELL = 64;
+            const STORE_KEY = 'ssicGridNumbers_v1';
+
+            function buildPool() {
+                const pool = [];
+                for (let i = 0; i < 6; i++) { pool.push(67, 34); }
+                const others = [5, 12, 18, 23, 29, 41, 47, 52, 58, 63, 71, 76, 82, 88, 93, 99, 3, 15, 27, 39, 61, 74, 86, 91, 8, 21];
+                others.forEach(n => pool.push(n));
+                return pool;
+            }
+
+            function generate() {
+                const cols = Math.ceil(window.innerWidth / CELL);
+                const rows = Math.ceil(window.innerHeight / CELL);
+                const pool = buildPool();
+                const cells = [];
+                for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) cells.push([c, r]);
+                // Densitate: aproximativ 1 cifră la fiecare ~9 pătrățele, ca să rămână "mici,
+                // dar observabile" — nu o aglomerare care ar concura vizual cu conținutul.
+                const count = Math.max(6, Math.round(cells.length * 0.11));
+                const chosen = [];
+                const used = new Set();
+                while (chosen.length < count && used.size < cells.length) {
+                    const idx = Math.floor(Math.random() * cells.length);
+                    if (used.has(idx)) continue;
+                    used.add(idx);
+                    const [c, r] = cells[idx];
+                    const value = pool[Math.floor(Math.random() * pool.length)];
+                    chosen.push({ x: c * CELL + CELL / 2, y: r * CELL + CELL / 2, v: value });
+                }
+                return chosen;
+            }
+
+            function render(list) {
+                const wrap = document.createElement('div');
+                wrap.className = 'grid-numbers';
+                wrap.setAttribute('aria-hidden', 'true');
+                list.forEach(item => {
+                    const span = document.createElement('span');
+                    span.className = 'grid-num';
+                    span.style.left = item.x + 'px';
+                    span.style.top = item.y + 'px';
+                    span.textContent = item.v;
+                    wrap.appendChild(span);
+                });
+                container.insertBefore(wrap, container.firstChild);
+            }
+
+            let list;
+            try {
+                const saved = sessionStorage.getItem(STORE_KEY);
+                list = saved ? JSON.parse(saved) : null;
+            } catch (e) { list = null; }
+            if (!list || !Array.isArray(list) || !list.length) {
+                list = generate();
+                try { sessionStorage.setItem(STORE_KEY, JSON.stringify(list)); } catch (e) { /* ignorăm */ }
+            }
+            render(list);
+        })();
     </script>
 </body>
 </html>
