@@ -171,77 +171,60 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 90px;
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 4vw; z-index: var(--z-nav);
-            /* Opacitate mai mare decât înainte (0.7 → 0.9) special ca gridul decorativ de pe
-               .app să nu se mai citească deloc prin blur pe zona meniului (cerut explicit).
-               Rămâne fundalul implicit — pentru browsere fără backdrop-filter/mask-image
-               (vezi @supports mai jos), nav-ul tot arată bine, doar fără sticlă. */
-            background: var(--c-nav-bg);
-            /* Umbra era 0 10px 30px la 0.5 opacitate — suficient de fermă încât, chiar dacă
-               estomparea de dedesubt (.nav-backdrop) mergea perfect, umbra ei se citea ca o
-               dungă orizontală proprie exact la marginea de jos a nav-ului (asta era
-               "separatorul" din screenshot, nu masca). Redusă mult + rază mai mare, ca umbra
-               să se difuzeze pe o zonă largă în loc să adune contrast pe o linie subțire. */
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.22);
+            /* Nav-ul nu mai pictează el însuși fundal/umbră — vezi .nav-backdrop mai jos.
+               Vechiul separator vizibil sub navbar venea din DOUĂ surse suprapuse care se
+               stingeau în ritmuri diferite: box-shadow-ul de-aici + gradientul de mască de pe
+               .nav-backdrop. Eliminându-le pe amândouă și lăsând un singur strat de sticlă,
+               fără mască, dispare și granița. */
             transition: transform 0.5s var(--ease-out), opacity 0.4s var(--ease-out);
         }
-        /* Sticlă "reală" (tehnica Josh Comeau: joshwcomeau.com/css/backdrop-filter) — un copil
-           absolut poziționat, de 2x înălțimea nav-ului, ca algoritmul de blur să "vadă" și
-           conținutul care trece chiar sub bara de nav, nu doar pixelii strict din spatele ei
-           (altfel un element colorat care ajunge lângă margine nu se blurează deloc, arată
-           nefiresc). mask-image taie apoi excesul înapoi la înălțimea vizuală a nav-ului.
-           z-index:-1 îl ține sub logo/linkuri (altfel, fiind poziționat, s-ar picta peste ele —
-           vezi explicația din articol). pointer-events:none, ca link-urile din nav să rămână
-           clickabile prin acest strat. */
+        /* Sticlă lichidă cu refracție — înlocuiește tehnica veche "backdrop-filter + mask-image
+           pe 200% din înălțime": aceea lăsa mereu o linie vizibilă acolo unde masca termina
+           de estompat blur-ul, indiferent de câte trepte intermediare avea gradientul.
+           Acum .nav-backdrop e EXACT înălțimea navbar-ului (fără mask-image, fără 200% height),
+           iar cele 3 straturi din interior (aceeași idee ca "Liquid Glass"-ul din exemplul dat)
+           fac treaba:
+             - .nav-glass-filter   → blurează + saturează ce e dedesubt, apoi distorsionează
+               ușor acel rezultat cu filtrul SVG #navLensFilter (vezi <body>) — o refracție
+               fină de sticlă, nu o tăietură dreaptă.
+             - .nav-glass-overlay  → vălul de culoare plat (var(--c-nav-bg)); e și fallback-ul
+               solid pentru browsere fără backdrop-filter/filter, deci navbar-ul arată corect
+               oriunde, doar că fără sticlă.
+             - .nav-glass-specular → un contur intern discret (highlight sus, umbră jos, ambele
+               *inset*, nu drop-shadow în afara elementului) — dă senzația de margine de sticlă
+               fără să deseneze vreo linie/separator vizibil sub navbar. */
         .nav-backdrop {
             position: absolute; inset: 0; z-index: -1; pointer-events: none;
-            background: var(--c-nav-bg);
+            overflow: hidden; isolation: isolate;
             /* Fix pt. glitch la scroll rapid: fără promovare explicită pe strat GPU propriu,
                browserul poate "rata" recompunerea stratului de blur când conținutul de dedesubt
-               se mișcă foarte repede (mai ales momentum scroll pe iOS/Safari) — se vede ca blur-ul
-               care dispare o clipă sau ca o tăietură bruscă la marginea măștii, exact ce ai descris.
-               translateZ(0) + will-change forțează compositorul să țină acest element pe layer-ul
-               lui propriu, decuplat de layer-ul de scroll, deci nu mai depinde de cât de repede
-               reușește browserul să repicteze conținutul care trece pe dedesubt.
-               contain:paint limitează zona de repaint strict la acest element, ca reflow-ul
-               provocat de scroll în restul paginii să nu-l mai invalideze inutil. */
+               se mișcă foarte repede (mai ales momentum scroll pe iOS/Safari). translateZ(0) +
+               will-change forțează compositorul să țină acest element pe layer-ul lui propriu,
+               decuplat de layer-ul de scroll. contain:paint limitează zona de repaint strict
+               la acest element, ca reflow-ul din restul paginii să nu-l invalideze inutil. */
             transform: translateZ(0);
-            will-change: transform, backdrop-filter;
+            will-change: transform;
             contain: paint;
         }
-        @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-            nav { background: transparent; }
-            .nav-backdrop {
-                backdrop-filter: blur(22px) saturate(var(--glass-saturation));
-                -webkit-backdrop-filter: blur(22px) saturate(var(--glass-saturation));
-            }
+        .nav-glass-filter, .nav-glass-overlay, .nav-glass-specular {
+            position: absolute; inset: 0;
         }
-        @supports (mask-image: linear-gradient(#000, #000)) or (-webkit-mask-image: linear-gradient(#000, #000)) {
-            .nav-backdrop {
-                height: 200%;
-                /* Era o mască în 2 trepte (black 0%→44%, transparent 56%→100%) ȘI, separat,
-                   un gradient de culoare propriu pe fundal (var(--c-nav-bg) 0%→transparent 56%)
-                   care se stingea complet ÎNAINTE ca masca să termine de estompat blur-ul —
-                   între cele două rate de stingere diferite apărea exact acea linie subțire,
-                   pentru că ochiul vede granița unde culoarea a dispărut deja dar blur-ul mai
-                   avea puțin de estompat. Acum fundalul e o culoare plată (mai sus), iar
-                   ESTOMPAREA se face într-un singur loc, cu mai multe trepte intermediare (nu
-                   doar 2), ca o curbă continuă, fără nicio treaptă bruscă unde s-ar putea vedea
-                   o graniță — asta e diferența reală față de varianta veche care "nu estompa". */
-                -webkit-mask-image: linear-gradient(to bottom,
-                    black 0%, black 44%,
-                    rgba(0,0,0,0.75) 52%,
-                    rgba(0,0,0,0.45) 60%,
-                    rgba(0,0,0,0.22) 70%,
-                    rgba(0,0,0,0.08) 82%,
-                    transparent 96%, transparent 100%);
-                mask-image: linear-gradient(to bottom,
-                    black 0%, black 44%,
-                    rgba(0,0,0,0.75) 52%,
-                    rgba(0,0,0,0.45) 60%,
-                    rgba(0,0,0,0.22) 70%,
-                    rgba(0,0,0,0.08) 82%,
-                    transparent 96%, transparent 100%);
-            }
+        .nav-glass-filter {
+            backdrop-filter: blur(22px) saturate(var(--glass-saturation));
+            -webkit-backdrop-filter: blur(22px) saturate(var(--glass-saturation));
+        }
+        @supports (filter: url(#a)) {
+            .nav-glass-filter { filter: url(#navLensFilter); }
+        }
+        .nav-glass-overlay {
+            /* Vălul de culoare — singurul fundal al navbar-ului acum, aplicat necondiționat
+               (nu doar în interiorul unui @supports), deci e și fallback pt. browsere vechi. */
+            background: var(--c-nav-bg);
+        }
+        .nav-glass-specular {
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.12),
+                inset 0 -1px 0 rgba(255,255,255,0.04);
         }
         /* Hero pe tot ecranul la Acasă: navbar-ul stă ascuns până la primul scroll,
            ca hero-ul (video + titlu) să respire pe tot viewport-ul, fără nimic peste el. */
@@ -375,10 +358,10 @@
                reper pe grilă, fără să adăugăm text. Opacitate crescută pe ambele, ca liniile să
                se vadă clar pe orice fundal din site, nu doar ocazional. */
             background-image:
-                repeating-linear-gradient(90deg, rgba(140,90,190,0.12) 0px, rgba(140,90,190,0.12) 1.5px, transparent 1.5px, transparent 64px),
-                repeating-linear-gradient(0deg, rgba(140,90,190,0.12) 0px, rgba(140,90,190,0.12) 1.5px, transparent 1.5px, transparent 64px),
-                repeating-linear-gradient(90deg, rgba(140,90,190,0.09) 0px, rgba(140,90,190,0.09) 1px, transparent 1px, transparent 16px),
-                repeating-linear-gradient(0deg, rgba(140,90,190,0.09) 0px, rgba(140,90,190,0.09) 1px, transparent 1px, transparent 16px);
+                repeating-linear-gradient(90deg, rgba(140,90,190,0.07) 0px, rgba(140,90,190,0.07) 1.5px, transparent 1.5px, transparent 64px),
+                repeating-linear-gradient(0deg, rgba(140,90,190,0.07) 0px, rgba(140,90,190,0.07) 1.5px, transparent 1.5px, transparent 64px),
+                repeating-linear-gradient(90deg, rgba(140,90,190,0.06) 0px, rgba(140,90,190,0.06) 1px, transparent 1px, transparent 16px),
+                repeating-linear-gradient(0deg, rgba(140,90,190,0.06) 0px, rgba(140,90,190,0.06) 1px, transparent 1px, transparent 16px);
             background-repeat: repeat;
             background-size: 64px 64px, 64px 64px, 16px 16px, 16px 16px;
             background-position: 0 0;
@@ -397,16 +380,6 @@
         
         .view::-webkit-scrollbar { display: none; }
         .view { scrollbar-width: none; -ms-overflow-style: none; }
-
-        /* Cifrele de pe grila milimetrică — mici, discrete, aliniate exact în centrul
-           pătrățelelor mari (64px), ca pe o riglă/hârtie milimetrică reală. Fixe pe durata
-           vizitei (generate o singură dată, ținute în sessionStorage — vezi JS, initGridNumbers). */
-        .grid-numbers { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-        .grid-num {
-            position: absolute; transform: translate(-50%, -50%);
-            font-family: var(--font-main); font-size: 10px; font-weight: 600;
-            color: rgba(160, 120, 210, 0.4); letter-spacing: 0.3px; user-select: none;
-        }
 
         .title-huge { font-size: clamp(3.8rem, 8.5vw, 7.4rem); line-height: 1.06; color: var(--c-white); margin-bottom: 2.5rem; letter-spacing: -1px; hyphens: manual; word-break: keep-all; overflow-wrap: normal; }
         .title-huge i {
@@ -874,42 +847,105 @@
         .map-toolbar-btn i, .map-toolbar-btn .lucide { width: 16px; height: 16px; flex-shrink: 0; }
         .map-toolbar-btn:hover, .map-toolbar-btn.is-active { border-color: var(--c-accent); color: var(--c-white); }
 
-        /* Modul fullscreen: harta acoperă tot ecranul, filtrele devin un panou plutitor
-           collapsabil peste hartă, iar un buton X (fix, colț dreapta-sus) închide modul. */
-        #realMap.is-fullscreen {
-            position: fixed; inset: 0; width: 100vw; height: 100vh;
-            z-index: 9999; border-radius: 0; border: none;
+        /* Modul fullscreen — două căi, ambele controlate din JS (vezi setMapFullscreen):
+             1) Fullscreen API nativă a browserului (element.requestFullscreen() pe
+                .map-fs-wrapper) — scoate elementul pe un "top layer" gestionat de browser,
+                deci merge indiferent de transform-urile ancestorilor. Suportată pe
+                Chrome/Firefox/Edge (desktop+Android) și pe Safari desktop.
+             2) Fallback "fake fullscreen" (clasa .is-fake-fullscreen, pusă din JS) — pt.
+                browsere care NU implementează requestFullscreen() pe elemente oarecare
+                (ex. Safari pe iPhone, care-l permite doar pe <video>). Aici SIMULĂM cu
+                position:fixed + z-index uriaș. Singurul motiv pentru care varianta asta a
+                fost abandonată înainte: .view are transform:translateZ(0) PERMANENT, iar
+                .board-dept.active rămâne cu transform: translateY(0) scale(1) după animația
+                de tab (animation-fill-mode:forwards) — orice ancestor cu transform diferit de
+                "none" devine containing block pentru un descendent fixed, deci fixed-ul nu se
+                mai raporta la tot ecranul, ci doar la cutia acelui ancestor. Rezolvarea reală
+                (mai jos, regula cu body.map-fullscreen-active) e să anulăm explicit acele
+                transform-uri cât timp fullscreen-ul fals e activ, nu să renunțăm la fixed. */
+        .map-fs-wrapper {
+            position: relative;
         }
-        body.map-fullscreen-active { overflow: hidden; }
-        /* Anulează transform-ul de pe ancestorii hărții (.view are transform:translateZ(0)
-           permanent, .board-dept.active primește transform prin animația tabEnter) cât timp
-           fullscreenul e activ — orice transform pe un ancestor transformă position:fixed
-           al descendenților într-un fixed "relativ la acel ancestor", nu la ecran, ceea ce
-           făcea ca fullscreenul să nu acopere tot viewport-ul. Fără !important nu ar câștiga
-           în fața animației tabEnter, care altfel ar rescrie transformul la fiecare re-render. */
+        .map-fs-wrapper:fullscreen,
+        .map-fs-wrapper:-webkit-full-screen,
+        .map-fs-wrapper.is-fake-fullscreen {
+            display: flex; flex-direction: column; justify-content: center;
+            width: 100vw; height: 100vh; background: var(--c-base); padding: 0; margin: 0;
+        }
+        .map-fs-wrapper.is-fake-fullscreen {
+            position: fixed; inset: 0; z-index: 99999;
+        }
+        /* Anulează transform-urile ancestorilor din arborele de tab-uri Studenți cât timp
+           fullscreen-ul fals e activ, ca .map-fs-wrapper (fixed) să se raporteze la viewport,
+           nu la cutia lor — vezi explicația de mai sus. Fullscreen-ul NATIV (:fullscreen) nu
+           are nevoie de asta, pentru că elementul iese oricum din arborele normal de randare. */
         body.map-fullscreen-active .view.active,
-        body.map-fullscreen-active .board-dept.active {
+        body.map-fullscreen-active #view-studenti .board-dept.active {
             transform: none !important;
+            animation: none !important;
+            filter: none !important;
         }
-        .map-filters.map-filters-overlay {
-            position: fixed; top: 20px; left: 20px; right: 20px; z-index: 10000;
-            max-width: 900px; margin: 0 auto; background: var(--c-surface-elevated);
+        /* Cât timp fullscreen-ul (real sau fals) e activ, restul paginii nu trebuie să mai
+           scrolleze pe dedesubt (mai ales pe mobil, unde gesturile de scroll ar putea "scăpa"
+           pe lângă hartă). */
+        body.map-fullscreen-active { overflow: hidden; }
+
+        .map-fs-wrapper:fullscreen .real-map-frame,
+        .map-fs-wrapper:-webkit-full-screen .real-map-frame,
+        .map-fs-wrapper.is-fake-fullscreen .real-map-frame {
+            flex: 1 1 auto; width: 100%; height: 100%; border-radius: 0; border: none;
+        }
+        /* Toolbar-ul plutește peste hartă, sus-stânga. Butonul de Fullscreen din el e ascuns
+           în fullscreen — e redundant cu X-ul rotund dedicat de ieșire (.map-fullscreen-exit,
+           sus-dreapta), și evită două controale diferite care fac cam același lucru. */
+        .map-fs-wrapper:fullscreen .map-toolbar,
+        .map-fs-wrapper:-webkit-full-screen .map-toolbar,
+        .map-fs-wrapper.is-fake-fullscreen .map-toolbar {
+            position: absolute; top: 20px; left: 20px; z-index: 2; margin-bottom: 0;
+        }
+        .map-fs-wrapper:fullscreen #mapFullscreenToggle,
+        .map-fs-wrapper:-webkit-full-screen #mapFullscreenToggle,
+        .map-fs-wrapper.is-fake-fullscreen #mapFullscreenToggle {
+            display: none;
+        }
+        /* Panoul de filtre se deschide sub toolbar (nu peste el), collapsabil — vezi JS,
+           aceeași logică de is-collapsed ca în modul normal. */
+        .map-fs-wrapper:fullscreen .map-filters,
+        .map-fs-wrapper:-webkit-full-screen .map-filters,
+        .map-fs-wrapper.is-fake-fullscreen .map-filters {
+            position: absolute; top: 78px; left: 20px; right: 84px; z-index: 2;
+            max-width: 900px; background: var(--c-surface-elevated);
             border: 1px solid var(--c-border-strong); border-radius: 12px; padding: 14px;
         }
-        .map-filters.map-filters-overlay.is-collapsed { padding-top: 0; padding-bottom: 0; border-width: 0; }
+        .map-fs-wrapper:fullscreen .map-filters.is-collapsed,
+        .map-fs-wrapper:-webkit-full-screen .map-filters.is-collapsed,
+        .map-fs-wrapper.is-fake-fullscreen .map-filters.is-collapsed {
+            padding-top: 0; padding-bottom: 0; border-width: 0;
+        }
         .map-fullscreen-exit {
-            display: none; position: fixed; top: 20px; right: 20px; z-index: 10001;
+            display: none; position: absolute; top: 20px; right: 20px; z-index: 3;
             width: 44px; height: 44px; border-radius: 50%; align-items: center; justify-content: center;
             background: var(--c-surface-elevated); border: 1px solid var(--c-border-strong);
             color: var(--c-white); cursor: pointer;
         }
-        .map-fullscreen-exit.is-visible { display: flex; }
+        .map-fs-wrapper:fullscreen .map-fullscreen-exit,
+        .map-fs-wrapper:-webkit-full-screen .map-fullscreen-exit,
+        .map-fs-wrapper.is-fake-fullscreen .map-fullscreen-exit {
+            display: flex;
+        }
         .map-fullscreen-exit i, .map-fullscreen-exit .lucide { width: 20px; height: 20px; }
 
         @media (max-width: 640px) {
             .real-map-frame { height: 360px; }
-            .map-filters.map-filters-overlay { top: 12px; left: 12px; right: 12px; }
-            .map-fullscreen-exit { top: 12px; right: 12px; }
+            .map-fs-wrapper:fullscreen .map-toolbar,
+            .map-fs-wrapper:-webkit-full-screen .map-toolbar,
+            .map-fs-wrapper.is-fake-fullscreen .map-toolbar { top: 12px; left: 12px; }
+            .map-fs-wrapper:fullscreen .map-filters,
+            .map-fs-wrapper:-webkit-full-screen .map-filters,
+            .map-fs-wrapper.is-fake-fullscreen .map-filters { top: 66px; left: 12px; right: 68px; }
+            .map-fs-wrapper:fullscreen .map-fullscreen-exit,
+            .map-fs-wrapper:-webkit-full-screen .map-fullscreen-exit,
+            .map-fs-wrapper.is-fake-fullscreen .map-fullscreen-exit { top: 12px; right: 12px; }
         }
 
         /* ==========================================================================
@@ -1450,6 +1486,22 @@
 </head>
 <body>
 
+    <!-- Filtru SVG de "lentilă de sticlă" pt. navbar (.nav-glass-filter) — aceeași tehnică
+         (feComponentTransfer + feGaussianBlur pe canalul alpha, apoi feDisplacementMap) ca în
+         exemplul de Liquid Glass dat: distorsionează ușor fundalul blurat din spatele navbar-ului,
+         ca o refracție reală de sticlă, nu o tăietură dreaptă. display:none pe <svg>, dar filtrul
+         tot funcționează când e referit prin url(#navLensFilter) — e norma pt. filtre SVG reutilizate
+         doar ca "resursă", nu ca desen vizibil propriu-zis. -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;" aria-hidden="true">
+        <filter id="navLensFilter" x="-20%" y="-20%" width="140%" height="140%" filterUnits="objectBoundingBox">
+            <feComponentTransfer in="SourceAlpha" result="alpha">
+                <feFuncA type="identity" />
+            </feComponentTransfer>
+            <feGaussianBlur in="alpha" stdDeviation="18" result="blur" />
+            <feDisplacementMap in="SourceGraphic" in2="blur" scale="14" xChannelSelector="A" yChannelSelector="A" />
+        </filter>
+    </svg>
+
     <!-- Confidențialitate: acest site nu colectează date despre vizitatori. Orice cookie tehnic
          (dacă e vreodată setat, de ex. de un script extern) e șters automat la fiecare încărcare
          a paginii, ca sesiunea să pornească mereu "curată". -->
@@ -1500,7 +1552,11 @@
 
     <!-- Nav (Liquid Glass) -->
     <nav>
-        <div class="nav-backdrop" aria-hidden="true"></div>
+        <div class="nav-backdrop" aria-hidden="true">
+            <div class="nav-glass-filter"></div>
+            <div class="nav-glass-overlay"></div>
+            <div class="nav-glass-specular"></div>
+        </div>
         <a class="logo hover-target" href="/" style="text-decoration:none;">
             <!-- Asigurăm vizibilitatea textului în lipsa imaginii -->
             <span style="display:flex; align-items:center;">SS<i style="margin-left:2px;">IC</i></span>
@@ -2309,7 +2365,7 @@
         const mapFiltersEl = document.getElementById('mapFilters');
         const mapFullscreenToggle = document.getElementById('mapFullscreenToggle');
         const mapFullscreenExit = document.getElementById('mapFullscreenExit');
-        const mapRealEl = document.getElementById('realMap');
+        const mapFsWrapper = document.getElementById('mapFsWrapper');
         let mapIsFullscreen = false;
 
         if (mapFilterToggle && mapFiltersEl) {
@@ -2321,27 +2377,28 @@
             });
         }
 
-        function setMapFullscreen(on) {
-            if (!mapRealEl) return;
-            mapIsFullscreen = on;
-            mapRealEl.classList.toggle('is-fullscreen', on);
+        // Bug-ul de dinainte: codul de mai jos NU chema niciodată Fullscreen API-ul real —
+        // doar comuta clase CSS (#realMap.is-fullscreen, body.map-fullscreen-active etc.)
+        // pentru care nu mai exista nicio regulă în foaia de stil, deci vizual nu se
+        // întâmpla absolut nimic la click. Acum chemăm efectiv requestFullscreen()/
+        // exitFullscreen() pe .map-fs-wrapper (elementul care înconjoară toolbar + filtre +
+        // hartă + butonul de ieșire — vezi HTML-ul din Studenți). Pt. browsere care NU
+        // suportă requestFullscreen() pe elemente oarecare (în primul rând Safari pe iPhone,
+        // care-l permite doar pe <video>), cădem pe un fullscreen "fals" simulat din CSS
+        // (position:fixed) — vezi .is-fake-fullscreen mai sus în stylesheet.
+        function nativeFullscreenSupported() {
+            return !!(mapFsWrapper && (mapFsWrapper.requestFullscreen || mapFsWrapper.webkitRequestFullscreen));
+        }
+        function nativeFullscreenElement() {
+            return document.fullscreenElement || document.webkitFullscreenElement || null;
+        }
 
-            // NU mutăm harta în <body> (variantă încercată anterior): reparentarea unui
-            // container Leaflet deja inițializat îi strică randarea tile-urilor (rămâne
-            // gol/dispare, exact ce ai raportat, pe mobil și pe desktop deopotrivă) —
-            // Leaflet ține poziții/dimensiuni calculate pentru vechiul loc din DOM și nu se
-            // recuperează complet doar cu invalidateSize() după o mutare de nod.
-            // În loc de asta, rezolvăm cauza reală altfel: #realMap.is-fullscreen e
-            // position:fixed, dar stă în interiorul .view/.board-dept, care au "transform"
-            // pe ele (compositing pe .view, animația tabEnter pe .board-dept) — orice
-            // ancestor cu transform devine "containing block" pentru un descendent fixed,
-            // în loc de viewport, și de-asta fullscreenul nu acoperea tot ecranul. Clasa
-            // body.map-fullscreen-active de mai jos anulează explicit acel transform pe
-            // ancestori (vezi CSS) cât timp fullscreen e activ — fără să atingem harta.
+        function applyFullscreenUI(on) {
+            mapIsFullscreen = on;
             if (mapFiltersEl) {
-                mapFiltersEl.classList.toggle('map-filters-overlay', on);
-                // La intrarea în fullscreen, panoul de filtre pornește collapsat (doar butonul
-                // de Filtre rămâne vizibil peste hartă) — utilizatorul îl deschide la nevoie.
+                // La intrarea în fullscreen, panoul de filtre pornește collapsat (doar
+                // butonul de Filtre rămâne vizibil peste hartă) — utilizatorul îl deschide
+                // la nevoie.
                 if (on) {
                     mapFiltersEl.classList.add('is-collapsed');
                     if (mapFilterToggle) {
@@ -2350,8 +2407,6 @@
                     }
                 }
             }
-            document.body.classList.toggle('map-fullscreen-active', on);
-            if (mapFullscreenExit) mapFullscreenExit.classList.toggle('is-visible', on);
             if (mapFullscreenToggle) {
                 mapFullscreenToggle.setAttribute('aria-pressed', String(on));
                 mapFullscreenToggle.classList.toggle('is-active', on);
@@ -2362,20 +2417,87 @@
             }
             if (window.lucide) lucide.createIcons();
             // Leaflet trebuie anunțat că dimensiunea containerului s-a schimbat, altfel
-            // rămâne randată la mărimea veche (tile-uri lipsă pe margini).
+            // rămâne randată la mărimea veche (tile-uri lipsă pe margini). Delay-ul lasă
+            // browserul să termine tranziția de fullscreen înainte de măsurătoare.
             if (window.studentMapInstance) {
-                setTimeout(() => window.studentMapInstance.invalidateSize(), 60);
+                setTimeout(() => window.studentMapInstance.invalidateSize(), 80);
             }
         }
 
+        function enterFullscreen() {
+            if (!mapFsWrapper || mapIsFullscreen) return;
+            if (nativeFullscreenSupported()) {
+                const req = mapFsWrapper.requestFullscreen
+                    ? mapFsWrapper.requestFullscreen.bind(mapFsWrapper)
+                    : mapFsWrapper.webkitRequestFullscreen.bind(mapFsWrapper);
+                const result = req();
+                // requestFullscreen() poate fi respins (gest lipsă, restricție de browser) —
+                // dacă se întâmplă, cădem tot pe varianta simulată, ca butonul să tot
+                // funcționeze pentru vizitator.
+                if (result && typeof result.catch === 'function') {
+                    result.catch(() => enterFakeFullscreen());
+                }
+                // applyFullscreenUI(true) e chemat din handler-ul de fullscreenchange, ca
+                // starea din UI să rămână corectă indiferent cum s-a intrat/ieșit (buton,
+                // Escape, gest de swipe pe mobil etc.), nu doar din acest click.
+            } else {
+                enterFakeFullscreen();
+            }
+        }
+
+        function exitFullscreenMode() {
+            if (!mapIsFullscreen) return;
+            if (nativeFullscreenElement()) {
+                const exit = document.exitFullscreen
+                    ? document.exitFullscreen.bind(document)
+                    : document.webkitExitFullscreen.bind(document);
+                exit();
+            } else {
+                exitFakeFullscreen();
+            }
+        }
+
+        function enterFakeFullscreen() {
+            if (!mapFsWrapper) return;
+            mapFsWrapper.classList.add('is-fake-fullscreen');
+            document.body.classList.add('map-fullscreen-active');
+            applyFullscreenUI(true);
+        }
+
+        function exitFakeFullscreen() {
+            if (!mapFsWrapper) return;
+            mapFsWrapper.classList.remove('is-fake-fullscreen');
+            document.body.classList.remove('map-fullscreen-active');
+            applyFullscreenUI(false);
+        }
+
         if (mapFullscreenToggle) {
-            mapFullscreenToggle.addEventListener('click', () => { setMapFullscreen(!mapIsFullscreen); haptic(8); });
+            mapFullscreenToggle.addEventListener('click', () => {
+                mapIsFullscreen ? exitFullscreenMode() : enterFullscreen();
+                haptic(8);
+            });
         }
         if (mapFullscreenExit) {
-            mapFullscreenExit.addEventListener('click', () => { setMapFullscreen(false); haptic(8); });
+            mapFullscreenExit.addEventListener('click', () => { exitFullscreenMode(); haptic(8); });
         }
+        // Escape e gestionat automat de browser pt. fullscreen-ul nativ (declanșează
+        // fullscreenchange mai jos) — listener-ul de-aici acoperă doar varianta simulată,
+        // unde noi suntem singurii care știm că "fullscreen-ul" e activ.
         document.addEventListener('keydown', e => {
-            if (e.key === 'Escape' && mapIsFullscreen) setMapFullscreen(false);
+            if (e.key === 'Escape' && mapIsFullscreen && mapFsWrapper && mapFsWrapper.classList.contains('is-fake-fullscreen')) {
+                exitFakeFullscreen();
+            }
+        });
+        // Singura sursă de adevăr pt. starea fullscreen-ului nativ: acest eveniment prinde
+        // și ieșirile care nu trec prin butonul nostru (Escape, gestul de swipe-down pe
+        // mobil, alt tab care a intrat în fullscreen etc.), ca UI-ul (iconiță, panou de
+        // filtre, invalidateSize pe hartă) să rămână mereu sincronizat cu ce vede vizitatorul.
+        ['fullscreenchange', 'webkitfullscreenchange'].forEach(evt => {
+            document.addEventListener(evt, () => {
+                if (mapFsWrapper && mapFsWrapper.classList.contains('is-fake-fullscreen')) return;
+                const on = nativeFullscreenElement() === mapFsWrapper;
+                applyFullscreenUI(on);
+            });
         });
 
         /* Delegare de evenimente pe document, în loc de a lega listener-e individual pe fiecare
@@ -3276,76 +3398,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
         });
-    </script>
-    <!-- Cifrele random de pe grila milimetrică (.app), generate o singură dată per vizită și
-         păstrate în sessionStorage — rămân identice la navigare între pagini (fiecare pagină e
-         un load separat, nu un SPA), dar se regenerează la o sesiune nouă de browser. 67 și 34
-         apar cel mai des în "pool"-ul din care tragem (de 6x mai des decât restul), poziționate
-         exact în centrul pătrățelelor mari de 64px ale grilei, ca să rămână aliniate cu liniile,
-         nu plasate la coordonate arbitrare. -->
-    <script>
-        (function initGridNumbers() {
-            const container = document.querySelector('.app');
-            if (!container) return;
-            const CELL = 64;
-            const STORE_KEY = 'ssicGridNumbers_v1';
-
-            function buildPool() {
-                const pool = [];
-                for (let i = 0; i < 6; i++) { pool.push(67, 34); }
-                const others = [5, 12, 18, 23, 29, 41, 47, 52, 58, 63, 71, 76, 82, 88, 93, 99, 3, 15, 27, 39, 61, 74, 86, 91, 8, 21];
-                others.forEach(n => pool.push(n));
-                return pool;
-            }
-
-            function generate() {
-                const cols = Math.ceil(window.innerWidth / CELL);
-                const rows = Math.ceil(window.innerHeight / CELL);
-                const pool = buildPool();
-                const cells = [];
-                for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) cells.push([c, r]);
-                // Densitate: aproximativ 1 cifră la fiecare ~9 pătrățele, ca să rămână "mici,
-                // dar observabile" — nu o aglomerare care ar concura vizual cu conținutul.
-                const count = Math.max(6, Math.round(cells.length * 0.11));
-                const chosen = [];
-                const used = new Set();
-                while (chosen.length < count && used.size < cells.length) {
-                    const idx = Math.floor(Math.random() * cells.length);
-                    if (used.has(idx)) continue;
-                    used.add(idx);
-                    const [c, r] = cells[idx];
-                    const value = pool[Math.floor(Math.random() * pool.length)];
-                    chosen.push({ x: c * CELL + CELL / 2, y: r * CELL + CELL / 2, v: value });
-                }
-                return chosen;
-            }
-
-            function render(list) {
-                const wrap = document.createElement('div');
-                wrap.className = 'grid-numbers';
-                wrap.setAttribute('aria-hidden', 'true');
-                list.forEach(item => {
-                    const span = document.createElement('span');
-                    span.className = 'grid-num';
-                    span.style.left = item.x + 'px';
-                    span.style.top = item.y + 'px';
-                    span.textContent = item.v;
-                    wrap.appendChild(span);
-                });
-                container.insertBefore(wrap, container.firstChild);
-            }
-
-            let list;
-            try {
-                const saved = sessionStorage.getItem(STORE_KEY);
-                list = saved ? JSON.parse(saved) : null;
-            } catch (e) { list = null; }
-            if (!list || !Array.isArray(list) || !list.length) {
-                list = generate();
-                try { sessionStorage.setItem(STORE_KEY, JSON.stringify(list)); } catch (e) { /* ignorăm */ }
-            }
-            render(list);
-        })();
     </script>
 </body>
 </html>
