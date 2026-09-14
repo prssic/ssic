@@ -813,10 +813,51 @@
            (pătrățoase, galbene când sunt active), doar că sunt multi-select: fiecare buton se
            comută independent (vezi JS), nu se dezactivează unul pe altul ca la un tab normal.
            Reducem doar spațiul de sub filtru, ca harta să nu fie împinsă prea jos. */
-        .map-filters { margin-bottom: 20px; }
+        .map-filters {
+            margin-bottom: 20px;
+            overflow: hidden; max-height: 300px; opacity: 1;
+            transition: max-height 0.25s ease, opacity 0.2s ease, margin-bottom 0.2s ease;
+        }
+        .map-filters.is-collapsed { max-height: 0; opacity: 0; margin-bottom: 0; pointer-events: none; }
+
+        /* Toolbar deasupra hărții: buton de collapse pentru filtre + buton de fullscreen */
+        .map-toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+        .map-toolbar-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 16px; border-radius: 8px; border: 1px solid var(--c-border-strong);
+            background: var(--c-surface-elevated); color: var(--c-white-off);
+            font-family: var(--font-main); font-size: 0.9rem; font-weight: 600;
+            cursor: pointer; transition: border-color 0.15s ease, color 0.15s ease;
+        }
+        .map-toolbar-btn i, .map-toolbar-btn .lucide { width: 16px; height: 16px; flex-shrink: 0; }
+        .map-toolbar-btn:hover, .map-toolbar-btn.is-active { border-color: var(--c-accent); color: var(--c-white); }
+
+        /* Modul fullscreen: harta acoperă tot ecranul, filtrele devin un panou plutitor
+           collapsabil peste hartă, iar un buton X (fix, colț dreapta-sus) închide modul. */
+        #realMap.is-fullscreen {
+            position: fixed; inset: 0; width: 100vw; height: 100vh;
+            z-index: 9999; border-radius: 0; border: none;
+        }
+        body.map-fullscreen-active { overflow: hidden; }
+        .map-filters.map-filters-overlay {
+            position: fixed; top: 20px; left: 20px; right: 20px; z-index: 10000;
+            max-width: 900px; margin: 0 auto; background: var(--c-surface-elevated);
+            border: 1px solid var(--c-border-strong); border-radius: 12px; padding: 14px;
+        }
+        .map-filters.map-filters-overlay.is-collapsed { padding-top: 0; padding-bottom: 0; border-width: 0; }
+        .map-fullscreen-exit {
+            display: none; position: fixed; top: 20px; right: 20px; z-index: 10001;
+            width: 44px; height: 44px; border-radius: 50%; align-items: center; justify-content: center;
+            background: var(--c-surface-elevated); border: 1px solid var(--c-border-strong);
+            color: var(--c-white); cursor: pointer;
+        }
+        .map-fullscreen-exit.is-visible { display: flex; }
+        .map-fullscreen-exit i, .map-fullscreen-exit .lucide { width: 20px; height: 20px; }
 
         @media (max-width: 640px) {
             .real-map-frame { height: 360px; }
+            .map-filters.map-filters-overlay { top: 12px; left: 12px; right: 12px; }
+            .map-fullscreen-exit { top: 12px; right: 12px; }
         }
 
         /* ==========================================================================
@@ -1996,7 +2037,8 @@
                 studiu:    { label: 'Studiu',    color: '#c9a6f2', iconColor: '#1a1206' },
                 facultate: { label: 'Facultate', color: '#e9e2ef', iconColor: '#1a1206' },
                 parcuri:   { label: 'Parcuri',   color: '#5fb85a', iconColor: '#0d1f0a' },
-                cafenele:  { label: 'Cafenele',  color: '#d98e4a', iconColor: '#241505' }
+                cafenele:  { label: 'Cafenele',  color: '#d98e4a', iconColor: '#241505' },
+                baruri:    { label: 'Baruri',    color: '#c4485a', iconColor: '#ffffff' }
             };
 
             const POIS = [
@@ -2023,13 +2065,13 @@
                   lat: 44.44561438049759, lng: 26.052337960736235, icon: 'shopping-basket' },
                 { cat: 'mancare',   name: 'Centrul Comercial Orhideea', addr: 'Splaiul Independenței 210',
                   lat: 44.446216420016455, lng: 26.062524102927426, icon: 'shopping-cart' },
-                { cat: 'mancare',   name: 'Lidl', addr: 'zona Regie',
+                { cat: 'mancare',   name: 'Lidl', addr: 'Str. Sergent Ștefan Crișan 31',
                   lat: 44.45183937710921, lng: 26.04796908790601, icon: 'shopping-cart' },
                 { cat: 'mancare',   name: 'AFI Cotroceni', addr: 'Bulevardul Vasile Milea 4',
                   lat: 44.431861085702685, lng: 26.053697810379354, icon: 'shopping-bag' },
                 { cat: 'mancare',   name: 'Jumbo Center', addr: 'Șoseaua Berceni',
                   lat: 44.41584285362142, lng: 26.079416133915537, icon: 'shopping-bag' },
-                { cat: 'mancare',   name: 'Socului Kebap Obor', addr: 'zona Obor',
+                { cat: 'mancare',   name: 'Socului Kebap Obor', addr: 'Strada Ziduri Moși 4',
                   lat: 44.44955369942694, lng: 26.123559772905622, icon: 'utensils' },
                 // Farmacii din zonă
                 { cat: 'sanatate',  name: 'Farmacia Dr. Max (Orhideea)', addr: 'Splaiul Independenței 210-210B',
@@ -2056,11 +2098,11 @@
                 // Studiu — biblioteci + librării/anticariate din lista studenților
                 { cat: 'studiu',    name: 'Biblioteca Centrală UNSTPB', addr: 'Splaiul Independenței 313',
                   lat: 44.441191391143455, lng: 26.051440564343125, icon: 'book-open' },
-                { cat: 'studiu',    name: 'Anticariat UNU', addr: 'zona Universitate',
+                { cat: 'studiu',    name: 'Anticariat UNU', addr: 'Pasajul Universității',
                   lat: 44.434361124075856, lng: 26.099743768545743, icon: 'book-marked' },
-                { cat: 'studiu',    name: 'Târgul Cărții', addr: 'zona Universitate',
+                { cat: 'studiu',    name: 'Târgul Cărții', addr: 'Pasajul Universității',
                   lat: 44.43388374873857, lng: 26.102744490471178, icon: 'book-marked' },
-                { cat: 'studiu',    name: 'Antic ExLibris', addr: 'zona Universitate',
+                { cat: 'studiu',    name: 'Antic ExLibris', addr: 'Pasajul Universității',
                   lat: 44.43353325604077, lng: 26.102226824139255, icon: 'book-marked' },
                 // Facultate
                 { cat: 'facultate', name: 'FICBi — Clădirea Polizu', addr: 'Strada Gheorghe Polizu 1-7',
@@ -2072,40 +2114,42 @@
                   lat: 44.440772552182615, lng: 26.052555677857647, icon: 'trees' },
                 { cat: 'parcuri',   name: 'Parcul Regele Mihai I (Herăstrău)', addr: 'Șoseaua Kiseleff',
                   lat: 44.47035845304378, lng: 26.082682962470503, icon: 'trees' },
-                { cat: 'parcuri',   name: 'Parcul Liniei', addr: 'zona Grivița',
+                { cat: 'parcuri',   name: 'Parcul Liniei', addr: 'Calea Griviței',
                   lat: 44.431644541658464, lng: 26.035633820772407, icon: 'trees' },
-                { cat: 'parcuri',   name: 'Parcul Tineretului', addr: 'zona Tineretului',
+                { cat: 'parcuri',   name: 'Parcul Tineretului', addr: 'Bulevardul Tineretului',
                   lat: 44.40800839176741, lng: 26.105009791334325, icon: 'trees' },
-                { cat: 'parcuri',   name: 'Grădina Cișmigiu', addr: 'zona Cișmigiu',
+                { cat: 'parcuri',   name: 'Grădina Cișmigiu', addr: 'Bulevardul Regina Elisabeta',
                   lat: 44.437480734880126, lng: 26.091078049163023, icon: 'trees' },
                 { cat: 'parcuri',   name: 'Grădina Botanică „Dimitrie Brândză”', addr: 'Șoseaua Cotroceni 32',
                   lat: 44.43743926558714, lng: 26.06280048150343, icon: 'leaf' },
-                { cat: 'parcuri',   name: 'Parcul Alexandru Ioan Cuza', addr: 'zona Titan',
+                { cat: 'parcuri',   name: 'Parcul Alexandru Ioan Cuza', addr: 'Bulevardul Basarabia',
                   lat: 44.42625931231126, lng: 26.155142083698404, icon: 'trees' },
-                { cat: 'parcuri',   name: 'Parcul Izvor', addr: 'zona Izvor',
+                { cat: 'parcuri',   name: 'Parcul Izvor', addr: 'Splaiul Independenței',
                   lat: 44.432071410671874, lng: 26.08773258712462, icon: 'trees' },
-                { cat: 'parcuri',   name: 'Parcul Crângași', addr: 'zona Crângași',
+                { cat: 'parcuri',   name: 'Parcul Crângași', addr: 'Bulevardul Constructorilor',
                   lat: 44.452639588998714, lng: 26.045747502810457, icon: 'trees' },
                 { cat: 'parcuri',   name: 'Morii Lake Promenad', addr: 'Lacul Morii',
                   lat: 44.45271100158281, lng: 26.03964800008108, icon: 'trees' },
                 { cat: 'parcuri',   name: 'Parcul Insula Lacul Morii', addr: 'Lacul Morii',
                   lat: 44.45973742949955, lng: 26.02960230713795, icon: 'trees' },
-                { cat: 'parcuri',   name: 'Parcul Drumul Taberei', addr: 'zona Drumul Taberei',
+                { cat: 'parcuri',   name: 'Parcul Drumul Taberei', addr: 'Bulevardul Timișoara',
                   lat: 44.42280821664365, lng: 26.030859983291197, icon: 'trees' },
-                // Cafenele/baruri
-                { cat: 'cafenele',  name: 'Leonard Caffe Polizu', addr: 'zona Polizu',
+                // Cafenele
+                { cat: 'cafenele',  name: 'Leonard Caffe Polizu', addr: 'Strada Gheorghe Polizu',
                   lat: 44.447805514471334, lng: 26.07778854666857, icon: 'coffee' },
-                { cat: 'cafenele',  name: 'B17 COFFEELAB Polizu', addr: 'zona Polizu',
+                { cat: 'cafenele',  name: 'B17 COFFEELAB Polizu', addr: 'Strada Gheorghe Polizu',
                   lat: 44.44749627368328, lng: 26.07734329997222, icon: 'coffee' },
-                { cat: 'cafenele',  name: 'Beans & Dots', addr: 'zona Universitate',
+                { cat: 'cafenele',  name: 'Beans & Dots', addr: 'Strada Ion Brezoianu 23-25',
                   lat: 44.43569315780523, lng: 26.09396696090108, icon: 'coffee' },
-                { cat: 'cafenele',  name: 'Meron', addr: 'zona Universitate',
+                { cat: 'cafenele',  name: 'Meron', addr: 'Bulevardul Regina Elisabeta 40',
                   lat: 44.43484521301282, lng: 26.09459777537656, icon: 'coffee' },
-                { cat: 'cafenele',  name: 'Quantic', addr: 'zona Cișmigiu',
-                  lat: 44.43827284286915, lng: 26.059362463505245, icon: 'coffee' },
-                { cat: 'cafenele',  name: 'Mechano Pub', addr: 'zona Regie',
+                // Baruri — separate de cafenele; Quantic era etichetat greșit "zona Cișmigiu",
+                // dar e de fapt pe Șoseaua Grozăvești (lângă Podul Grozăvești), nu în zona Cișmigiu.
+                { cat: 'baruri',    name: 'Quantic', addr: 'Șoseaua Grozăvești 82',
+                  lat: 44.43827284286915, lng: 26.059362463505245, icon: 'beer' },
+                { cat: 'baruri',    name: 'Mechano Pub', addr: 'Complexul Studențesc Regie',
                   lat: 44.44687491494298, lng: 26.051812904006496, icon: 'beer' },
-                { cat: 'cafenele',  name: 'Wicked Bar', addr: 'zona Universitate',
+                { cat: 'baruri',    name: 'Wicked Bar', addr: 'Calea Moșilor',
                   lat: 44.4378826641658, lng: 26.11236936694795, icon: 'beer' }
             ];
 
@@ -2202,6 +2246,69 @@
                 if (window.studentMapInstance) updateMapMarkerStyles();
                 haptic(6);
             });
+        });
+
+        /* ==========================================================================
+           JS: Hartă — meniu de filtre collapsabil + mod fullscreen
+           ========================================================================== */
+        const mapFilterToggle = document.getElementById('mapFilterToggle');
+        const mapFiltersEl = document.getElementById('mapFilters');
+        const mapFullscreenToggle = document.getElementById('mapFullscreenToggle');
+        const mapFullscreenExit = document.getElementById('mapFullscreenExit');
+        const mapRealEl = document.getElementById('realMap');
+        let mapIsFullscreen = false;
+
+        if (mapFilterToggle && mapFiltersEl) {
+            mapFilterToggle.addEventListener('click', () => {
+                const collapsed = mapFiltersEl.classList.toggle('is-collapsed');
+                mapFilterToggle.setAttribute('aria-expanded', String(!collapsed));
+                mapFilterToggle.classList.toggle('is-active', !collapsed);
+                haptic(6);
+            });
+        }
+
+        function setMapFullscreen(on) {
+            if (!mapRealEl) return;
+            mapIsFullscreen = on;
+            mapRealEl.classList.toggle('is-fullscreen', on);
+            if (mapFiltersEl) {
+                mapFiltersEl.classList.toggle('map-filters-overlay', on);
+                // La intrarea în fullscreen, panoul de filtre pornește collapsat (doar butonul
+                // de Filtre rămâne vizibil peste hartă) — utilizatorul îl deschide la nevoie.
+                if (on) {
+                    mapFiltersEl.classList.add('is-collapsed');
+                    if (mapFilterToggle) {
+                        mapFilterToggle.setAttribute('aria-expanded', 'false');
+                        mapFilterToggle.classList.remove('is-active');
+                    }
+                }
+            }
+            document.body.classList.toggle('map-fullscreen-active', on);
+            if (mapFullscreenExit) mapFullscreenExit.classList.toggle('is-visible', on);
+            if (mapFullscreenToggle) {
+                mapFullscreenToggle.setAttribute('aria-pressed', String(on));
+                mapFullscreenToggle.classList.toggle('is-active', on);
+                const label = mapFullscreenToggle.querySelector('span');
+                if (label) label.textContent = on ? 'Închide fullscreen' : 'Fullscreen';
+                const icon = mapFullscreenToggle.querySelector('[data-lucide]');
+                if (icon) { icon.setAttribute('data-lucide', on ? 'minimize' : 'maximize'); }
+            }
+            if (window.lucide) lucide.createIcons();
+            // Leaflet trebuie anunțat că dimensiunea containerului s-a schimbat, altfel
+            // rămâne randată la mărimea veche (tile-uri lipsă pe margini).
+            if (window.studentMapInstance) {
+                setTimeout(() => window.studentMapInstance.invalidateSize(), 60);
+            }
+        }
+
+        if (mapFullscreenToggle) {
+            mapFullscreenToggle.addEventListener('click', () => { setMapFullscreen(!mapIsFullscreen); haptic(8); });
+        }
+        if (mapFullscreenExit) {
+            mapFullscreenExit.addEventListener('click', () => { setMapFullscreen(false); haptic(8); });
+        }
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && mapIsFullscreen) setMapFullscreen(false);
         });
 
         /* Delegare de evenimente pe document, în loc de a lega listener-e individual pe fiecare
