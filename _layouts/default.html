@@ -354,15 +354,27 @@
         .app {
             position: relative; width: 100vw; height: 100vh; height: 100dvh;
             background-color: var(--c-base);
-            /* Grid decorativ simplu, mov, static — din CSS pur (repeating-linear-gradient),
-               nu dintr-un tile SVG, deci fără cusături de tile la niciun zoom/DPI. Fără gold,
-               fără animație — doar liniile de grid, curate. */
+            /* Grid decorativ tip "hârtie milimetrică": linii fine (16px, pas mic) + linii mai
+               vizibile (64px, pas mare) din CSS pur (repeating-linear-gradient), fără tile SVG,
+               deci fără cusături la niciun zoom/DPI. Peste el, JS adaugă câteva numere mici,
+               discrete, la unele intersecții (vezi #gridNumbers mai jos în body). */
             background-image:
-                repeating-linear-gradient(90deg, rgba(90,47,138,0.14) 0px, rgba(90,47,138,0.14) 1px, transparent 1px, transparent 64px),
-                repeating-linear-gradient(0deg, rgba(90,47,138,0.14) 0px, rgba(90,47,138,0.14) 1px, transparent 1px, transparent 64px);
+                repeating-linear-gradient(90deg, rgba(90,47,138,0.06) 0px, rgba(90,47,138,0.06) 1px, transparent 1px, transparent 16px),
+                repeating-linear-gradient(0deg, rgba(90,47,138,0.06) 0px, rgba(90,47,138,0.06) 1px, transparent 1px, transparent 16px),
+                repeating-linear-gradient(90deg, rgba(90,47,138,0.16) 0px, rgba(90,47,138,0.16) 1px, transparent 1px, transparent 64px),
+                repeating-linear-gradient(0deg, rgba(90,47,138,0.16) 0px, rgba(90,47,138,0.16) 1px, transparent 1px, transparent 64px);
             background-repeat: repeat;
-            background-size: 64px 64px;
+            background-size: 16px 16px, 16px 16px, 64px 64px, 64px 64px;
             background-attachment: fixed;
+        }
+        /* Numerele discrete "de inginer" de pe grid — vezi #gridNumbers, generate în JS,
+           poziționate pe aceleași intersecții de 64px ca liniile principale ale gridului. */
+        .grid-numbers { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+        .grid-number {
+            position: absolute; transform: translate(-50%, -50%);
+            font-family: 'Courier New', ui-monospace, SFMono-Regular, monospace;
+            font-size: 9px; letter-spacing: 0.5px; line-height: 1;
+            color: var(--c-primary-light); white-space: nowrap; user-select: none;
         }
         .view {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -444,6 +456,9 @@
         }
         .reveal.is-visible { opacity: 1; transform: translateY(0); filter: blur(0); }
         .reveal-stagger.is-visible { transition-delay: var(--r-delay, 0s); }
+        /* Folosit doar la comutarea de tab-uri (vezi swapTabPanel în JS): conținutul apare
+           instant, fără fade/alunecare — animația de reveal rămâne doar la scroll-ul natural. */
+        .reveal.reveal-instant { transition: none !important; }
         @media (prefers-reduced-motion: reduce) {
             .reveal { opacity: 1 !important; transform: none !important; filter: none !important; transition: none !important; }
         }
@@ -1648,6 +1663,7 @@
 
     <!-- SPA Root -->
     <main class="app">
+        <div class="grid-numbers" id="gridNumbers" aria-hidden="true"></div>
 {{ content }}
     </main>
 
@@ -1837,6 +1853,89 @@
             });
         }
         observeReveals();
+
+        /* ==========================================================================
+           JS: Grid tip hârtie milimetrică — numere mici, discrete, la unele intersecții
+           ale gridului de fundal (stil hârtie inginerească/arhitecturală). Setul de numere
+           se generează dintr-un seed stocat în sessionStorage: rămâne identic pe toate
+           paginile în aceeași sesiune de navigare (fiecare click de nav e un load de
+           pagină nou, în arhitectura MPA de mai jos), dar se schimbă la un load complet
+           nou (tab nou / sesiune nouă a browserului). 67 și 34 au incidență vizibil mai
+           mare decât restul, cerut explicit — restul sunt uniform aleatorii.
+           ========================================================================== */
+        (function initGridNumbers() {
+            const container = document.getElementById('gridNumbers');
+            if (!container) return;
+
+            // PRNG mic, determinist (mulberry32) — Math.random() nu poate fi "reluat" de la
+            // un seed dat, avem nevoie de reproductibilitate ca să regenerăm identic la resize.
+            function mulberry32(seed) {
+                return function () {
+                    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+                    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+                    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+                    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+                };
+            }
+
+            let seed;
+            try {
+                const stored = sessionStorage.getItem('ssicGridSeed');
+                if (stored) {
+                    seed = parseInt(stored, 10);
+                } else {
+                    seed = (Date.now() ^ Math.floor(Math.random() * 0xFFFFFFFF)) >>> 0;
+                    sessionStorage.setItem('ssicGridSeed', String(seed));
+                }
+            } catch (e) {
+                // sessionStorage indisponibil (mod privat strict etc.) — numerele tot apar,
+                // doar că nu mai persistă identic între pagini; degradare acceptabilă.
+                seed = (Date.now() ^ Math.floor(Math.random() * 0xFFFFFFFF)) >>> 0;
+            }
+
+            const STEP = 64;               // identic cu pasul liniilor "mari" ale gridului CSS
+            const DENSITY = 0.045;         // ~4-5% din intersecții primesc un număr — discret
+            const FEATURED = [67, 34];     // incidență mare, cerut explicit
+            const FEATURED_WEIGHT = 0.45;  // șansă ca un număr apărut să fie unul "featured"
+
+            function render() {
+                // Rand-ul se reconstruiește din același seed la fiecare render (inclusiv la
+                // resize) — altfel, reluarea secvenței de unde rămăsese ar amesteca aleator
+                // numerele la fiecare redimensionare a ferestrei.
+                const rand = mulberry32(seed);
+                container.innerHTML = '';
+                const cols = Math.ceil(window.innerWidth / STEP) + 1;
+                const rows = Math.ceil(window.innerHeight / STEP) + 1;
+                const frag = document.createDocumentFragment();
+                for (let r = 0; r <= rows; r++) {
+                    for (let c = 0; c <= cols; c++) {
+                        const roll = rand();
+                        const opacityRoll = rand();
+                        const valueRoll = rand();
+                        const featuredPick = rand();
+                        if (roll >= DENSITY) continue;
+                        const value = valueRoll < FEATURED_WEIGHT
+                            ? FEATURED[featuredPick < 0.5 ? 0 : 1]
+                            : Math.floor(valueRoll * 100) % 100;
+                        const span = document.createElement('span');
+                        span.className = 'grid-number';
+                        span.textContent = String(value).padStart(2, '0');
+                        span.style.left = (c * STEP) + 'px';
+                        span.style.top = (r * STEP) + 'px';
+                        span.style.opacity = (0.05 + opacityRoll * 0.06).toFixed(3);
+                        frag.appendChild(span);
+                    }
+                }
+                container.appendChild(frag);
+            }
+
+            render();
+            let gridResizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(gridResizeTimer);
+                gridResizeTimer = setTimeout(render, 200);
+            });
+        })();
 
         /* ==========================================================================
            JS: TYPEWRITER — textul din hero se scrie, așteaptă, apoi se șterge
@@ -2649,33 +2748,20 @@
                 // de exemplu) până la următoarea acțiune care apela createIcons() din altă parte.
                 if (window.lucide) lucide.createIcons();
                 if (typeof observeReveals === 'function') observeReveals();
-                // Fix real pt. bug-ul de comutare rapidă (Evenimente <-> Calendar, dar afectează
+                // Fix pt. bug-ul de comutare rapidă (Evenimente <-> Calendar, dar afectează
                 // orice tab): elementele .reveal așteaptă IntersectionObserver-ul de scroll ca să
                 // devină vizibile (opacity 0 -> 1). La un tab abia deschis prin click, conținutul
-                // e deja pe ecran — n-are niciun motiv să mai aștepte după intersecție. Dacă
-                // utilizatorul comută mai repede decât apucă browser-ul să calculeze intersecția
-                // (ex. click-click-click rapid între Evenimente și Calendar), acel calcul poate
-                // fi "sărit" complet cât timp panoul era ascuns, iar elementul rămânea blocat la
-                // opacity:0 pentru totdeauna — exact bug-ul raportat ("nu mai e text la
-                // calendar"). Soluția: la fiecare activare de tab, marcăm direct .is-visible pe
-                // tot ce e .reveal în panoul nou-activat, fără să mai așteptăm observer-ul.
+                // e deja pe ecran — n-are niciun motiv să mai aștepte după intersecție.
                 //
-                // Dublu requestAnimationFrame, NU adăugare sincronă: dacă puneam .is-visible în
-                // aceeași secvență sincronă cu .active (fără niciun cadru de randare între ele),
-                // browserul nu mai avea ce stare "de dinainte" să anime — sărea direct la
-                // rezultatul final, adică textul apărea brusc, dintr-o dată ("sare aiurea"), în
-                // loc de fade-ul lin, "fancy", pe care îl are la încărcarea inițială a paginii
-                // (acolo IntersectionObserver-ul are, natural, cadre de randare între stările
-                // opacity:0 și opacity:1). Cele două rAF-uri imbricate garantează un cadru complet
-                // randat cu opacity:0 înainte să cerem tranziția spre opacity:1, deci tab-urile
-                // primesc exact aceeași animație lină ca restul site-ului, nu doar o apariție
-                // instantă.
+                // La cerere, tab-urile NU mai redau animația de fade-in-cu-alunecare-de-jos (care
+                // arăta "janky" la fiecare comutare) — acel efect rămâne doar pentru reveal-ul
+                // natural la scroll (prima încărcare a paginii). Aici dezactivăm tranziția
+                // temporar (.reveal-instant → transition:none) și marcăm direct .is-visible, ca
+                // tot conținutul tab-ului nou să apară instant, fără sărituri de poziție/blur.
                 const revealTargets = nextPanel.querySelectorAll('.reveal:not(.is-visible)');
-                revealTargets.forEach(el => el.classList.add('is-observed'));
+                revealTargets.forEach(el => el.classList.add('is-observed', 'reveal-instant', 'is-visible'));
                 requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        revealTargets.forEach(el => el.classList.add('is-visible'));
-                    });
+                    revealTargets.forEach(el => el.classList.remove('reveal-instant'));
                 });
             }
         }
