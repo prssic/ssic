@@ -1102,12 +1102,17 @@
            reaplică automat la fiecare încărcare / navigare între pagini.
            ========================================================================== */
         .a11y-trigger {
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 7px; flex-shrink: 0; margin-top: 22px;
             appearance: none; -webkit-appearance: none; border: 1px solid var(--c-border-strong);
             background: rgba(255,255,255,0.04); color: var(--c-white-off);
-            width: 46px; height: 46px; border-radius: 13px; cursor: pointer;
-            font-size: 1.3rem;
+            width: 92px; height: 92px; border-radius: 18px; cursor: pointer;
             transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+        }
+        .a11y-trigger .lucide { width: 26px; height: 26px; flex-shrink: 0; }
+        .a11y-trigger span {
+            font-family: var(--font-main); font-size: 0.74rem; font-weight: 700;
+            line-height: 1.15; text-align: center;
         }
         .a11y-trigger:hover, .a11y-trigger.is-active {
             color: var(--c-base); border-color: var(--c-accent); background: var(--c-accent);
@@ -1234,20 +1239,6 @@
             .a11y-panel { max-width: 100%; max-height: 88vh; border-radius: 24px 24px 0 0; }
         }
 
-        /* --- Lupă (zoom pe zona din jurul cursorului) --- */
-        .a11y-lens {
-            position: fixed; width: 220px; height: 220px; border-radius: 50%;
-            border: 3px solid var(--c-accent); box-shadow: 0 0 0 6px rgba(245,176,39,0.15), 0 20px 50px var(--c-shadow-2);
-            overflow: hidden; z-index: 9995; pointer-events: none;
-            opacity: 0; transition: opacity 0.15s var(--ease-out);
-            background: var(--c-base);
-        }
-        .a11y-lens.is-visible { opacity: 1; }
-        .a11y-lens-viewport { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
-        @media (max-width: 640px) {
-            .a11y-lens { width: 150px; height: 150px; }
-        }
-
         /* --- Mod narator: evidențiază la hover blocul de text ce va fi citit --- */
         html.a11y-narrator-mode :is(p, h1, h2, h3, h4, li, a, button, .team-name, .search-result-title):hover {
             outline: 2px dashed var(--c-accent); outline-offset: 4px; border-radius: 3px;
@@ -1265,15 +1256,20 @@
             transition: transform 0.25s var(--ease-out), opacity 0.25s var(--ease-out), visibility 0s linear 0s;
         }
         .a11y-narrator-bar span { font-size: 0.85rem; color: var(--c-white-off); font-weight: 700; white-space: nowrap; }
+        /* Ambele butoane din bara narator (play/pause + stop) au aceeași bază transparentă,
+           discretă — la fel ca restul butoanelor "utilitare" mici de pe site (ex. butonul de
+           închidere de la notificarea de cookie-uri), nu o pastilă galbenă plină, care ieșea
+           din chenarul pastilei. display:flex + flex-shrink:0 + dimensiuni fixe egale cu
+           padding-ul părintelui garantează încadrarea corectă, indiferent de mărimea iconiței. */
         .a11y-narrator-bar button {
-            appearance: none; -webkit-appearance: none; border: none; width: 34px; height: 34px;
-            border-radius: 10px; background: var(--c-accent); color: var(--c-base); cursor: pointer;
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-            transition: background var(--transition-fast), opacity var(--transition-fast);
+            appearance: none; -webkit-appearance: none; border: 1px solid var(--c-border-strong);
+            width: 34px; height: 34px; border-radius: 10px; cursor: pointer;
+            background: rgba(255,255,255,0.06); color: var(--c-white-off);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0;
+            transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
         }
-        .a11y-narrator-bar button:hover { background: var(--c-accent); opacity: 0.85; }
-        .a11y-narrator-bar button.a11y-narrator-stop { background: rgba(255,255,255,0.08); color: var(--c-white-off); }
-        .a11y-narrator-bar button.a11y-narrator-stop:hover { color: var(--c-accent); opacity: 1; }
+        .a11y-narrator-bar button .lucide { width: 16px; height: 16px; flex-shrink: 0; }
+        .a11y-narrator-bar button:hover { color: var(--c-accent); border-color: var(--c-accent); background: rgba(245,176,39,0.1); }
 
         /* --- Contrast ridicat: tokenii de bază devin aproape negru/alb, cu accent auriu
            mai saturat — cascadează automat prin tot site-ul, pentru că totul e pe var(). --- */
@@ -2135,9 +2131,6 @@
                 <div class="ft-col">
                     <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
                         <h4 style="margin-bottom:0;">SS<i style="color:var(--c-accent); font-style:normal;">IC</i> Upb</h4>
-                        <button type="button" class="a11y-trigger hover-target" id="a11yTriggerBtn" title="Accesibilitate" aria-label="Deschide opțiunile de accesibilitate" aria-haspopup="dialog" aria-expanded="false" aria-controls="a11yOverlay">
-                            <i data-lucide="accessibility"></i>
-                        </button>
                     </div>
                     <p>Societatea Studenților în Inginerie Chimică și Biotehnologii.</p>
                     <div class="social-icons">
@@ -2162,6 +2155,10 @@
                         <a href="#board" class="hover-target" onclick="event.preventDefault(); goToDept('dept-fr');">Fundraising</a><span>·</span>
                         <a href="#board" class="hover-target" onclick="event.preventDefault(); goToDept('dept-ev');">Evenimente</a>
                     </p>
+                    <button type="button" class="a11y-trigger hover-target" id="a11yTriggerBtn" title="Accesibilitate" aria-label="Deschide opțiunile de accesibilitate" aria-haspopup="dialog" aria-expanded="false" aria-controls="a11yOverlay">
+                        <i data-lucide="accessibility"></i>
+                        <span>Accesibilitate</span>
+                    </button>
                 </div>
             </div>
             <div class="footer-bottom">
@@ -3890,40 +3887,6 @@
             <div class="a11y-panel-body">
                 <p style="font-size:0.85rem; color:var(--c-gray); margin-bottom:4px;">Setările se salvează automat pe acest dispozitiv și se aplică pe toate paginile site-ului.</p>
 
-                <div class="a11y-group-label">Vizual</div>
-                <div class="a11y-option">
-                    <div class="a11y-option-icon"><i data-lucide="contrast"></i></div>
-                    <div class="a11y-option-text">
-                        <strong>Contrast ridicat</strong>
-                        <span>Culori aproape alb-negru, cu accent auriu mai puternic, pentru lizibilitate maximă.</span>
-                    </div>
-                    <button type="button" class="a11y-switch hover-target" id="a11ySwitchContrast" role="switch" aria-checked="false" aria-label="Contrast ridicat"></button>
-                </div>
-                <div class="a11y-option">
-                    <div class="a11y-option-icon"><i data-lucide="search"></i></div>
-                    <div class="a11y-option-text">
-                        <strong>Lupă</strong>
-                        <span>O lentilă urmărește cursorul și mărește conținutul din jurul lui. Disponibilă pe desktop.</span>
-                    </div>
-                    <button type="button" class="a11y-switch hover-target" id="a11ySwitchMagnifier" role="switch" aria-checked="false" aria-label="Lupă"></button>
-                </div>
-                <div class="a11y-option">
-                    <div class="a11y-option-icon"><i data-lucide="mouse-pointer-2"></i></div>
-                    <div class="a11y-option-text">
-                        <strong>Cursor nativ vizibil</strong>
-                        <span>Dezactivează cursorul custom animat și îl înlocuiește cu săgeata obișnuită a sistemului.</span>
-                    </div>
-                    <button type="button" class="a11y-switch hover-target" id="a11ySwitchCursor" role="switch" aria-checked="false" aria-label="Cursor nativ vizibil"></button>
-                </div>
-                <div class="a11y-option">
-                    <div class="a11y-option-icon"><i data-lucide="zap-off"></i></div>
-                    <div class="a11y-option-text">
-                        <strong>Reducere animații</strong>
-                        <span>Oprește tranzițiile și animațiile decorative de pe site.</span>
-                    </div>
-                    <button type="button" class="a11y-switch hover-target" id="a11ySwitchMotion" role="switch" aria-checked="false" aria-label="Reducere animații"></button>
-                </div>
-
                 <div class="a11y-group-label">Text</div>
                 <div class="a11y-option">
                     <div class="a11y-option-icon"><i data-lucide="type"></i></div>
@@ -3954,6 +3917,32 @@
                     <button type="button" class="a11y-switch hover-target" id="a11ySwitchDyslexia" role="switch" aria-checked="false" aria-label="Font pentru dislexie"></button>
                 </div>
 
+                <div class="a11y-group-label">Vizual</div>
+                <div class="a11y-option">
+                    <div class="a11y-option-icon"><i data-lucide="contrast"></i></div>
+                    <div class="a11y-option-text">
+                        <strong>Contrast ridicat</strong>
+                        <span>Culori aproape alb-negru, cu accent auriu mai puternic, pentru lizibilitate maximă.</span>
+                    </div>
+                    <button type="button" class="a11y-switch hover-target" id="a11ySwitchContrast" role="switch" aria-checked="false" aria-label="Contrast ridicat"></button>
+                </div>
+                <div class="a11y-option">
+                    <div class="a11y-option-icon"><i data-lucide="mouse-pointer-2"></i></div>
+                    <div class="a11y-option-text">
+                        <strong>Cursor nativ vizibil</strong>
+                        <span>Dezactivează cursorul custom animat și îl înlocuiește cu săgeata obișnuită a sistemului.</span>
+                    </div>
+                    <button type="button" class="a11y-switch hover-target" id="a11ySwitchCursor" role="switch" aria-checked="false" aria-label="Cursor nativ vizibil"></button>
+                </div>
+                <div class="a11y-option">
+                    <div class="a11y-option-icon"><i data-lucide="zap-off"></i></div>
+                    <div class="a11y-option-text">
+                        <strong>Reducere animații</strong>
+                        <span>Oprește tranzițiile și animațiile decorative de pe site.</span>
+                    </div>
+                    <button type="button" class="a11y-switch hover-target" id="a11ySwitchMotion" role="switch" aria-checked="false" aria-label="Reducere animații"></button>
+                </div>
+
                 <div class="a11y-group-label">Auditiv</div>
                 <div class="a11y-option">
                     <div class="a11y-option-icon"><i data-lucide="volume-2"></i></div>
@@ -3973,10 +3962,6 @@
         </div>
     </div>
 
-    <div class="a11y-lens" id="a11yLens" aria-hidden="true">
-        <div class="a11y-lens-viewport" id="a11yLensViewport"></div>
-    </div>
-
     <div class="a11y-narrator-bar" id="a11yNarratorBar">
         <button type="button" id="a11yNarratorPlayPause" aria-label="Redă / pauză"><i data-lucide="pause"></i></button>
         <span id="a11yNarratorLabel">Se citește...</span>
@@ -3992,7 +3977,7 @@
             const STORAGE_KEY = 'ssicA11yPrefs';
             const defaults = {
                 contrast: false, underline: false, cursorVisible: false,
-                reduceMotion: false, dyslexia: false, textStep: 0, magnifier: false
+                reduceMotion: false, dyslexia: false, textStep: 0
             };
             let prefs = Object.assign({}, defaults);
             try {
@@ -4014,7 +3999,6 @@
 
             const sw = {
                 contrast: document.getElementById('a11ySwitchContrast'),
-                magnifier: document.getElementById('a11ySwitchMagnifier'),
                 cursorVisible: document.getElementById('a11ySwitchCursor'),
                 reduceMotion: document.getElementById('a11ySwitchMotion'),
                 underline: document.getElementById('a11ySwitchUnderline'),
@@ -4044,7 +4028,6 @@
                 setSwitch(sw.reduceMotion, prefs.reduceMotion);
                 setSwitch(sw.underline, prefs.underline);
                 setSwitch(sw.dyslexia, prefs.dyslexia);
-                setSwitch(sw.magnifier, prefs.magnifier);
 
                 for (let i = 0; i < textDots.length; i++) {
                     textDots[i].classList.toggle('is-filled', i <= prefs.textStep);
@@ -4053,9 +4036,7 @@
                 if (textUp) textUp.disabled = prefs.textStep >= 2;
 
                 triggerBtns().forEach(b => b.classList.toggle('is-active',
-                    prefs.contrast || prefs.underline || prefs.cursorVisible || prefs.reduceMotion || prefs.dyslexia || prefs.textStep > 0 || prefs.magnifier));
-
-                setMagnifierActive(prefs.magnifier);
+                    prefs.contrast || prefs.underline || prefs.cursorVisible || prefs.reduceMotion || prefs.dyslexia || prefs.textStep > 0));
             }
 
             function toggle(key, btn) {
@@ -4070,7 +4051,6 @@
             if (sw.reduceMotion) sw.reduceMotion.addEventListener('click', () => toggle('reduceMotion'));
             if (sw.underline) sw.underline.addEventListener('click', () => toggle('underline'));
             if (sw.dyslexia) sw.dyslexia.addEventListener('click', () => toggle('dyslexia'));
-            if (sw.magnifier) sw.magnifier.addEventListener('click', () => toggle('magnifier'));
 
             if (textDown) textDown.addEventListener('click', () => {
                 if (prefs.textStep > 0) { prefs.textStep--; save(); applyAll(); }
@@ -4105,49 +4085,6 @@
                 applyAll();
                 stopNarration();
             });
-
-            /* ---------- Lupă ---------- */
-            const lens = document.getElementById('a11yLens');
-            const lensViewport = document.getElementById('a11yLensViewport');
-            const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-            let lensClone = null, lensMoveHandler = null, lensRefreshTimer = null;
-            const LENS_ZOOM = 2.2;
-
-            function rebuildLensClone() {
-                if (!lensViewport) return;
-                const clone = document.body.cloneNode(true);
-                clone.querySelectorAll('#a11yOverlay, #a11yLens, #a11yNarratorBar, script, .cursor').forEach(el => el.remove());
-                clone.style.cssText = 'margin:0; pointer-events:none; width:' + document.body.offsetWidth + 'px;';
-                clone.setAttribute('aria-hidden', 'true');
-                lensViewport.innerHTML = '';
-                lensViewport.appendChild(clone);
-                lensClone = clone;
-            }
-
-            function moveLens(e) {
-                if (!lens || !lensViewport) return;
-                const r = 110; // jumătate din diametrul lentilei (220px)
-                lens.style.left = (e.clientX - r) + 'px';
-                lens.style.top = (e.clientY - r) + 'px';
-                lensViewport.style.transform = 'translate(' + (-e.clientX * LENS_ZOOM + r) + 'px,' + (-e.clientY * LENS_ZOOM + r) + 'px) scale(' + LENS_ZOOM + ')';
-            }
-
-            function setMagnifierActive(on) {
-                if (!lens) return;
-                if (on && !canHover) { prefs.magnifier = false; save(); return; }
-                if (on) {
-                    rebuildLensClone();
-                    lens.classList.add('is-visible');
-                    lensMoveHandler = moveLens;
-                    document.addEventListener('mousemove', lensMoveHandler);
-                    lensRefreshTimer = setInterval(rebuildLensClone, 700);
-                } else {
-                    lens.classList.remove('is-visible');
-                    if (lensMoveHandler) document.removeEventListener('mousemove', lensMoveHandler);
-                    if (lensRefreshTimer) clearInterval(lensRefreshTimer);
-                    lensRefreshTimer = null;
-                }
-            }
 
             /* ---------- Narator (Web Speech API) ---------- */
             const narratorBar = document.getElementById('a11yNarratorBar');
