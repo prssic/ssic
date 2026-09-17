@@ -632,15 +632,38 @@
            7. VIEW: EVENIMENTE (Fără Bouncy, Fără Gradient)
            ========================================================================== */
         /* Sistem comun de Tab-uri (Board/Evenimente) — segmented control modern, cu pastilă-indicator care alunecă */
+        /* ── Frosted glass pe nav orizontal (pseudo-element, ca la cookie-notice) ──
+           backdrop-filter pe elementul cu overflow produce glitch la colțuri pe Safari;
+           soluția: blur stă pe ::before extins cu 24px și tăiat înapoi cu clip-path.
+           isolation: isolate e critic — fără el, z-index:-1 pe ::before scapă din
+           stacking context-ul navului și se duce în spatele întregii pagini. */
         .horizontal-nav {
-            position: relative; display: flex; gap: 4px; margin-bottom: 40px;
+            position: relative; isolation: isolate;
+            display: flex; gap: 4px; margin-bottom: 40px;
             padding: 6px; border-radius: 14px;
-            background: rgba(34, 22, 49, 0.75);
-            backdrop-filter: blur(18px) saturate(var(--glass-saturation));
-            -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturation));
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(34, 22, 49, 0.85); /* fallback opac pt. browsere fără backdrop-filter */
+            border: 1px solid rgba(255, 255, 255, 0.07);
             overflow-x: auto; overflow-y: hidden; max-width: 100%;
             scrollbar-width: none; -webkit-overflow-scrolling: touch;
+        }
+        .horizontal-nav::before {
+            content: ""; position: absolute; z-index: -1; pointer-events: none;
+            inset: 0; border-radius: inherit;
+            background: rgba(34, 22, 49, 0.85);
+        }
+        @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+            .horizontal-nav::before {
+                background: rgba(34, 22, 49, 0.72);
+                backdrop-filter: blur(18px) saturate(var(--glass-saturation));
+                -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturation));
+            }
+        }
+        @supports (clip-path: inset(0)) or (-webkit-clip-path: inset(0)) {
+            .horizontal-nav::before {
+                inset: -24px;
+                clip-path: inset(24px round 14px);
+                -webkit-clip-path: inset(24px round 14px);
+            }
         }
         .horizontal-nav::-webkit-scrollbar { display: none; }
         .horizontal-tab {
@@ -701,14 +724,33 @@
         .calendar-section { margin-top: 0; }
         .calendar-section h2 { font-size: 1.7rem; margin-bottom: 24px; }
         .calendar-list { display: flex; flex-direction: column; gap: 12px; }
+        /* ── Frosted glass pe căsuțele de avizier (același ::before ca cookie-notice) ── */
         .calendar-item {
             display: flex; align-items: center; gap: 20px;
             padding: 16px 20px; border-radius: 16px;
-            background: rgba(34, 22, 49, 0.75);
-            backdrop-filter: blur(18px) saturate(var(--glass-saturation));
-            -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturation));
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative; isolation: isolate;
+            background: rgba(34, 22, 49, 0.85); /* fallback */
+            border: 1px solid rgba(255, 255, 255, 0.07);
             transition: border-color 0.25s var(--ease-out), transform 0.25s var(--ease-out);
+        }
+        .calendar-item::before {
+            content: ""; position: absolute; z-index: -1; pointer-events: none;
+            inset: 0; border-radius: inherit;
+            background: rgba(34, 22, 49, 0.85);
+        }
+        @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+            .calendar-item::before {
+                background: rgba(34, 22, 49, 0.72);
+                backdrop-filter: blur(18px) saturate(var(--glass-saturation));
+                -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturation));
+            }
+        }
+        @supports (clip-path: inset(0)) or (-webkit-clip-path: inset(0)) {
+            .calendar-item::before {
+                inset: -24px;
+                clip-path: inset(24px round 16px);
+                -webkit-clip-path: inset(24px round 16px);
+            }
         }
         .calendar-date {
             flex: 0 0 auto; width: 62px; height: 62px; border-radius: 12px;
@@ -1904,7 +1946,8 @@
            efect pe mobil; corectat aici odată cu restul.) Pe desktop (hover:hover și
            pointer:fine) nimic nu se schimbă — regulile din @supports rămân neatinse. */
         @media (hover: none), (pointer: coarse) {
-            .nav-glass-blur, .cookie-notice::before, .search-overlay, .contact-overlay, .a11y-narrator-bar::before {
+            .nav-glass-blur, .cookie-notice::before, .search-overlay, .contact-overlay, .a11y-narrator-bar::before,
+            .horizontal-nav::before, .calendar-item::before {
                 backdrop-filter: blur(10px) saturate(var(--glass-saturation));
                 -webkit-backdrop-filter: blur(10px) saturate(var(--glass-saturation));
             }
