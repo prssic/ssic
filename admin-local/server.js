@@ -23,7 +23,7 @@ const storage = multer.diskStorage({
     filename: (req, file, cb) => {
         const ext = path.extname(file.originalname);
         const name = path.basename(file.originalname, ext).replace(/[^a-z0-9]/gi, '-').toLowerCase();
-        cb(null, \\-\\\);
+        cb(null, `${Date.now()}-${name}${ext}`);
     }
 });
 const upload = multer({ storage });
@@ -43,7 +43,7 @@ function parseMarkdownWithFrontmatter(fileContent) {
 function stringifyMarkdownWithFrontmatter(data, content) {
     data.layout = data.layout || 'avizier-post';
     const yamlString = yaml.dump(data, { lineWidth: -1 });
-    return \---\n\---\n\\n\;
+    return `---\n${yamlString}---\n${content}\n`;
 }
 
 app.get('/api/posts', (req, res) => {
@@ -69,11 +69,11 @@ app.get('/api/posts', (req, res) => {
 app.post('/api/posts', (req, res) => {
     try {
         const { originalSlug, slug, data, content } = req.body;
-        const targetSlug = slug || \post-\\;
-        const fileName = \\.md\;
+        const targetSlug = slug || `post-${Date.now()}`;
+        const fileName = `${targetSlug}.md`;
         
         if (originalSlug && originalSlug !== targetSlug) {
-            const oldPath = path.join(avizierDir, \\.md\);
+            const oldPath = path.join(avizierDir, `${originalSlug}.md`);
             if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
         }
         
@@ -88,7 +88,7 @@ app.post('/api/posts', (req, res) => {
 
 app.delete('/api/posts/:slug', (req, res) => {
     try {
-        const filePath = path.join(avizierDir, \\.md\);
+        const filePath = path.join(avizierDir, `${req.params.slug}.md`);
         if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);
         }
@@ -100,12 +100,10 @@ app.delete('/api/posts/:slug', (req, res) => {
 
 app.post('/api/upload', upload.single('image'), (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    const url = \/assets/avizier/\\;
+    const url = `/assets/avizier/${req.file.filename}`;
     res.json({ success: true, url });
 });
 
 app.listen(PORT, () => {
-    console.log(\Local CMS is running at http://localhost:\\);
+    console.log(`Local CMS is running at http://localhost:${PORT}`);
 });
-
-require('child_process').exec('start http://localhost:4000');

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ro">
 <head>
     <meta charset="UTF-8">
@@ -33,7 +33,7 @@
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; }
         input[type="text"], input[type="date"], textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
-        textarea { min-height: 200px; resize: vertical; }
+        textarea { min-height: 200px; resize: vertical; font-family: monospace; }
         .checkbox-group { display: flex; align-items: center; gap: 10px; }
         input[type="checkbox"] { width: auto; }
     </style>
@@ -147,18 +147,18 @@
                 return;
             }
             
-            postsContainer.innerHTML = listToRender.map(p => \
+            postsContainer.innerHTML = listToRender.map(p => `
                 <div class="post-item">
                     <div class="post-info">
-                        <h3>\</h3>
-                        <p>Data: \ | Slug: \</p>
+                        <h3>${escapeHtml(p.data.title || 'Fără titlu')}</h3>
+                        <p>Data: ${p.data.date ? p.data.date.split('T')[0] : ''} | Slug: ${escapeHtml(p.slug)}</p>
                     </div>
                     <div class="post-actions">
-                        <button onclick="editPost('\')">Editează</button>
-                        <button class="secondary" onclick="deletePost('\')">Șterge</button>
+                        <button onclick="editPost('${p.slug}')">Editează</button>
+                        <button class="secondary" onclick="deletePost('${p.slug}')">Șterge</button>
                     </div>
                 </div>
-            \).join('');
+            `).join('');
         }
         
         function escapeHtml(str) {
@@ -239,7 +239,7 @@
             const date = document.getElementById('date').value;
             
             if (!slug) {
-                slug = \\-\\;
+                slug = `${date}-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
             }
             
             const payload = {
