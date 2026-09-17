@@ -21,7 +21,9 @@ description: "Anunțurile oficiale ale Societății Studenților în Inginerie C
                         {% assign arhivate = "" | split: "" %}
                         
                         {% for anunt in visible_anunturi %}
-                            {% if forloop.index <= 10 %}
+                            {% if anunt.archived == true %}
+                                {% assign arhivate = arhivate | push: anunt %}
+                            {% elsif active_anunturi.size < 10 %}
                                 {% assign active_anunturi = active_anunturi | push: anunt %}
                             {% else %}
                                 {% assign arhivate = arhivate | push: anunt %}
