@@ -1,6 +1,6 @@
 ---
 title: Anunț cazări cămin anul universitar 2026-2027
-date: 2026-09-17
+date: 2026-09-21
 description: >2
    Anunțul se adresează studenților Facultății de Inginerie Chimică și Biotehnologii care doresc cazare în căminele studențești puse la dispoziție de către UNSTPB, în anul universitar 2026-2027.
 image: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ6CLOVE_aBfg5daBD5bLCt1DXn4Ryj_lM0aMUJ6zN2Xn452QJlPzGCNc&s=10
