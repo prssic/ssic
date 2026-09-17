@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{{ page.title | default: "SSIC | Societatea Studenților în Inginerie Chimică și Biotehnologii" }}</title>
+    <meta name="description" content="{{ page.description | default: site.description | escape }}">
+    <link rel="canonical" href="{{ page.url | absolute_url }}">
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/logo/ssic-logo.png">
@@ -537,9 +539,7 @@
            dar îl putem prezenta ca pe o fotografie înrămată pe fundal dark, nu ca un
            dreptunghi alb aruncat pe pagină. */
         .ig-embed-frame {
-            background: var(--c-surface-elevated); border: 1px solid var(--c-border-soft);
-            border-radius: 24px; padding: 14px;
-            overflow: hidden; max-width: 100%;
+            overflow: hidden; max-width: 100%; border-radius: 16px;
             box-shadow: 0 20px 60px var(--c-shadow-1);
             position: relative;
             transition: transform var(--transition-fast), box-shadow var(--transition-fast);
@@ -1833,7 +1833,7 @@
             .home-about-extended h2 { font-size: 2.2rem; }
             .home-about-extended p { font-size: 1.05rem; margin-bottom: 14px; }
             .instagram-embed-wrapper { margin: 0 auto 70px; }
-            .ig-embed-frame { padding: 8px; }
+            
 
             .horizontal-nav { margin-bottom: 32px; justify-content: flex-start; }
             .horizontal-tab { padding: 10px 18px; font-size: 0.92rem; }
@@ -1853,7 +1853,7 @@
                rămână mereu destul spațiu; overflow-x:auto (mai sus) e plasa de siguranță
                dacă totuși nu încape pe un telefon foarte îngust. */
             .home-extended-area { padding: 56px 3vw; }
-            .ig-embed-frame { padding: 4px; }
+            
 
             /* Text hero + mic pe telefoane înguste (majoritatea Android-urilor), ca titlul
                să nu domine tot ecranul. */

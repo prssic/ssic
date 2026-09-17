@@ -25,3 +25,6 @@ collections:
   avizier:
     output: true
     permalink: /avizier/:slug/
+
+plugins:
+  - jekyll-sitemap

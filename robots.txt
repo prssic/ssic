@@ -3,3 +3,5 @@ Disallow: /admin/
 
 User-agent: *
 Allow: /
+
+Sitemap: https://ssic.ro/sitemap.xml
