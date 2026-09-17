@@ -636,39 +636,17 @@
            7. VIEW: EVENIMENTE (Fără Bouncy, Fără Gradient)
            ========================================================================== */
         /* Sistem comun de Tab-uri (Board/Evenimente) — segmented control modern, cu pastilă-indicator care alunecă */
-        /* ── Frosted glass pe nav orizontal (pseudo-element, ca la cookie-notice) ──
-           backdrop-filter pe elementul cu overflow produce glitch la colțuri pe Safari;
-           soluția: blur stă pe ::before extins cu 24px și tăiat înapoi cu clip-path.
-           isolation: isolate e critic — fără el, z-index:-1 pe ::before scapă din
-           stacking context-ul navului și se duce în spatele întregii pagini. */
+        /* ── Nav orizontal — fără ::before/backdrop-filter (incompatibil cu tab switching pe Board).
+           Folosim un background solid semi-transparent cu bordură subtilă, ca restul elementelor
+           de interfață care nu flotează (spre deosebire de cookie-notice, care e izolat). ── */
         .horizontal-nav {
-            position: relative; isolation: isolate;
+            position: relative;
             display: flex; gap: 4px; margin-bottom: 40px;
             padding: 6px; border-radius: 14px;
-            background: rgba(34, 22, 49, 0.70); /* fallback opac pt. browsere fără backdrop-filter */
+            background: rgba(34, 22, 49, 0.88);
             border: 1px solid rgba(255, 255, 255, 0.09);
             overflow-x: auto; overflow-y: hidden; max-width: 100%;
             scrollbar-width: none; -webkit-overflow-scrolling: touch;
-        }
-        .horizontal-nav::before {
-            content: ""; position: absolute; z-index: -1; pointer-events: none;
-            inset: 0; border-radius: inherit;
-            background: rgba(34, 22, 49, 0.70);
-        }
-        @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-            .horizontal-nav::before {
-                background: rgba(34, 22, 49, 0.28);
-                backdrop-filter: blur(18px) saturate(var(--glass-saturation));
-                -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturation));
-            }
-        }
-        @supports (clip-path: inset(0)) or (-webkit-clip-path: inset(0)) {
-            .horizontal-nav::before {
-                /* inset: 0 deliberat — extensia -24px ar depăși navul și ar suprapune conținutul de sub el */
-                inset: 0;
-                clip-path: none;
-                -webkit-clip-path: none;
-            }
         }
         .horizontal-nav::-webkit-scrollbar { display: none; }
         .horizontal-tab {
@@ -1953,7 +1931,7 @@
            pointer:fine) nimic nu se schimbă — regulile din @supports rămân neatinse. */
         @media (hover: none), (pointer: coarse) {
             .nav-glass-blur, .cookie-notice::before, .search-overlay, .contact-overlay, .a11y-narrator-bar::before,
-            .horizontal-nav::before, .calendar-item::before {
+            .calendar-item::before {
                 backdrop-filter: blur(10px) saturate(var(--glass-saturation));
                 -webkit-backdrop-filter: blur(10px) saturate(var(--glass-saturation));
             }
