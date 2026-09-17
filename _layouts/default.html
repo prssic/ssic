@@ -1739,6 +1739,7 @@
             .nav-links.nav-open li:nth-child(4) { transition-delay: 0.28s; }
             .nav-links.nav-open li:nth-child(5) { transition-delay: 0.34s; }
             .nav-links.nav-open li:nth-child(6) { transition-delay: 0.40s; }
+            .nav-links.nav-open li:nth-child(7) { transition-delay: 0.46s; }
             @media (prefers-reduced-motion: reduce) {
                 .nav-links, .nav-links li { transition: opacity 0.25s !important; transform: none !important; }
             }
@@ -1966,6 +1967,7 @@
         </a>
         <ul class="nav-links" id="navLinks">
             <li><a class="nav-link hover-target{% if page.view == 'home' %} active{% endif %}" data-target="home" href="/">Acasă</a></li>
+            <li><a class="nav-link hover-target{% if page.view == 'avizier' %} active{% endif %}" data-target="avizier" href="/avizier/">Avizier</a></li>
             <li><a class="nav-link hover-target{% if page.view == 'evenimente' %} active{% endif %}" data-target="evenimente" href="/evenimente/">Evenimente</a></li>
             <li><a class="nav-link hover-target{% if page.view == 'board' %} active{% endif %}" data-target="board" href="/board/">Board</a></li>
             <li><a class="nav-link hover-target{% if page.view == 'facultate' %} active{% endif %}" data-target="facultate" href="/facultate/">Facultate</a></li>
@@ -3074,8 +3076,8 @@
            server/GitHub Pages. Nu mai există un singur "view" ascuns/arătat prin JS:
            id-ul paginii curente vine direct din front matter-ul paginii Jekyll.
            ========================================================================== */
-        const viewUrls = { home: '/', evenimente: '/evenimente/', board: '/board/', facultate: '/facultate/', studenti: '/studenti/', gallery: '/gallery/' };
-        const navOrder = ['home', 'evenimente', 'board', 'facultate', 'studenti', 'gallery'];
+        const viewUrls = { home: '/', avizier: '/avizier/', evenimente: '/evenimente/', board: '/board/', facultate: '/facultate/', studenti: '/studenti/', gallery: '/gallery/' };
+        const navOrder = ['home', 'avizier', 'evenimente', 'board', 'facultate', 'studenti', 'gallery'];
         let currentViewId = '{{ page.view }}';
         // Verificată LA FIECARE navigare (nu memorată o singură dată la încărcarea paginii):
         // comutatorul de accesibilitate poate fi activat chiar în timpul sesiunii curente,
@@ -3668,6 +3670,7 @@
             // Fiecare intrare știe cum să "ajungă" la ținta ei: view + (opțional) tab + element de scroll.
             const searchIndex = [
                 { group: 'Secțiuni', title: 'Acasă', sub: 'Pagina principală', icon: 'house', view: 'home' },
+                { group: 'Secțiuni', title: 'Avizier', sub: 'Anunțuri importante', icon: 'megaphone', view: 'avizier' },
                 { group: 'Secțiuni', title: 'Evenimente', sub: 'Proiectele SSIC', icon: 'star', view: 'evenimente' },
                 { group: 'Secțiuni', title: 'Structură Board', sub: 'Echipa de conducere', icon: 'users', view: 'board' },
                 { group: 'Secțiuni', title: 'Reprezentare în Facultate', sub: 'Conducere, senatori, consilieri', icon: 'landmark', view: 'facultate' },
