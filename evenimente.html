@@ -13,13 +13,13 @@ title: Evenimente | SSIC
                      switchEventItem (mai jos) tratează ambele cazuri și ține panourile
                      sincronizate; ordinea butoanelor nu afectează logica, doar poziția vizuală. -->
                 <div class="horizontal-nav" id="nav-evenimente">
-                    <div class="horizontal-tab hover-target" onclick="switchEventItem('calendar', null, this)">Calendar</div>
-                    <div class="horizontal-tab active hover-target" onclick="switchEventItem('event', 0, this)">Poli Chemistry Fest</div>
-                    <div class="horizontal-tab hover-target" onclick="switchEventItem('event', 1, this)">Poli Fest</div>
+                    <div class="horizontal-tab active hover-target" onclick="switchEventItem('calendar', null, this)">Calendar</div>
+                    <div class="horizontal-tab hover-target" onclick="switchEventItem('event', 0, this)">ChemistryFest</div>
+                    <div class="horizontal-tab hover-target" onclick="switchEventItem('event', 1, this)">PoliFest</div>
                     <div class="horizontal-tab hover-target" onclick="switchEventItem('event', 2, this)">ChemEx</div>
                 </div>
 
-                <div class="evsub" id="evsub-calendar">
+                <div class="evsub active" id="evsub-calendar">
                     <div class="calendar-section reveal">
                         <h2><i data-lucide="calendar-days" style="color:var(--c-accent); margin-right:10px;"></i>Calendar</h2>
                         <div class="calendar-list">
@@ -38,15 +38,17 @@ title: Evenimente | SSIC
                      pune acolo poza pentru fiecare eveniment, denumită exact ca în src="..." de mai
                      jos (ex. poli-chemistry-fest-1.jpg). Dacă un fișier lipsește, acel slide dispare
                      automat din carusel (fără poză spartă vizibilă). -->
-                <div class="event-content-wrapper active" id="ev-0">
+                <div class="event-content-wrapper" id="ev-0">
                     <div class="event-desc reveal">
-                        <p>Poli Chemistry Fest este platforma unde inovațiile din chimie și biotehnologii prind viață. Aducem știința direct publicului larg printr-un maraton de demonstrații, interacțiuni cu cercetători de top și experimente avansate. Tinerii descoperă aici magia sintezei de noi materiale și a aplicațiilor din industria farma.</p>
+                        <p>ChemistryFest reprezintă cel mai important eveniment anual al Facultății de Inginerie Chimică și Biotehnologii și al Societății Studenților în Inginerie Chimică și Biotehnologii. An de an, aducem știința direct în fața publicului larg printr-un maraton de experimente inedite, care reprezintă doar o mică parte din ceea ce un student învață la FICBi.</p>
+                        <p>Evenimentul se adresează tuturor, de la cei mai mici elevi până la studenți, deoarece ChemistryFest reunește o varietate de firme, companii și antreprenori gata să investească în viitorul ingineriei chimice și pregătiți să recruteze studenți încă de pe băncile facultății.</p>
+                        <p>Participarea la ChemistryFest înseamnă, pentru orice voluntar SSIC, recunoașterea efortului depus, prietenii valoroase și un loc pe cea mai dinamică scenă din întreaga Politehnică!</p>
                     </div>
                     <!-- Carusel Simplu Insta-Style (Fără gradient) -->
                     <div class="carousel-container hover-target reveal">
                         <div class="carousel-track" id="carousel-ev0">
-                            <div class="carousel-slide"><img src="assets/events/poli-chemistry-fest-1.jpg" alt="Poli Chemistry Fest 1" loading="lazy" decoding="async" onerror="handleEventImgError(this)"></div>
-                            <div class="carousel-slide"><img src="assets/events/poli-chemistry-fest-2.jpg" alt="Poli Chemistry Fest 2" loading="lazy" decoding="async" onerror="handleEventImgError(this)"></div>
+                            <div class="carousel-slide"><img src="assets/events/poli-chemistry-fest-1.jpg" alt="ChemistryFest 1" loading="lazy" decoding="async" onerror="handleEventImgError(this)"></div>
+                            <div class="carousel-slide"><img src="assets/events/poli-chemistry-fest-2.jpg" alt="ChemistryFest 2" loading="lazy" decoding="async" onerror="handleEventImgError(this)"></div>
                         </div>
                         <div class="carousel-dots" id="dots-ev0">
                             <div class="carousel-dot active"></div>
@@ -57,13 +59,14 @@ title: Evenimente | SSIC
 
                 <div class="event-content-wrapper" id="ev-1">
                     <div class="event-desc reveal">
-                        <p>Implicarea SSIC în Poli Fest subliniază dedicarea noastră de a reprezenta și de a promova ingineria la nivel universitar. Efortul combinat al departamentelor noastre creează standuri vizitate de mii de elevi și studenți, solidificând poziția noastră ca asociație pilon în cadrul universității.</p>
+                        <p>PoliFest invită participarea tuturor facultăților și asociațiilor studențești la cel mai mare festival organizat de Politehnică. Implicarea SSIC în PoliFest subliniază dedicarea noastră de a reprezenta și de a promova ingineria la nivel universitar. Efortul combinat al voluntarilor noștri creează standuri vizitate de mii de elevi și studenți, solidificând poziția noastră ca asociație pilon în cadrul universității.</p>
+                        <p>Mai mult, fiecare zi de PoliFest este marcată de demonstrațiile de experimente, dinamice și inedite ca întotdeauna!</p>
                     </div>
                     <div class="carousel-container hover-target reveal">
                         <div class="carousel-track" id="carousel-ev1">
-                            <div class="carousel-slide"><img src="assets/events/poli-fest-1.jpg" alt="Poli Fest 1" loading="lazy" decoding="async" onerror="handleEventImgError(this)"></div>
-                            <div class="carousel-slide"><img src="assets/events/poli-fest-2.jpg" alt="Poli Fest 2" loading="lazy" decoding="async" onerror="handleEventImgError(this)"></div>
-                            <div class="carousel-slide"><img src="assets/events/poli-fest-3.jpg" alt="Poli Fest 3" loading="lazy" decoding="async" onerror="handleEventImgError(this)"></div>
+                            <div class="carousel-slide"><img src="assets/events/poli-fest-1.jpg" alt="PoliFest 1" loading="lazy" decoding="async" onerror="handleEventImgError(this)"></div>
+                            <div class="carousel-slide"><img src="assets/events/poli-fest-2.jpg" alt="PoliFest 2" loading="lazy" decoding="async" onerror="handleEventImgError(this)"></div>
+                            <div class="carousel-slide"><img src="assets/events/poli-fest-3.jpg" alt="PoliFest 3" loading="lazy" decoding="async" onerror="handleEventImgError(this)"></div>
                         </div>
                         <div class="carousel-dots" id="dots-ev1">
                             <div class="carousel-dot active"></div>
@@ -75,7 +78,9 @@ title: Evenimente | SSIC
 
                 <div class="event-content-wrapper" id="ev-2">
                     <div class="event-desc reveal">
-                        <p>ChemEx este proiectul flagship care redefinește dezvoltarea profesională a viitorilor chimiști. Schimburile de experiență, conferințele avansate, vizitele la unități de producție și networking-ul cu directorii tehnici facilitează o tranziție rapidă și de succes spre piața muncii.</p>
+                        <p>SSIC promovează networking-ul și ieșirea din zona de confort prin organizarea anuală a ChemEx, programul de schimb de experiență realizat în strâns parteneriat cu colegii noștri de la <a href="https://osccluj.ro/" target="_blank" style="color:var(--c-accent); text-decoration:underline;">OSC Cluj</a>, ASCIS Iași și <a href="https://lsct.ro/" target="_blank" style="color:var(--c-accent); text-decoration:underline;">LSCT Timișoara</a>.</p>
+                        <p>An de an, voluntarii noștri pleacă în mobilități în cele trei orașe și se întorc atât cu experiența de student în băncile unei alte facultăți, cât și cu noi conexiuni, prietenii și amintiri care durează o viață întreagă.</p>
+                        <p>Mulți consideră ChemEx cel mai frumos eveniment organizat de SSIC, iar noi suntem de acord!</p>
                     </div>
                     <div class="carousel-container hover-target reveal">
                         <div class="carousel-track" id="carousel-ev2">
