@@ -284,8 +284,12 @@
         @media (max-width: 768px) {
             .logo img { height: 36px; }
         }
-        .logo span { font-family: var(--font-display); font-weight: 700; font-size: 24px; color: var(--c-white); letter-spacing: 1px; }
-        .logo span i { color: var(--c-accent); font-style: normal; }
+        .logo-wordmark {
+            font-family: var(--font-mono); font-weight: 700; font-size: 22px;
+            color: var(--c-white); letter-spacing: 0.04em; line-height: 1;
+            user-select: none;
+        }
+        .logo-wordmark .ic { color: var(--c-accent); }
 
         .nav-links { display: flex; gap: 30px; }
         .nav-right { display: flex; align-items: center; gap: 14px; }
@@ -641,19 +645,19 @@
             position: relative; isolation: isolate;
             display: flex; gap: 4px; margin-bottom: 40px;
             padding: 6px; border-radius: 14px;
-            background: rgba(34, 22, 49, 0.85); /* fallback opac pt. browsere fără backdrop-filter */
-            border: 1px solid rgba(255, 255, 255, 0.07);
+            background: rgba(34, 22, 49, 0.70); /* fallback opac pt. browsere fără backdrop-filter */
+            border: 1px solid rgba(255, 255, 255, 0.09);
             overflow-x: auto; overflow-y: hidden; max-width: 100%;
             scrollbar-width: none; -webkit-overflow-scrolling: touch;
         }
         .horizontal-nav::before {
             content: ""; position: absolute; z-index: -1; pointer-events: none;
             inset: 0; border-radius: inherit;
-            background: rgba(34, 22, 49, 0.85);
+            background: rgba(34, 22, 49, 0.70);
         }
         @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
             .horizontal-nav::before {
-                background: rgba(34, 22, 49, 0.72);
+                background: rgba(34, 22, 49, 0.45);
                 backdrop-filter: blur(18px) saturate(var(--glass-saturation));
                 -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturation));
             }
@@ -729,18 +733,18 @@
             display: flex; align-items: center; gap: 20px;
             padding: 16px 20px; border-radius: 16px;
             position: relative; isolation: isolate;
-            background: rgba(34, 22, 49, 0.85); /* fallback */
-            border: 1px solid rgba(255, 255, 255, 0.07);
+            background: rgba(34, 22, 49, 0.70); /* fallback */
+            border: 1px solid rgba(255, 255, 255, 0.09);
             transition: border-color 0.25s var(--ease-out), transform 0.25s var(--ease-out);
         }
         .calendar-item::before {
             content: ""; position: absolute; z-index: -1; pointer-events: none;
             inset: 0; border-radius: inherit;
-            background: rgba(34, 22, 49, 0.85);
+            background: rgba(34, 22, 49, 0.70);
         }
         @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
             .calendar-item::before {
-                background: rgba(34, 22, 49, 0.72);
+                background: rgba(34, 22, 49, 0.45);
                 backdrop-filter: blur(18px) saturate(var(--glass-saturation));
                 -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturation));
             }
@@ -2023,7 +2027,8 @@
             <div class="nav-glass-blur"></div>
         </div>
         <a class="logo hover-target" href="/" style="text-decoration:none;">
-            <img src="/assets/logo/ssic-logo.png" alt="SSIC — Societatea Studenților în Inginerie Chimică și Biotehnologii">
+            <img src="/assets/logo/ssic-logo.png" alt="SSIC – Societatea Studenților în Inginerie Chimică și Biotehnologii">
+            <span class="logo-wordmark">SS<span class="ic">IC</span></span>
         </a>
         <ul class="nav-links" id="navLinks">
             <li><a class="nav-link hover-target{% if page.view == 'home' %} active{% endif %}" data-target="home" href="/">Acasă</a></li>
