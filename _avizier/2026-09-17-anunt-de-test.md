@@ -1,16 +1,31 @@
 ---
-# Anunț de test – poți să îl ștergi după ce verifici că totul merge
+title: Anunț cazări cămin anul universitar 2026-2027
+date: 2026-09-18
+description: >2
+   Anunțul se adresează studenților Facultății de Inginerie Chimică și Biotehnologii care doresc cazare în căminele studențești puse la dispoziție de către UNSTPB, în anul universitar 2026-2027.
+image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ6CLOVE_aBfg5daB\
+  D5bLCt1DXn4Ryj_lM0aMUJ6zN2Xn452QJlPzGCNc&s=10\r
+
+  layout: avizier-post"
 layout: avizier-post
-title: "Anunț de test"
-description: "Acesta este un anunț de test pentru a verifica că sistemul funcționează corect."
-date: 2026-09-17
-image: ""
 ---
+În perioada 24-26 septembrie, urmează sesiunea de cazări în căminele studențești puse la dispoziție de UNSTPB pentru studenții Facultății de Inginerie Chimică și Biotehnologii. 
 
-Felicitări! Dacă ai ajuns pe această pagină, înseamnă că sistemul de Avizier funcționează corect.
+Stundenții sunt așteptați la facultate pentru ridicarea contractelor de cazare după cum urmează:
 
-## Cum să adaugi anunțuri reale
+* Anul 1 - 
+* Anul 2 - 
+* Anul 3 - 
+* Anul 4 -
+* Master 1 & 2 - 
 
-Mergi la **[ssic.ro/admin](https://ssic.ro/admin)**, loghează-te cu contul tău GitHub și apasă **"New Anunț"**.
+Documente necesare:
 
-Poți șterge acest fișier de test oricând.
+De menționat: eliberarea contractelor de cazare se face **doar după achitarea regiei de cămin pentru prima luna de cazare** de către studentul solicitant. **Nu** se acceptă plăți făcute prin Revolut!
+
+Voluntarii SSIC sunt invitați să participe la activitatea de cazare pentru a facilita procesul astfel:
+
+* la facultate, pentru ajutarea colegilor în preluarea contractelor;
+* cămine, pentru facilitarea procesului de cazare propriu-zis și pentru reprezentarea intereselor studentilor FICBi în cămin.
+
+Voluntarii doritori sunt rugați să completeze [acest formular](https://forms.gle/3xtxPBWLgfoFRekWA).
