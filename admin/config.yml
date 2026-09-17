@@ -19,15 +19,15 @@ collections:
     delete: true
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     preview_path: "/avizier/{{slug}}"
-    summary: "{{archived == true ? '🗄️ [ARHIVAT] ' : ''}}{{title}} — {{date | date('DD.MM.YYYY')}}"
-    sortable_fields: ["date", "title", "archived"]
+    summary: "{{draft == true ? '⏳ [PROGRAMAT / ASCUNS] ' : ''}}{{title}} — {{date | date('DD.MM.YYYY')}}"
+    sortable_fields: ["date", "title", "draft"]
     fields:
       - label: "Titlu"
         name: "title"
         widget: "string"
         hint: "Titlul anunțului"
 
-      - label: "Data"
+      - label: "Dată"
         name: "date"
         widget: "datetime"
         format: "YYYY-MM-DD"
@@ -39,11 +39,16 @@ collections:
         widget: "text"
         hint: "1-2 propoziții — apare pe cardul de pe pagina Avizier"
 
-      - label: "Imagine de copertă"
+      - label: "Imagine (Opțional)"
         name: "image"
         widget: "image"
         required: false
-        hint: "Poza principală a articolului. Lasă gol dacă nu vrei poză."
+
+      - label: "Ascuns / Programat (Draft)"
+        name: "draft"
+        widget: "boolean"
+        default: false
+        required: false
 
       - label: "Conținut articol"
         name: "body"
