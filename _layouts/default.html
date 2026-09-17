@@ -635,8 +635,9 @@
         .horizontal-nav {
             position: relative; display: flex; gap: 4px; margin-bottom: 40px;
             padding: 6px; border-radius: 14px;
-            background: rgba(30, 28, 41, 0.65);
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            background: rgba(34, 22, 49, 0.75);
+            backdrop-filter: blur(18px) saturate(var(--glass-saturation));
+            -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturation));
             border: 1px solid rgba(255, 255, 255, 0.05);
             overflow-x: auto; overflow-y: hidden; max-width: 100%;
             scrollbar-width: none; -webkit-overflow-scrolling: touch;
@@ -703,8 +704,9 @@
         .calendar-item {
             display: flex; align-items: center; gap: 20px;
             padding: 16px 20px; border-radius: 16px;
-            background: rgba(30, 28, 41, 0.65);
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            background: rgba(34, 22, 49, 0.75);
+            backdrop-filter: blur(18px) saturate(var(--glass-saturation));
+            -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturation));
             border: 1px solid rgba(255, 255, 255, 0.05);
             transition: border-color 0.25s var(--ease-out), transform 0.25s var(--ease-out);
         }
