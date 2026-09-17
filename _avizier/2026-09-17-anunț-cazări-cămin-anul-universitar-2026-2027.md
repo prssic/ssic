@@ -1,12 +1,9 @@
 ---
 title: Anunț cazări cămin anul universitar 2026-2027
-date: 2026-09-18
+date: 2026-09-17
 description: >2
    Anunțul se adresează studenților Facultății de Inginerie Chimică și Biotehnologii care doresc cazare în căminele studențești puse la dispoziție de către UNSTPB, în anul universitar 2026-2027.
-image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ6CLOVE_aBfg5daB\
-  D5bLCt1DXn4Ryj_lM0aMUJ6zN2Xn452QJlPzGCNc&s=10\r
-
-  layout: avizier-post"
+image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ6CLOVE_aBfg5daBD5bLCt1DXn4Ryj_lM0aMUJ6zN2Xn452QJlPzGCNc&s=10"
 layout: avizier-post
 ---
 În perioada 24-26 septembrie, urmează sesiunea de cazări în căminele studențești puse la dispoziție de UNSTPB pentru studenții Facultății de Inginerie Chimică și Biotehnologii. 
@@ -29,3 +26,4 @@ Voluntarii SSIC sunt invitați să participe la activitatea de cazare pentru a f
 * cămine, pentru facilitarea procesului de cazare propriu-zis și pentru reprezentarea intereselor studentilor FICBi în cămin.
 
 Voluntarii doritori sunt rugați să completeze [acest formular](https://forms.gle/3xtxPBWLgfoFRekWA).
+
