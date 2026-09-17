@@ -20,3 +20,8 @@ exclude:
   - optimize-images.js
   - package.json
   - node_modules
+
+collections:
+  avizier:
+    output: true
+    permalink: /avizier/:slug/

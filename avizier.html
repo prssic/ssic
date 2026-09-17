@@ -3,30 +3,42 @@ layout: default
 view: avizier
 permalink: /avizier/
 title: Avizier | SSIC
+description: "Anunțurile oficiale ale Societății Studenților în Inginerie Chimică și Biotehnologii."
 ---
         <section class="view active" id="view-avizier">
             <div class="page-content">
                 <h1 class="title-huge"><i>Avizier</i></h1>
 
-                <!-- Listă de anunțuri, reutilizând exact componenta .calendar-section /
-                     .calendar-list / .calendar-item de la pagina Evenimente (deja stilată,
-                     deja responsive) — doar cu conținut de tip "anunț", nu "eveniment din
-                     calendar". Ca să adaugi un anunț nou, copiază un ".calendar-item" întreg
-                     și schimbă data/titlul/textul. Cel mai recent anunț ar trebui pus PRIMUL
-                     (sus de tot), lista nefiind sortată automat. -->
                 <div class="calendar-section reveal">
-                    <h2><i data-lucide="megaphone" style="color:var(--c-accent); margin-right:10px;"></i>Anunțuri</h2>
+                    <h2>
+                        <i data-lucide="megaphone" style="color:var(--c-accent); margin-right:10px; display:inline-block; vertical-align:middle;"></i>
+                        Anunțuri
+                    </h2>
                     <div class="calendar-list">
-                        <div class="calendar-item hover-target">
-                            <div class="calendar-date"><span class="cal-day">17</span><span class="cal-month">Sep</span></div>
-                            <div class="calendar-info">
-                                <h3>Bine ai venit pe Avizier</h3>
-                                <p>Aici vor fi postate toate anunțurile importante ale SSIC. Șterge acest card și adaugă-le pe ale tale, copiind structura lui.</p>
-                            </div>
-                        </div>
+                        {% if site.avizier.size > 0 %}
+                            {% assign sorted_avizier = site.avizier | sort: "date" | reverse %}
+                            {% for anunt in sorted_avizier %}
+                            <a href="{{ anunt.url | relative_url }}" class="calendar-item hover-target" style="text-decoration: none; color: inherit;">
+                                <div style="flex: 0 0 72px; height: 72px; border-radius: 12px; overflow: hidden; background: var(--c-surface); border: 1px solid var(--c-border-soft); display: flex; align-items: center; justify-content: center;">
+                                    {% if anunt.image %}
+                                        <img src="{{ anunt.image }}" alt="{{ anunt.title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                                    {% else %}
+                                        <i data-lucide="megaphone" style="width: 24px; height: 24px; color: var(--c-accent);"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="calendar-info" style="flex: 1; min-width: 0;">
+                                    <h3 style="margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ anunt.title }}</h3>
+                                    <p style="margin-bottom: 6px; color: var(--c-gray); font-size: 0.92rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ anunt.description }}</p>
+                                    <span style="font-size: 0.8rem; color: var(--c-accent); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">{{ anunt.date | date: "%d.%m.%Y" }}</span>
+                                </div>
+                                <i data-lucide="chevron-right" style="color: var(--c-gray); width: 20px; height: 20px; flex-shrink: 0;"></i>
+                            </a>
+                            {% endfor %}
+                        {% else %}
+                            <p style="color: var(--c-gray); padding: 30px 0; text-align: center;">Momentan nu există anunțuri la avizier.</p>
+                        {% endif %}
                     </div>
                 </div>
 
             </div>
-            <footer class="global-footer"></footer>
         </section>

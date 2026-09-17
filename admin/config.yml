@@ -1,0 +1,56 @@
+backend:
+  name: github
+  repo: prssic/ssic
+  branch: main
+  auth_scope: repo
+
+media_folder: "assets/avizier"
+public_folder: "/assets/avizier"
+
+site_url: https://ssic.ro
+locale: "ro"
+
+collections:
+  - name: "avizier"
+    label: "📌 Avizier"
+    label_singular: "Anunț"
+    folder: "_avizier"
+    create: true
+    delete: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    preview_path: "/avizier/{{slug}}"
+    summary: "{{title}} — {{date | date('DD.MM.YYYY')}}"
+    sortable_fields: ["date", "title"]
+    fields:
+      - label: "Titlu"
+        name: "title"
+        widget: "string"
+        hint: "Titlul anunțului"
+
+      - label: "Data"
+        name: "date"
+        widget: "datetime"
+        format: "YYYY-MM-DD"
+        date_format: "DD.MM.YYYY"
+        time_format: false
+
+      - label: "Scurtă descriere"
+        name: "description"
+        widget: "text"
+        hint: "1-2 propoziții — apare pe cardul de pe pagina Avizier"
+
+      - label: "Imagine de copertă"
+        name: "image"
+        widget: "image"
+        required: false
+        hint: "Poza principală a articolului. Lasă gol dacă nu vrei poză."
+
+      - label: "Conținut articol"
+        name: "body"
+        widget: "markdown"
+        hint: "Textul complet. Poți adăuga bold, titluri, linkuri și poze inline exact ca în Word."
+
+      - label: "Layout"
+        name: "layout"
+        widget: "hidden"
+        default: "avizier-post"

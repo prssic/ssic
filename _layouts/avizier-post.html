@@ -1,0 +1,48 @@
+---
+layout: default
+---
+        <section class="view active" id="view-avizier-post">
+            <div class="page-content" style="max-width: 860px; padding-top: 130px;">
+
+                <a href="{{ '/avizier/' | relative_url }}" class="hover-target" style="display: inline-flex; align-items: center; gap: 8px; color: var(--c-gray); font-weight: 600; margin-bottom: 36px; font-size: 0.9rem; transition: color 0.2s; text-decoration: none; text-transform: uppercase; letter-spacing: 1px;">
+                    <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Înapoi la Avizier
+                </a>
+
+                {% if page.image %}
+                <div style="width: 100%; aspect-ratio: 16/7; border-radius: 18px; overflow: hidden; margin-bottom: 40px; background: var(--c-surface-elevated); border: 1px solid var(--c-border-soft);">
+                    <img src="{{ page.image }}" alt="{{ page.title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                </div>
+                {% endif %}
+
+                <h1 style="font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; color: var(--c-white); line-height: 1.1; margin-bottom: 20px; letter-spacing: -0.03em;">{{ page.title }}</h1>
+
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 48px; padding-bottom: 24px; border-bottom: 1px solid var(--c-border-soft);">
+                    <i data-lucide="calendar" style="width: 15px; height: 15px; color: var(--c-accent);"></i>
+                    <span style="color: var(--c-accent); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px;">{{ page.date | date: "%d.%m.%Y" }}</span>
+                </div>
+
+                <div class="avizier-body">
+                    {{ content }}
+                </div>
+
+            </div>
+
+            <style>
+                .avizier-body { color: var(--c-white-off); font-size: 1.1rem; line-height: 1.8; }
+                .avizier-body p { margin-bottom: 1.6em; }
+                .avizier-body h2 { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; color: var(--c-white); margin: 2em 0 0.8em; letter-spacing: -0.02em; }
+                .avizier-body h3 { font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: var(--c-white); margin: 1.5em 0 0.6em; }
+                .avizier-body a { color: var(--c-accent); text-decoration: underline; text-underline-offset: 3px; transition: color 0.2s; }
+                .avizier-body a:hover { color: var(--c-white); }
+                .avizier-body strong { color: var(--c-white); font-weight: 700; }
+                .avizier-body em { font-style: italic; }
+                .avizier-body ul, .avizier-body ol { margin: 0 0 1.6em 1.5em; padding: 0; }
+                .avizier-body li { margin-bottom: 0.5em; }
+                .avizier-body img { max-width: 100%; border-radius: 14px; height: auto; margin: 1.5em 0; display: block; border: 1px solid var(--c-border-soft); }
+                .avizier-body blockquote { border-left: 3px solid var(--c-accent); padding: 12px 20px; margin: 1.5em 0; background: var(--c-surface); border-radius: 0 10px 10px 0; color: var(--c-gray); font-style: italic; }
+                .avizier-body hr { border: none; border-top: 1px solid var(--c-border-soft); margin: 2.5em 0; }
+                @media (max-width: 768px) {
+                    #view-avizier-post .page-content { padding-top: 100px; }
+                }
+            </style>
+        </section>
