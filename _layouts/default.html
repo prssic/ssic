@@ -1247,13 +1247,34 @@
         .a11y-narrator-bar {
             position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(12px);
             z-index: 9300; display: flex; align-items: center; gap: 10px;
-            background: var(--c-surface-elevated); border: 1px solid var(--c-border-strong);
             /* Padding SIMETRIC (era 8px 10px 8px 18px — cei 18px de stânga împingeau vizual
                butonul de play/pause spre dreapta, departe de colțul rotunjit din stânga, în
                timp ce butonul de stop, din dreapta, stătea normal la doar 10px de margine). */
             border-radius: 14px; padding: 8px 10px; box-shadow: 0 20px 50px var(--c-shadow-2);
             opacity: 0; visibility: hidden; pointer-events: none;
             transition: transform 0.25s var(--ease-out), opacity 0.25s var(--ease-out), visibility 0s linear 0.25s;
+        }
+        /* Același blur "de sticlă" ca la .cookie-notice (tehnica lui Josh Comeau, cu
+           pseudo-element separat + clip-path, explicată pe larg acolo) — cerut explicit,
+           ca cele două popup-uri de jos de tot să arate la fel. */
+        .a11y-narrator-bar::before {
+            content: ""; position: absolute; z-index: -1; pointer-events: none;
+            inset: 0; border-radius: inherit;
+            background: var(--c-surface-elevated);
+        }
+        @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+            .a11y-narrator-bar::before {
+                background: rgba(34, 22, 49, 0.75);
+                backdrop-filter: blur(18px) saturate(var(--glass-saturation));
+                -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturation));
+            }
+        }
+        @supports (clip-path: inset(0)) or (-webkit-clip-path: inset(0)) {
+            .a11y-narrator-bar::before {
+                inset: -24px;
+                clip-path: inset(24px round 14px);
+                -webkit-clip-path: inset(24px round 14px);
+            }
         }
         .a11y-narrator-bar.is-visible {
             transform: translateX(-50%) translateY(0); opacity: 1; visibility: visible; pointer-events: auto;
@@ -1552,8 +1573,10 @@
             width: 38px; height: 38px; border-radius: 10px;
             /* Fundal solid (nu translucid + blur) — cerut explicit, pentru concordanță cu
                restul butoanelor pătrate/rotunjite din site (ex. .map-toolbar-btn,
-               .nav-search-btn), care sunt toate opace, nu semi-transparente peste poză. */
-            background: var(--c-surface-elevated); border: 1px solid var(--c-border-strong);
+               .nav-search-btn), care sunt toate opace, nu semi-transparente peste poză.
+               Fără chenar — pe fundalul opac arăta ca o dublă linie inutilă în jurul
+               butonului, cerut explicit să dispară de pe cardurile de contact (Decan/Prodecani). */
+            background: var(--c-surface-elevated); border: none;
             color: var(--c-white-off);
             display: flex; align-items: center; justify-content: center;
             transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
@@ -1863,7 +1886,7 @@
            efect pe mobil; corectat aici odată cu restul.) Pe desktop (hover:hover și
            pointer:fine) nimic nu se schimbă — regulile din @supports rămân neatinse. */
         @media (hover: none), (pointer: coarse) {
-            .nav-glass-blur, .cookie-notice::before, .search-overlay, .contact-overlay {
+            .nav-glass-blur, .cookie-notice::before, .search-overlay, .contact-overlay, .a11y-narrator-bar::before {
                 backdrop-filter: blur(10px) saturate(var(--glass-saturation));
                 -webkit-backdrop-filter: blur(10px) saturate(var(--glass-saturation));
             }
@@ -4013,7 +4036,7 @@
             const STORAGE_KEY = 'ssicA11yPrefs';
             const defaults = {
                 contrast: false, underline: false, cursorVisible: false,
-                reduceMotion: false, dyslexia: false, textStep: 0
+                reduceMotion: false, dyslexia: false, textStep: 0, narrator: false
             };
             let prefs = Object.assign({}, defaults);
             try {
@@ -4057,6 +4080,7 @@
                 html.classList.toggle('a11y-cursor-visible', prefs.cursorVisible);
                 html.classList.toggle('a11y-reduce-motion', prefs.reduceMotion);
                 html.classList.toggle('a11y-dyslexia', prefs.dyslexia);
+                html.classList.toggle('a11y-narrator-mode', prefs.narrator);
                 html.setAttribute('data-a11y-text', String(prefs.textStep));
 
                 setSwitch(sw.contrast, prefs.contrast);
@@ -4064,6 +4088,7 @@
                 setSwitch(sw.reduceMotion, prefs.reduceMotion);
                 setSwitch(sw.underline, prefs.underline);
                 setSwitch(sw.dyslexia, prefs.dyslexia);
+                setSwitch(sw.narrator, prefs.narrator);
 
                 for (let i = 0; i < textDots.length; i++) {
                     textDots[i].classList.toggle('is-filled', i <= prefs.textStep);
@@ -4071,8 +4096,13 @@
                 if (textDown) textDown.disabled = prefs.textStep <= 0;
                 if (textUp) textUp.disabled = prefs.textStep >= 2;
 
+                // Naratorul e inclus aici la fel ca orice altă opțiune — înainte lipsea din
+                // această listă (comutatorul lui nu trecea deloc prin save()/applyAll(), ci
+                // umbla direct pe classList), motiv pentru care butonul din footer nu rămânea
+                // galben cât timp naratorul era activ (mai vizibil pe mobil, unde nu există
+                // starea de :hover care să "acopere" vizual lipsa lui .is-active).
                 triggerBtns().forEach(b => b.classList.toggle('is-active',
-                    prefs.contrast || prefs.underline || prefs.cursorVisible || prefs.reduceMotion || prefs.dyslexia || prefs.textStep > 0));
+                    prefs.contrast || prefs.underline || prefs.cursorVisible || prefs.reduceMotion || prefs.dyslexia || prefs.narrator || prefs.textStep > 0));
             }
 
             function toggle(key, btn) {
@@ -4131,6 +4161,10 @@
             let roVoice = null;
             let lastSpokenText = '';
             let isPaused = false;
+            // Câte caractere din lastSpokenText au fost deja citite — folosit ca să
+            // putem CONTINUA citirea de unde a rămas, nu doar ca să reținem că e "pauză".
+            // Vezi explicația de la speakFrom()/butonul play-pause mai jos.
+            let spokenOffset = 0;
 
             function pickVoice() {
                 if (!canSpeak) return;
@@ -4142,19 +4176,39 @@
                 window.speechSynthesis.addEventListener('voiceschanged', pickVoice);
             }
 
-            function speak(text) {
-                if (!canSpeak || !text || !text.trim()) return;
-                lastSpokenText = text.trim();
-                isPaused = false;
+            /* speechSynthesis.pause()/resume() sunt notoriu nefiabile în Chrome — pe multe
+               combinații de SO/versiune, după pause(), resume() pur și simplu nu mai redă
+               nimic la nesfârșit (utterance-ul rămâne "agățat"), motiv pentru care Play nu
+               relua vechea redare. În loc să ne bazăm pe resume() nativ, oprim complet
+               redarea la pauză (cancel()) dar reținem exact unde am rămas (spokenOffset,
+               actualizat pe eveniment onboundary — de câte ori TTS-ul trece la un cuvânt nou),
+               iar la Play pornim un utterance NOU care conține doar restul textului, de la
+               acel offset — rezultatul audibil e că citirea chiar continuă de unde a rămas,
+               nu o ia de la capăt și nu rămâne mută. */
+            function speakFrom(offset) {
+                if (!canSpeak) return;
+                const remaining = lastSpokenText.slice(offset);
+                if (!remaining.trim()) { showNarratorBar(false); return; }
                 window.speechSynthesis.cancel();
-                const utter = new SpeechSynthesisUtterance(lastSpokenText);
+                const utter = new SpeechSynthesisUtterance(remaining);
                 utter.lang = 'ro-RO';
                 if (roVoice) utter.voice = roVoice;
                 utter.rate = 1;
+                utter.onboundary = (e) => {
+                    if (typeof e.charIndex === 'number') spokenOffset = offset + e.charIndex;
+                };
                 utter.onstart = () => showNarratorBar(true);
-                utter.onend = () => { if (!isPaused) showNarratorBar(false); };
+                utter.onend = () => { if (!isPaused) { spokenOffset = 0; showNarratorBar(false); } };
                 utter.onerror = () => { if (!isPaused) showNarratorBar(false); };
                 window.speechSynthesis.speak(utter);
+            }
+
+            function speak(text) {
+                if (!canSpeak || !text || !text.trim()) return;
+                lastSpokenText = text.trim();
+                spokenOffset = 0;
+                isPaused = false;
+                speakFrom(0);
             }
 
             function showNarratorBar(playing) {
@@ -4169,16 +4223,17 @@
 
             function stopNarration() {
                 isPaused = false;
+                spokenOffset = 0;
                 if (canSpeak) window.speechSynthesis.cancel();
                 if (narratorBar) narratorBar.classList.remove('is-visible');
             }
 
             if (sw.narrator) sw.narrator.addEventListener('click', () => {
                 if (!canSpeak) { alert('Browserul acesta nu suportă citirea cu voce (Web Speech API).'); return; }
-                const on = !sw.narrator.classList.contains('is-on');
-                setSwitch(sw.narrator, on);
-                html.classList.toggle('a11y-narrator-mode', on);
-                if (!on) stopNarration();
+                prefs.narrator = !prefs.narrator;
+                save();
+                applyAll();
+                if (!prefs.narrator) stopNarration();
             });
 
             const NARRATOR_SELECTOR = 'p, h1, h2, h3, h4, li, a, button, .team-name, .search-result-title';
@@ -4194,20 +4249,16 @@
             if (narratorPlayPause) narratorPlayPause.addEventListener('click', () => {
                 if (!canSpeak) return;
                 if (!isPaused) {
+                    // Pauză: oprim complet redarea curentă. spokenOffset a fost deja
+                    // actualizat de onboundary, deci știm exact unde am rămas.
                     isPaused = true;
-                    window.speechSynthesis.pause();
+                    window.speechSynthesis.cancel();
                     showNarratorBar(false);
                 } else {
+                    // Play: continuăm cu un utterance nou, pornit chiar din punctul unde
+                    // s-a oprit — asta e ce se aude ca "reia redarea", nu o pornire de la capăt.
                     isPaused = false;
-                    window.speechSynthesis.resume();
-                    showNarratorBar(true);
-                    /* Unele motoare (Chrome pe anumite sisteme) "pierd" utterance-ul la
-                       resume() și rămân tăcute la nesfârșit — dacă nu se aude nimic la
-                       scurt timp după resume(), repornim citirea de la început, ca
-                       apăsarea pe Play să producă mereu un rezultat audibil. */
-                    setTimeout(() => {
-                        if (!isPaused && !window.speechSynthesis.speaking) speak(lastSpokenText);
-                    }, 300);
+                    speakFrom(spokenOffset);
                 }
             });
             if (narratorStop) narratorStop.addEventListener('click', stopNarration);
