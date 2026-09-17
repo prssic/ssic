@@ -19,8 +19,8 @@ collections:
     delete: true
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     preview_path: "/avizier/{{slug}}"
-    summary: "{{title}} — {{date | date('DD.MM.YYYY')}}"
-    sortable_fields: ["date", "title"]
+    summary: "{{archived == true ? '🗄️ [ARHIVAT] ' : ''}}{{title}} — {{date | date('DD.MM.YYYY')}}"
+    sortable_fields: ["date", "title", "archived"]
     fields:
       - label: "Titlu"
         name: "title"
@@ -49,6 +49,12 @@ collections:
         name: "body"
         widget: "markdown"
         hint: "Textul complet. Poți adăuga bold, titluri, linkuri și poze inline exact ca în Word."
+
+      - label: "Arhivat"
+        name: "archived"
+        widget: "boolean"
+        default: false
+        hint: "Bifează pentru a muta anunțul în secțiunea Arhivă (nu mai apare în lista principală)"
 
       - label: "Layout"
         name: "layout"
