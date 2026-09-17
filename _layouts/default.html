@@ -664,9 +664,10 @@
         }
         @supports (clip-path: inset(0)) or (-webkit-clip-path: inset(0)) {
             .horizontal-nav::before {
-                inset: -24px;
-                clip-path: inset(24px round 14px);
-                -webkit-clip-path: inset(24px round 14px);
+                /* inset: 0 deliberat — extensia -24px ar depăși navul și ar suprapune conținutul de sub el */
+                inset: 0;
+                clip-path: none;
+                -webkit-clip-path: none;
             }
         }
         .horizontal-nav::-webkit-scrollbar { display: none; }
@@ -751,9 +752,10 @@
         }
         @supports (clip-path: inset(0)) or (-webkit-clip-path: inset(0)) {
             .calendar-item::before {
-                inset: -24px;
-                clip-path: inset(24px round 16px);
-                -webkit-clip-path: inset(24px round 16px);
+                /* inset: 0 deliberat — extensia -24px ar suprapune articolele adiacente */
+                inset: 0;
+                clip-path: none;
+                -webkit-clip-path: none;
             }
         }
         .calendar-date {
