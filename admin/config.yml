@@ -7,7 +7,7 @@ backend:
 media_folder: "assets/avizier"
 public_folder: "/assets/avizier"
 
-site_url: https://ssic.ro
+site_url: https://voluble-malasada-2b5017.netlify.app
 locale: "ro"
 
 collections:
