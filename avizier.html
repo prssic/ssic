@@ -16,7 +16,7 @@ description: "Anunțurile oficiale ale Societății Studenților în Inginerie C
                     </h2>
                     <div class="calendar-list">
                         {% assign sorted_avizier = site.avizier | sort: "date" | reverse %}
-                        {% assign active_anunturi = sorted_avizier | where_exp: "item", "item.archived != true" %}
+                        {% assign active_anunturi = sorted_avizier | where_exp: "item", "item.archived != true" | where_exp: "item", "item.date <= site.time" %}
                         {% if active_anunturi.size > 0 %}
                             {% for anunt in active_anunturi %}
                             <a href="{{ anunt.url | relative_url }}" class="calendar-item hover-target" style="text-decoration: none; color: inherit;">
@@ -41,7 +41,7 @@ description: "Anunțurile oficiale ale Societății Studenților în Inginerie C
                     </div>
                 </div>
 
-                {% assign arhivate = sorted_avizier | where_exp: "item", "item.archived == true" %}
+                {% assign arhivate = sorted_avizier | where_exp: "item", "item.archived == true" | where_exp: "item", "item.date <= site.time" %}
                 {% if arhivate.size > 0 %}
                 <div class="calendar-section reveal" style="margin-top: 40px;">
                     <details>
