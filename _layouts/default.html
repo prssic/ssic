@@ -285,7 +285,7 @@
             .logo img { height: 36px; }
         }
         .logo-wordmark {
-            font-family: var(--font-mono); font-weight: 700; font-size: 22px;
+            font-family: var(--font-mono); font-weight: 700; font-size: 28px;
             color: var(--c-white); letter-spacing: 0.04em; line-height: 1;
             user-select: none;
         }
@@ -657,7 +657,7 @@
         }
         @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
             .horizontal-nav::before {
-                background: rgba(34, 22, 49, 0.45);
+                background: rgba(34, 22, 49, 0.28);
                 backdrop-filter: blur(18px) saturate(var(--glass-saturation));
                 -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturation));
             }
@@ -745,7 +745,7 @@
         }
         @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
             .calendar-item::before {
-                background: rgba(34, 22, 49, 0.45);
+                background: rgba(34, 22, 49, 0.28);
                 backdrop-filter: blur(18px) saturate(var(--glass-saturation));
                 -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturation));
             }
@@ -2029,8 +2029,8 @@
             <div class="nav-glass-blur"></div>
         </div>
         <a class="logo hover-target" href="/" style="text-decoration:none;">
-            <img src="/assets/logo/ssic-logo.png" alt="SSIC – Societatea Studenților în Inginerie Chimică și Biotehnologii">
             <span class="logo-wordmark">SS<span class="ic">IC</span></span>
+            <img src="/assets/logo/ssic-logo.png" alt="SSIC – Societatea Studenților în Inginerie Chimică și Biotehnologii">
         </a>
         <ul class="nav-links" id="navLinks">
             <li><a class="nav-link hover-target{% if page.view == 'home' %} active{% endif %}" data-target="home" href="/">Acasă</a></li>
