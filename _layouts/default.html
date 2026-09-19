@@ -3225,9 +3225,9 @@
             const dir = navOrder.indexOf(view) > navOrder.indexOf(currentViewId) ? 'ltr' : 'rtl';
             try { sessionStorage.setItem('ssicSwipeDir', dir); } catch (e) { /* ignorăm */ }
 
-            swiper.className = 'swipe-container';
-            void swiper.offsetWidth;
-            swiper.classList.add('swipe-' + dir, 'covering');
+            swiper.className = 'swipe-container swipe-' + dir;
+            void swiper.offsetWidth; /* Force WebKit to paint the element as visible FIRST */
+            swiper.classList.add('covering'); /* THEN apply the animation */
 
             setTimeout(() => { location.href = url; }, 360);
         }
