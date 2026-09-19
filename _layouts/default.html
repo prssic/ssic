@@ -4312,7 +4312,7 @@
                 const el = e.target.closest(NARRATOR_SELECTOR);
                 if (!el) return;
                 // 
-                speak(el.textContent);
+                setTimeout(() => speak(el.textContent), 0);
             }, true);
 
             if (narratorPlayPause) narratorPlayPause.addEventListener('click', () => {
