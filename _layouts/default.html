@@ -226,8 +226,8 @@
             /* Vălul de culoare e fallback-ul necondiționat pt. browsere fără backdrop-filter
                (navbar-ul rămâne opac și lizibil peste tot, doar fără sticlă). */
             background: var(--c-nav-bg);
-            backdrop-filter: blur(22px) saturate(var(--glass-saturation));
-            -webkit-backdrop-filter: blur(22px) saturate(var(--glass-saturation));
+            backdrop-filter: blur(18px) saturate(var(--glass-saturation));
+            -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturation));
         }
         /* Tehnica lui Josh Comeau (joshwcomeau.com/css/backdrop-filter) pt. blur "seamless",
            fără margine/linie vizibilă la marginea de jos a navbar-ului: backdrop-filter ia în
@@ -723,7 +723,7 @@
         }
         @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
             .calendar-item::before {
-                background: rgba(34, 22, 49, 0.28);
+                background: var(--c-nav-bg);
                 backdrop-filter: blur(18px) saturate(var(--glass-saturation));
                 -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturation));
             }
@@ -1425,7 +1425,7 @@
         }
         @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
             .cookie-notice::before {
-                background: rgba(34, 22, 49, 0.75);
+                background: var(--c-nav-bg);
                 backdrop-filter: blur(18px) saturate(var(--glass-saturation));
                 -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturation));
             }
@@ -1748,9 +1748,9 @@
             }
             @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
                 .nav-links::before {
-                    background: rgba(14, 9, 22, 0.5);
-                    backdrop-filter: blur(10px) saturate(var(--glass-saturation));
-                    -webkit-backdrop-filter: blur(10px) saturate(var(--glass-saturation));
+                    background: var(--c-nav-bg);
+                    backdrop-filter: blur(18px) saturate(var(--glass-saturation));
+                    -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturation));
                 }
             }
             /* Extend + mask (joshwcomeau.com/css/backdrop-filter) și aici: meniul acoperă tot
@@ -1931,7 +1931,7 @@
            pointer:fine) nimic nu se schimbă — regulile din @supports rămân neatinse. */
         @media (hover: none), (pointer: coarse) {
             .nav-glass-blur, .cookie-notice::before, .search-overlay, .contact-overlay, .a11y-narrator-bar::before,
-            .calendar-item::before {
+            .calendar-item::before, .nav-links::before {
                 backdrop-filter: blur(10px) saturate(var(--glass-saturation));
                 -webkit-backdrop-filter: blur(10px) saturate(var(--glass-saturation));
             }
