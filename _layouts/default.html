@@ -1284,7 +1284,7 @@
         }
 
         /* --- Mod narator: evidențiază la hover blocul de text ce va fi citit --- */
-        html.a11y-narrator-mode :is(p, h1, h2, h3, h4, li, a, button, .team-name, .search-result-title):hover {
+        html.a11y-narrator-mode :is(p, h1, h2, h3, h4, li, a, button, .team-name, .search-result-title, .horizontal-tab):hover {
             outline: 2px dashed var(--c-accent); outline-offset: 4px; border-radius: 3px;
         }
         .a11y-narrator-bar {
@@ -4305,7 +4305,7 @@
                 if (!prefs.narrator) stopNarration();
             });
 
-                        const NARRATOR_SELECTOR = 'p, h1, h2, h3, h4, li, a, button, .team-name, .search-result-title';
+                        const NARRATOR_SELECTOR = 'p, h1, h2, h3, h4, li, a, button, .team-name, .search-result-title, .horizontal-tab';
             document.addEventListener('click', (e) => {
                 if (!html.classList.contains('a11y-narrator-mode')) return;
                 if (e.target.closest('#a11yOverlay, .a11y-narrator-bar, #a11yTriggerBtn')) return;
