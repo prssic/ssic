@@ -169,6 +169,7 @@
            timp mouse-ul e deasupra widget-ului (vezi JS: initCursor), iar cursorul nativ al
            Instagram-ului (singurul pe care avem voie să-l vedem acolo) rămâne vizibil normal. */
         .cursor.is-hidden { opacity: 0; }
+        .cursor.clicking { transform: translate(-50%, -50%) scale(0.7); background: var(--c-accent); opacity: 0.8; }
 
         .cursor.hovering {
             width: 40px; height: 40px; background: var(--c-overlay-hover);
@@ -2302,6 +2303,8 @@
             loopCursor();
 
             window.addEventListener('mousemove', e => { mX = e.clientX; mY = e.clientY; });
+            window.addEventListener('mousedown', () => cursor.classList.add('clicking'));
+            window.addEventListener('mouseup', () => cursor.classList.remove('clicking'));
         }
 
         /* Peste widget-ul Instagram (iframe încărcat de pe instagram.com), browserul nu mai
@@ -2312,11 +2315,19 @@
            inelul cât timp mouse-ul e deasupra — nativul Instagram-ului rămâne vizibil acolo,
            inevitabil, dar cel puțin al nostru nu mai arată stricat restul timpului. */
         /* Hides custom cursor gracefully over ANY iframe wrapper to prevent it from freezing at the edge */
+        /* Hides custom cursor gracefully over ANY iframe wrapper to prevent it from freezing at the edge */
         (function initIframeCursorFade() {
             const wrappers = document.querySelectorAll('#ig-embed-wrapper, .map-fs-wrapper');
             wrappers.forEach(wrapper => {
                 wrapper.addEventListener('mouseenter', () => cursor.classList.add('is-hidden'));
                 wrapper.addEventListener('mouseleave', () => cursor.classList.remove('is-hidden'));
+            });
+            
+            // Exceptions: UI elements floating ON TOP of the map iframe
+            const exceptions = document.querySelectorAll('.map-filters, .map-toolbar');
+            exceptions.forEach(exc => {
+                exc.addEventListener('mouseenter', (e) => { e.stopPropagation(); cursor.classList.remove('is-hidden'); });
+                exc.addEventListener('mouseleave', (e) => { e.stopPropagation(); cursor.classList.add('is-hidden'); });
             });
         })();
 
@@ -4400,11 +4411,12 @@
         .lightbox-close {
             position: absolute; top: 20px; right: 20px; z-index: 100001;
             background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 50%; width: 44px; height: 44px; color: white;
+            border-radius: 12px; width: 44px; height: 44px; color: white;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: background 0.2s;
+            cursor: pointer; transition: background 0.2s, transform 0.2s;
         }
         .lightbox-close:hover { background: rgba(255,255,255,0.2); }
+        .lightbox-close:active { transform: scale(0.92); }
         .lightbox-track {
             display: flex; width: 100%; height: 100%;
             overflow-x: auto; overflow-y: hidden;
