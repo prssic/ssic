@@ -4311,7 +4311,7 @@
                 if (e.target.closest('#a11yOverlay, .a11y-narrator-bar, #a11yTriggerBtn')) return;
                 const el = e.target.closest(NARRATOR_SELECTOR);
                 if (!el) return;
-                e.preventDefault(); e.stopPropagation();
+                // 
                 speak(el.textContent);
             }, true);
 
