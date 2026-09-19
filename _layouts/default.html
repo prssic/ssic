@@ -1937,7 +1937,23 @@
             }
         }
     </style>
+
+    <!-- Mockup Mode (Ascunde elementele nedorite in screenshot-uri) -->
+    <script>
+        if (window.location.search.includes('mockup=1')) {
+            document.body.insertAdjacentHTML('beforeend', `
+                <style>
+                    /* Ascunde scrollbar-ul browserului */
+                    ::-webkit-scrollbar { display: none !important; }
+                    * { scrollbar-width: none !important; }
+                    /* Ascunde cursorul galben custom, butonul de accesibilitate si notice-ul de cookie */
+                    #a11yCursor, .a11y-trigger, .cookie-notice { display: none !important; }
+                </style>
+            `);
+        }
+    </script>
 </head>
+
 <body>
 
     <!-- Confidențialitate: acest site nu colectează date despre vizitatori. Orice cookie tehnic
