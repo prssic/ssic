@@ -757,7 +757,7 @@
             border-radius: 16px; margin-top: 30px;
         }
         .carousel-track {
-            display: flex; width: 100%; overflow-x: auto; scroll-snap-type: x mandatory;
+            display: flex; width: 100%; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 30px; margin-bottom: -30px;
             scrollbar-width: none; -ms-overflow-style: none; cursor: grab;
             -webkit-tap-highlight-color: transparent;
         }
@@ -1942,7 +1942,7 @@
     <!-- Mockup Mode (Ascunde elementele nedorite in screenshot-uri) -->
     <script>
         if (window.location.search.includes('mockup=1')) {
-            document.body.insertAdjacentHTML('beforeend', `
+            document.head.insertAdjacentHTML('beforeend', `
                 <style>
                     /* Ascunde scrollbar-ul browserului */
                     ::-webkit-scrollbar { display: none !important; }
@@ -4402,7 +4402,7 @@
             display: flex; opacity: 0; visibility: hidden;
             transition: opacity 0.3s ease, visibility 0s linear 0.3s;
             user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
-            flex-direction: column;
+            flex-direction: column; overflow: hidden;
         }
         .global-lightbox.active {
             opacity: 1; visibility: visible;
@@ -4419,6 +4419,7 @@
         .lightbox-close:active { transform: scale(0.92); }
         .lightbox-track {
             display: flex; width: 100%; height: 100%;
+            padding-bottom: 50px; margin-bottom: -50px; box-sizing: content-box;
             overflow-x: auto; overflow-y: hidden;
             scroll-snap-type: x mandatory; scroll-behavior: smooth;
             -ms-overflow-style: none; scrollbar-width: none; /* Ascunde nativ */
@@ -4427,7 +4428,7 @@
         .lightbox-track::-webkit-scrollbar, .lightbox-slide-wrapper::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
         
         .lightbox-slide-wrapper {
-            flex: 0 0 100%; width: 100%; height: 100%;
+            flex: 0 0 100%; width: 100%; height: 100%; box-sizing: border-box;
             display: flex; align-items: center; justify-content: center;
             scroll-snap-align: center; scroll-snap-stop: always; /* Ancorare stricta */
             position: relative;
