@@ -3235,10 +3235,15 @@
             try { sessionStorage.setItem('ssicSwipeDir', dir); } catch (e) { /* ignorăm */ }
 
             swiper.className = 'swipe-container swipe-' + dir;
-            void swiper.offsetWidth; /* Force WebKit to paint the element as visible FIRST */
-            swiper.classList.add('covering'); /* THEN apply the animation */
-
-            setTimeout(() => { location.href = url; }, 360);
+            
+            // Metoda supremă pentru Safari iOS: dublu requestAnimationFrame garantează un frame de render 
+            // în care containerul e vizibil, urmat de clasa de animație în frame-ul următor.
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    swiper.classList.add('covering');
+                    setTimeout(() => { location.href = url; }, 360);
+                });
+            });
         }
 
         // navigate() rămâne ca funcție (nu doar location.href direct), ca restul codului
