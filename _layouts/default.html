@@ -1950,7 +1950,16 @@
                     /* Ascunde cursorul galben custom, butonul de accesibilitate si notice-ul de cookie */
                     #cursor, #a11yTriggerBtn, .cookie-notice, .scroll-progress { display: none !important; opacity: 0 !important; visibility: hidden !important; }
                     /* Inghesuie navbar-ul pentru a reduce spatiul mort in mockup */
-                    nav { padding: 0 16vw !important; position: absolute !important; transform: none !important; transition: none !important; }
+                    nav { 
+                        padding-left: 16vw !important; 
+                        padding-right: 16vw !important; 
+                        position: absolute !important; 
+                        height: 90px !important; 
+                        display: flex !important; 
+                        align-items: center !important; 
+                        transform: none !important; 
+                        transition: none !important; 
+                    }
                 </style>
             `);
         }
