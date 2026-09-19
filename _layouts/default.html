@@ -4305,14 +4305,18 @@
                 if (!prefs.narrator) stopNarration();
             });
 
-            const NARRATOR_SELECTOR = 'p, h1, h2, h3, h4, li, a, button, .team-name, .search-result-title';
+                        const NARRATOR_SELECTOR = 'p, h1, h2, h3, h4, li, a, button, .team-name, .search-result-title';
             document.addEventListener('click', (e) => {
                 if (!html.classList.contains('a11y-narrator-mode')) return;
                 if (e.target.closest('#a11yOverlay, .a11y-narrator-bar, #a11yTriggerBtn')) return;
                 const el = e.target.closest(NARRATOR_SELECTOR);
                 if (!el) return;
-                // 
-                setTimeout(() => speak(el.textContent), 0);
+                
+                // Extragem textul, folosind aria-label sau title daca textContent e gol (ex. la iconite)
+                let textToSpeak = el.getAttribute('aria-label') || el.title || el.innerText || el.textContent;
+                
+                // Lasam evenimentul sa curga (fara preventDefault) si lansam citirea asincron
+                setTimeout(() => speak(textToSpeak), 0);
             }, true);
 
             if (narratorPlayPause) narratorPlayPause.addEventListener('click', () => {
