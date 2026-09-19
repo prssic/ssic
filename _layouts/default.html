@@ -90,7 +90,7 @@
             /* z-swipe > z-ului barei de progres (10001), ca animația de tranziție să acopere
                complet și bara subțire de sus, nu doar navbar-ul/conținutul — altfel bara de
                progres rămânea vizibilă, "plutind" peste bara de swipe în timpul tranziției. */
-            --z-bg: 0; --z-content: 10; --z-nav: 100; --z-cursor: 9998; --z-swipe: 10010;
+            --z-bg: 0; --z-content: 10; --z-nav: 100; --z-cursor: 999999; --z-swipe: 10010;
 
             /* Frosted Glass — DOAR blur + saturație (backdrop-filter), fără nicio muchie/
                contur/highlight suplimentar. Exemplul primit avea și border + inset highlights,
@@ -2311,11 +2311,13 @@
            wrapper-ul din jurul iframe-ului (acela e al nostru, nu cross-origin) și estompăm
            inelul cât timp mouse-ul e deasupra — nativul Instagram-ului rămâne vizibil acolo,
            inevitabil, dar cel puțin al nostru nu mai arată stricat restul timpului. */
-        (function initInstagramCursorFade() {
-            const igWrapper = document.getElementById('ig-embed-wrapper');
-            if (!igWrapper) return;
-            igWrapper.addEventListener('mouseenter', () => cursor.classList.add('is-hidden'));
-            igWrapper.addEventListener('mouseleave', () => cursor.classList.remove('is-hidden'));
+        /* Hides custom cursor gracefully over ANY iframe wrapper to prevent it from freezing at the edge */
+        (function initIframeCursorFade() {
+            const wrappers = document.querySelectorAll('#ig-embed-wrapper, .map-fs-wrapper');
+            wrappers.forEach(wrapper => {
+                wrapper.addEventListener('mouseenter', () => cursor.classList.add('is-hidden'));
+                wrapper.addEventListener('mouseleave', () => cursor.classList.remove('is-hidden'));
+            });
         })();
 
         /* ==========================================================================
@@ -4404,16 +4406,16 @@
         }
         .lightbox-close:hover { background: rgba(255,255,255,0.2); }
         .lightbox-track {
-            display: flex; width: 100vw; height: 100vh;
+            display: flex; width: 100%; height: 100%;
             overflow-x: auto; overflow-y: hidden;
             scroll-snap-type: x mandatory; scroll-behavior: smooth;
             -ms-overflow-style: none; scrollbar-width: none; /* Ascunde nativ */
-            overscroll-behavior-x: none; /* Previne bounce-ul pe iOS */
+            overscroll-behavior: none; /* Previne bounce-ul pe iOS */
         }
-        .lightbox-track::-webkit-scrollbar { display: none !important; }
+        .lightbox-track::-webkit-scrollbar, .lightbox-slide-wrapper::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
         
         .lightbox-slide-wrapper {
-            min-width: 100vw; height: 100vh;
+            flex: 0 0 100%; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
             scroll-snap-align: center; scroll-snap-stop: always; /* Ancorare stricta */
             position: relative;
@@ -4437,7 +4439,7 @@
             background: rgba(255,255,255,0.3); transition: background 0.3s, transform 0.3s;
         }
         .lightbox-dot.active {
-            background: rgba(255,255,255,0.9);
+            background: var(--c-accent); /* Yellow active state */
             transform: scale(1.3);
         }
 
