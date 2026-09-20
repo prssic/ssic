@@ -2517,6 +2517,51 @@
             background-image: none !important; background-color: #ffffff !important;
         }
         html.ds-theme.a11y-contrast .ds-floaters { display: none; }
+
+        /* ==========================================================================
+           COUNTDOWN — doar pe /discover/ (inserat din JS-ul de la finalul paginii)
+           ========================================================================== */
+        .ds-countdown {
+            position: relative; z-index: 1; width: fit-content; max-width: 100%;
+            margin: 0 auto 44px; padding: 22px 28px 20px; border-radius: 28px; text-align: center;
+            background: #f5f4e0; color: #0c2340;
+            box-shadow: 0 0 0 3px #0c2340, 6px 7px 0 3px #0c2340;
+            rotate: -1deg;
+        }
+        .ds-cd-label {
+            display: inline-block; margin-bottom: 14px; padding: 5px 18px 7px; border-radius: 14px;
+            background: #ff70b6; color: #0c2340; box-shadow: 0 0 0 2.5px #0c2340;
+            font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif; font-weight: 700;
+            font-size: 1.05rem; letter-spacing: 0.06em; text-transform: uppercase;
+        }
+        .ds-cd-row { display: flex; align-items: flex-start; justify-content: center; gap: clamp(6px, 2vw, 14px); }
+        .ds-cd-unit { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .ds-cd-unit[hidden] { display: none; }
+        .ds-cd-num {
+            min-width: clamp(66px, 17vw, 108px); padding: 8px 6px 10px; border-radius: 16px;
+            background: #f2f56a; color: #0c2340; box-shadow: 0 0 0 2.5px #0c2340, 3px 4px 0 2.5px #0c2340;
+            font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif; font-weight: 700;
+            font-size: clamp(2.3rem, 9vw, 3.9rem); line-height: 1; font-variant-numeric: tabular-nums;
+        }
+        .ds-cd-unit:nth-child(3n+2) .ds-cd-num { background: #35c8f2; }
+        .ds-cd-unit:nth-child(3n+3) .ds-cd-num { background: #b8f0a4; }
+        .ds-cd-unit:nth-child(3n+1) .ds-cd-num { background: #f2f56a; }
+        .ds-cd-name {
+            font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif; font-weight: 700;
+            font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: #0c2340;
+        }
+        .ds-cd-sep {
+            align-self: flex-start; padding-top: 6px; color: #0c2340;
+            font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif; font-weight: 700;
+            font-size: clamp(2rem, 8vw, 3.4rem); line-height: 1;
+        }
+        .ds-cd-when { margin-top: 16px; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.02em; color: #0c2340; }
+        .ds-cd-quip {
+            min-height: 1.4em; margin-top: 10px; font-size: 0.9rem; font-style: italic; font-weight: 600;
+            color: rgba(12, 35, 64, 0.75); opacity: 0; transition: opacity 0.6s ease;
+        }
+        .ds-cd-quip.show { opacity: 1; }
+        @media (prefers-reduced-motion: reduce) { .ds-countdown { rotate: none; } }
     </style>
 </head>
 <body>
@@ -5360,6 +5405,103 @@
             window.ssicToggleTheme = () => toggleThemeSecret(null);   // și din consolă, dacă e nevoie
 
             sync();
+        })();
+    </script>
+
+    <script>
+        /* ==========================================================================
+           JS: COUNTDOWN pe /discover/ — ore : minute : secunde până mâine (21 sept. 2026), ora 12:00, ora României
+           --------------------------------------------------------------------------
+           Ținta e un moment absolut (offset +03:00 = EEST), deci arată la fel oriunde s-ar afla
+           vizitatorul. La 0 ceasul doar se oprește pe 00:00:00, fără nicio animație.
+           Din când în când apare câte o replică mică sub ceas (easter egg). */
+        (function () {
+            if (!/^\/discover(\/|$)/.test(location.pathname)) return;
+            const COUNTDOWN_TARGET = new Date('2026-09-21T12:00:00+03:00').getTime();
+            const COUNTDOWN_LABEL = 'Începe în';
+            const COUNTDOWN_WHEN = '21 septembrie · ora 12:00';
+            const QUIPS = [
+                'Mai e ceva de așteptat…',
+                'Nu te-ai plictisit?',
+                'Se apropie, promitem.',
+                'Da, ceasul merge. Nu, nu poți să-l grăbești.',
+                'Reîmprospătatul paginii nu ajută. Am verificat.',
+                'Încă o secundă… și încă una.',
+                'Ai apucat să-ți faci o cafea?',
+                'Ești încă aici? Ne place.'
+            ];
+            const QUIP_MIN_GAP_MS = 25000, QUIP_MAX_GAP_MS = 55000, QUIP_VISIBLE_MS = 5000;
+
+            const host = document.querySelector('.page-content') || document.querySelector('main.app');
+            if (!host) return;
+
+            const box = document.createElement('section');
+            box.className = 'ds-countdown';
+            box.setAttribute('role', 'timer');
+            box.setAttribute('aria-label', 'Numărătoare inversă');
+            box.innerHTML =
+                '<div class="ds-cd-label">' + COUNTDOWN_LABEL + '</div>' +
+                '<div class="ds-cd-row" aria-hidden="true">' +
+                    '<div class="ds-cd-unit" data-u="h"><div class="ds-cd-num">00</div><div class="ds-cd-name">ore</div></div>' +
+                    '<div class="ds-cd-sep">:</div>' +
+                    '<div class="ds-cd-unit" data-u="m"><div class="ds-cd-num">00</div><div class="ds-cd-name">minute</div></div>' +
+                    '<div class="ds-cd-sep">:</div>' +
+                    '<div class="ds-cd-unit" data-u="s"><div class="ds-cd-num">00</div><div class="ds-cd-name">secunde</div></div>' +
+                '</div>' +
+                '<div class="ds-cd-when">' + COUNTDOWN_WHEN + '</div>' +
+                '<div class="ds-cd-quip" aria-hidden="true"></div>' +
+                '<span class="sr-only" id="dsCdSr"></span>';
+            host.insertBefore(box, host.firstChild);
+
+            const num = (u) => box.querySelector('[data-u="' + u + '"] .ds-cd-num');
+            const two = (n) => String(n).padStart(2, '0');
+            const sr = box.querySelector('#dsCdSr');
+            const quipEl = box.querySelector('.ds-cd-quip');
+            let lastMinute = -1, timer = null, quipTimer = null, quipHide = null, lastQuip = -1, finished = false;
+
+            function tick() {
+                const left = Math.max(0, COUNTDOWN_TARGET - Date.now());
+                const total = Math.floor(left / 1000);
+                num('h').textContent = two(Math.floor(total / 3600));
+                num('m').textContent = two(Math.floor(total % 3600 / 60));
+                num('s').textContent = two(total % 60);
+                const minuteKey = Math.floor(total / 60);
+                if (minuteKey !== lastMinute) {   // cititorul de ecran primește update doar o dată pe minut
+                    lastMinute = minuteKey;
+                    sr.textContent = 'Mai sunt ' + Math.floor(total / 3600) + ' ore și ' + Math.floor(total % 3600 / 60) + ' minute.';
+                }
+                if (left <= 0) stop();
+            }
+
+            function stop() {            // ceasul rămâne pe 00:00:00, fără efecte
+                finished = true;
+                clearInterval(timer);
+                clearTimeout(quipTimer);
+                clearTimeout(quipHide);
+                quipEl.classList.remove('show');
+                sr.textContent = 'Numărătoarea inversă s-a încheiat.';
+            }
+
+            function scheduleQuip() {
+                const gap = QUIP_MIN_GAP_MS + Math.random() * (QUIP_MAX_GAP_MS - QUIP_MIN_GAP_MS);
+                quipTimer = setTimeout(() => {
+                    if (finished || document.hidden) { if (!finished) scheduleQuip(); return; }
+                    let i;
+                    do { i = Math.floor(Math.random() * QUIPS.length); } while (i === lastQuip && QUIPS.length > 1);
+                    lastQuip = i;
+                    quipEl.textContent = QUIPS[i];
+                    quipEl.classList.add('show');
+                    quipHide = setTimeout(() => quipEl.classList.remove('show'), QUIP_VISIBLE_MS);
+                    scheduleQuip();
+                }, gap);
+            }
+
+            tick();
+            if (!finished) {
+                timer = setInterval(tick, 1000);
+                scheduleQuip();
+            }
+            document.addEventListener('visibilitychange', () => { if (!document.hidden && !finished) tick(); });
         })();
     </script>
 </body>
