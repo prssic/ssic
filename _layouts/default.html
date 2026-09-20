@@ -2129,7 +2129,7 @@
             --font-display: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
 
             /* ── Paleta afișului Discover SSIC ──
-               Fundal VIU (orhidee + lămâie) peste tot — nu mai există varianta pastel; lizibilitatea
+               Fundal VIU (orhidee + lămâie), fără halftone, peste tot — nu mai există varianta pastel; lizibilitatea
                vine din „stickere": textul mic stă pe cardurile crem cu contur navy + umbră dură,
                exact ca pastilele din afiș. Doar titlurile mari stau direct pe carouri. */
             --ds-navy: #0c2340;
@@ -2148,13 +2148,8 @@
         /* Fundal static, fix: pe <html> (canvas). Body/.app transparente, ca straturile din spate să se vadă. */
         html.ds-theme {
             background-color: var(--ds-orchid) !important;
-            /* de sus în jos: (1) pătratele LĂMÂIE, pline — acoperă punctele, deci galbenul rămâne curat;
-               (2) puncte halftone fine — se văd doar pe pătratele orhidee, ca în afiș;
-               (3) orhidee (background-color). Strat 1 are exact aceeași grilă ca înainte. */
-            background-image:
-                repeating-conic-gradient(transparent 0% 25%, var(--ds-lemon) 0% 50%),
-                radial-gradient(circle at center, rgba(96, 18, 112, 0.3) 0 1.35px, transparent 1.85px) !important;
-            background-size: 104px 104px, 8px 8px !important;
+            background-image: repeating-conic-gradient(var(--ds-orchid) 0% 25%, var(--ds-lemon) 0% 50%) !important;
+            background-size: 104px 104px !important;
             background-attachment: fixed !important;
         }
         html.ds-theme body, html.ds-theme .app { background: transparent !important; }
