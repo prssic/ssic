@@ -3284,41 +3284,13 @@
             const dir = window.__ssicUncoverDir;
             const swiper = document.getElementById('swiper');
             if (!dir || !swiper) return;
-            
-            const bars = swiper.querySelectorAll('.swipe-bar');
-            if (bars.length > 0 && typeof bars[0].animate === 'function') {
-                swiper.style.visibility = 'visible';
-                bars.forEach(b => b.style.transform = 'translateX(0%)');
-                
+            requestAnimationFrame(() => {
                 setTimeout(() => {
-                    const toX = dir === 'ltr' ? '100%' : '-100%';
-                    bars.forEach((bar, index) => {
-                        const anim = bar.animate([
-                            { transform: 'translateX(0%)' },
-                            { transform: `translateX(${toX})` }
-                        ], {
-                            duration: 400,
-                            delay: index * 50,
-                            easing: 'cubic-bezier(0.8, 0, 0.2, 1)',
-                            fill: 'forwards'
-                        });
-                        if (index === 1) {
-                            anim.onfinish = () => { 
-                                swiper.style.visibility = 'hidden';
-                                bars.forEach(b => b.style.transform = '');
-                            };
-                        }
-                    });
+                    swiper.classList.remove('covered');
+                    swiper.classList.add('uncovering');
+                    setTimeout(() => { swiper.className = 'swipe-container'; }, 420);
                 }, 40);
-            } else {
-                requestAnimationFrame(() => {
-                    setTimeout(() => {
-                        swiper.classList.remove('covered');
-                        swiper.classList.add('uncovering');
-                        setTimeout(() => { swiper.className = 'swipe-container'; }, 420);
-                    }, 40);
-                });
-            }
+            });
         })();
 
         // Plasă de siguranță pt. bfcache: dacă utilizatorul dă "înapoi"/"înainte" din browser,
