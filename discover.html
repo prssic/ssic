@@ -6,125 +6,175 @@ title: Discover SSIC
 description: "Easter egg - Discover SSIC event"
 ---
 <style>
+/* ── Checkerboard full-page ── */
 body {
     background-color: #e8f05e !important;
-    background-image: repeating-linear-gradient(45deg, #af5d9e 25%, transparent 25%, transparent 75%, #af5d9e 75%, #af5d9e), repeating-linear-gradient(45deg, #af5d9e 25%, #e8f05e 25%, #e8f05e 75%, #af5d9e 75%, #af5d9e) !important;
-    background-position: 0 0, 40px 40px !important;
-    background-size: 80px 80px !important;
+    background-image:
+        repeating-conic-gradient(#af5d9e 0% 25%, #e8f05e 0% 50%) !important;
+    background-size: 72px 72px !important;
 }
+.app, .page-content { background: transparent !important; }
 
-body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background: radial-gradient(circle, transparent 20%, #e8f05e 20%, #e8f05e 80%, transparent 80%, transparent) 0 0 / 6px 6px;
-    opacity: 0.15; pointer-events: none; z-index: -1;
-}
+/* ── Navbar glass pe tema galbenă ── */
+.nav-glass-blur { background: rgba(232, 240, 94, 0.55) !important; }
 
-.app { background: transparent !important; }
+/* ── Font: Google Fonts Anton = bold condensed impact-like, gratuit ── */
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Space+Mono:wght@700&display=swap');
 
-@keyframes textGlitch {
-    0% { transform: translate(0); letter-spacing: 0; filter: blur(0); }
-    20% { transform: translate(-2px, 1px); letter-spacing: 2px; filter: blur(1px); color: #af5d9e; }
-    40% { transform: translate(2px, -1px); letter-spacing: -1px; filter: blur(0); color: #111; }
-    60% { transform: translate(-1px, 2px); letter-spacing: 4px; filter: blur(2px); }
-    80% { transform: translate(1px, -2px); letter-spacing: -2px; filter: blur(0); color: #af5d9e; }
-    100% { transform: translate(0); letter-spacing: 0; filter: blur(0); color: #111; }
-}
-.glitch-text {
-    display: inline-block;
-    animation: textGlitch 0.4s infinite;
-    font-family: 'Stinger Fit', sans-serif, monospace;
-    font-weight: 900;
-}
-
+/* ── Stickere flotante ── */
 @keyframes swayRot {
-    0% { transform: rotate(-10deg); }
-    100% { transform: rotate(10deg); }
+    0%   { transform: rotate(-9deg) scale(1); }
+    100% { transform: rotate(9deg)  scale(1.04); }
+}
+.ds-sticker {
+    position: fixed;
+    pointer-events: none;
+    z-index: 5;
+    filter: drop-shadow(3px 5px 0 rgba(0,0,0,0.25));
+    animation: swayRot 3s ease-in-out infinite alternate;
 }
 
-.sticker {
-    position: absolute;
-    animation: swayRot 3s infinite alternate ease-in-out;
-    filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.3));
-    z-index: 10;
+/* ── Titlu mare ── */
+#ds-title {
+    font-family: 'Anton', Impact, 'Arial Black', sans-serif;
+    font-size: clamp(3.5rem, 14vw, 7.5rem);
+    color: #0c2340;
+    text-align: center;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    margin-bottom: 12px;
+    user-select: none;
+    /* Glitch layered shadow */
+    text-shadow:
+        4px  4px 0 #af5d9e,
+        8px  8px 0 #0c234044;
+}
+#ds-dates {
+    font-family: 'Anton', Impact, sans-serif;
+    font-size: clamp(1rem, 3.5vw, 1.5rem);
+    color: #0c2340;
+    text-align: center;
+    margin-bottom: 48px;
+    letter-spacing: 0.1em;
 }
 
-.discover-box {
-    background: #fdfdf5;
+/* ── Casete ── */
+.ds-box {
+    background: #f9f9e8;
     border: 3px solid #111;
-    border-radius: 40px;
-    box-shadow: 6px 6px 0px #111;
-    padding: 15px 30px;
-    margin-bottom: 25px;
+    border-radius: 48px;
+    box-shadow: 6px 6px 0 #0c2340;
+    padding: 18px 28px 18px 76px;
+    margin: 0 auto 22px;
+    max-width: 520px;
+    position: relative;
+    min-height: 86px;
     display: flex;
     align-items: center;
-    position: relative;
-    color: #111;
-    font-family: 'Stinger Fit', sans-serif;
-    font-weight: 900;
-    font-size: 1.2rem;
-    min-height: 80px;
-    max-width: 500px;
-    margin-left: auto; margin-right: auto;
 }
-
-.discover-date-star {
+.ds-star {
     position: absolute;
-    left: -20px;
-    width: 80px; height: 80px;
-    background: #ff55aa;
-    clip-path: polygon(50% 0%, 61% 16%, 80% 10%, 84% 29%, 100% 35%, 94% 53%, 100% 70%, 83% 76%, 79% 95%, 60% 89%, 47% 100%, 35% 88%, 15% 94%, 19% 75%, 2% 69%, 9% 50%, 0% 32%, 18% 25%, 19% 5%, 38% 12%);
+    left: -22px;
+    top: 50%; transform: translateY(-50%) rotate(-6deg);
+    width: 78px; height: 78px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    color: #111; border: 2px solid #111;
-    font-size: 1.5rem; line-height: 1; transform: rotate(-5deg);
+    /* 20-pointed starburst */
+    clip-path: polygon(50% 0%,53% 13%,60% 7%,60% 21%,70% 13%,67% 26%,79% 22%,73% 35%,86% 34%,77% 45%,90% 48%,79% 56%,89% 63%,77% 67%,83% 77%,70% 77%,72% 89%,60% 85%,57% 98%,50% 89%,43% 98%,40% 85%,28% 89%,30% 77%,17% 77%,23% 67%,11% 63%,21% 56%,10% 48%,23% 45%,14% 34%,27% 35%,21% 22%,33% 26%,30% 13%,40% 21%,40% 7%,47% 13%);
+    font-family: 'Anton', Impact, sans-serif;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: #111;
+    border: 2px solid #111;
 }
-.discover-date-star span { font-size: 0.7rem; font-weight: bold; }
+.ds-star span { font-size: 0.55rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; }
 
-.db-text { margin-left: 60px; flex: 1; line-height: 1.2; text-transform: uppercase; }
-
-.d-title {
-    text-align: center;
-    font-family: 'Stinger Fit', sans-serif;
-    font-size: clamp(3rem, 10vw, 5rem); font-weight: 900; color: #0c2340;
-    text-transform: uppercase; margin-bottom: 40px;
-    text-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+.ds-glitch {
+    font-family: 'Space Mono', 'Courier New', monospace;
+    font-weight: 700;
+    font-size: clamp(0.85rem, 2.5vw, 1.1rem);
+    text-transform: uppercase;
+    color: #111;
+    line-height: 1.3;
+    word-break: break-all;
 }
 
-h1, p { color: #111 !important; }
-.nav-backdrop { background: rgba(232, 240, 94, 0.7) !important; }
+/* Reduced-motion: stop glitch JS; boxes still look fine */
+@media (prefers-reduced-motion: reduce) {
+    .ds-sticker { animation: none !important; }
+}
 </style>
 
-<section class="view active" id="view-discover">
-    <div class="page-content" style="padding-top: 150px; min-height: 100vh;">
-        <div class="d-title reveal">DISCOVER SSIC</div>
-        
-        <div style="position:relative; padding-bottom: 40px; max-width: 600px; margin: 0 auto;" class="reveal">
-            <!-- Stickere libere -->
-            <img src="/assets/events/discover/smiley.png" class="sticker" style="top: -40px; right: 0; width: 80px;">
-            <img src="/assets/events/discover/daisy.png" class="sticker" style="top: 200px; right: -20px; width: 90px; animation-delay: -1s;">
-            <img src="/assets/events/discover/heart.png" class="sticker" style="bottom: -20px; left: -10px; width: 100px; animation-delay: -2s;">
+<!-- Stickere împrăștiate fix (poziții absolute față de viewport) -->
+<img src="/assets/events/discover/smiley.png" class="ds-sticker" style="width:90px; top:18%; right:6%; animation-delay:0s;">
+<img src="/assets/events/discover/daisy.png"  class="ds-sticker" style="width:110px; top:55%; left:4%; animation-delay:-1.2s;">
+<img src="/assets/events/discover/heart.png"  class="ds-sticker" style="width:100px; top:75%; right:5%; animation-delay:-2.1s;">
+<img src="/assets/events/discover/smiley.png" class="ds-sticker" style="width:60px; top:88%; left:12%; animation-delay:-0.7s; opacity:0.7;">
+<img src="/assets/events/discover/daisy.png"  class="ds-sticker" style="width:70px; top:38%; right:2%; animation-delay:-1.8s; opacity:0.8;">
 
-            <!-- Casute glitch -->
-            <div class="discover-box">
-                <div class="discover-date-star" style="background: #ff55aa;">28<span>LUNI</span></div>
-                <div class="db-text glitch-text">P@3z&nt*r^ $$IC - J!c d% cun0@st#re</div>
-            </div>
-            <div class="discover-box">
-                <div class="discover-date-star" style="background: #55ccee;">29<span>MARȚI</span></div>
-                <div class="db-text glitch-text">Ph0t0 $c@v&ng#r H*nt</div>
-            </div>
-            <div class="discover-box">
-                <div class="discover-date-star" style="background: #ffdd44;">30<span>MIERCURI</span></div>
-                <div class="db-text glitch-text">Tr!v!@ N!ght $$IC x L$F$A x Y@IMM</div>
-            </div>
-            <div class="discover-box">
-                <div class="discover-date-star" style="background: #99eeaa;">1<span>JOI</span></div>
-                <div class="db-text glitch-text">B!ng0 M*z!c@l & Un!St@rt P@rty</div>
-            </div>
-            <div class="discover-box">
-                <div class="discover-date-star" style="background: #ff6622;">2<span>VINERI</span></div>
-                <div class="db-text glitch-text">G&t t0 kn0w B*ch@r&st ft. $$IC</div>
-            </div>
+<section class="view active" id="view-discover">
+    <div class="page-content" style="padding-top:140px; padding-bottom:80px; min-height:100vh;">
+
+        <!-- Titlu scrambled în JS -->
+        <div id="ds-title" aria-label="Discover SSIC"></div>
+        <div id="ds-dates">28 SEPT – 2 OCT</div>
+
+        <!-- Casete -->
+        <div class="ds-box">
+            <div class="ds-star" style="background:#ff55aa;">28<span>LUNI</span></div>
+            <div class="ds-glitch" data-glitch="PREZENTARE SSIC – JOC DE CUNOASTERE"></div>
+        </div>
+        <div class="ds-box">
+            <div class="ds-star" style="background:#55ccee;">29<span>MARȚI</span></div>
+            <div class="ds-glitch" data-glitch="PHOTO SCAVENGER HUNT"></div>
+        </div>
+        <div class="ds-box">
+            <div class="ds-star" style="background:#ffdd44;">30<span>MIERCURI</span></div>
+            <div class="ds-glitch" data-glitch="TRIVIA NIGHT SSIC X LSFSA X YAIMM"></div>
+        </div>
+        <div class="ds-box">
+            <div class="ds-star" style="background:#99eeaa;">1<span>JOI</span></div>
+            <div class="ds-glitch" data-glitch="BINGO MUZICAL & UNISTART PARTY"></div>
+        </div>
+        <div class="ds-box">
+            <div class="ds-star" style="background:#ff6622;">2<span>VINERI</span></div>
+            <div class="ds-glitch" data-glitch="GET TO KNOW BUCHAREST FT. SSIC"></div>
         </div>
     </div>
 </section>
+
+<script>
+(function() {
+    // Caractere complet haotice — niciun cuvânt recognoscibil
+    const POOL = '█▓▒░▐▌▄▀■□▪▫◆◇○●◉⌂⌁⌀⌁⌬⌭⌮⌯#@!&%$?*^~≠≡±×÷√∞∫∂∑∏∆ΩΨΦΞΛΘΣΠαβγδεζηθ01';
+
+    function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+    function scramble(len) {
+        let s = '';
+        for (let i = 0; i < len; i++) {
+            s += Math.random() < 0.15 ? ' ' : rand(POOL);
+        }
+        return s;
+    }
+
+    // ── Titlu: sempre scrambled ──
+    const titleEl = document.getElementById('ds-title');
+    const TITLE_LEN = 12; // "DISCOVER SSIC" has 12 visible chars + space
+    function animTitle() {
+        titleEl.textContent = scramble(TITLE_LEN + Math.floor(Math.random() * 4));
+        requestAnimationFrame(animTitle);
+    }
+    animTitle();
+
+    // ── Casete: scramble perpetuu independent per casetă ──
+    document.querySelectorAll('.ds-glitch').forEach(function(el) {
+        const original = el.dataset.glitch;
+        const len = original.length;
+        function animBox() {
+            el.textContent = scramble(len);
+            setTimeout(animBox, 60 + Math.random() * 60);
+        }
+        animBox();
+    });
+})();
+</script>
