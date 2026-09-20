@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
+    <script>
+        /* Temă site-wide: "clasic" (implicit) sau "discover" (clasa ds-theme pe <html>).
+           Aplicată aici, înainte de orice CSS/randare, ca să nu existe flash la încărcare. */
+        (function () {
+            try { if (localStorage.getItem('ssicTheme') === 'discover') document.documentElement.classList.add('ds-theme'); }
+            catch (e) { /* ignorăm */ }
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{{ page.title | default: "SSIC | Societatea Studenților în Inginerie Chimică și Biotehnologii" }}</title>
@@ -43,7 +51,7 @@
            senzația de "citire de instrument", nu de landing page generic. -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800;900&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800;900&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&display=swap" rel="stylesheet">
     
     <style>
         /* ==========================================================================
@@ -311,7 +319,7 @@
         .nav-burger.is-active span:nth-child(2) { opacity: 0; }
         .nav-burger.is-active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
         .nav-link {
-            font-weight: 800; font-size: 13px; color: #a394b5;
+            font-weight: 800; font-size: 16px; color: #a394b5;
             text-transform: uppercase; letter-spacing: 2px;
             padding: 10px 0; position: relative; display: inline-block;
             /* Aliniat la aceeași durată/easing ca .horizontal-tab și restul butoanelor de
@@ -1465,7 +1473,7 @@
         /* ==========================================================================
            SEARCH (Command Palette)
            ========================================================================== */
-        .nav-search-btn {
+        .nav-search-btn, .nav-theme-btn {
             width: 45px; height: 45px; border-radius: 12px;
             /* E un <button> HTML, care are implicit chenar/fundal/padding native de browser —
                regulile de mai jos (width, background rgba etc.) nu le anulează automat, doar
@@ -1796,7 +1804,7 @@
                o culoare de fundal solidă (accent), fără gradient — simplu și robust. */
             .nav-links .nav-link {
                 display: block; width: 100%; text-align: center;
-                font-size: 1.05rem; padding: 16px 20px; border-radius: 12px;
+                font-size: 1.25rem; padding: 16px 20px; border-radius: 12px;
                 position: relative;
                 background: var(--c-surface-elevated);
                 border: 1px solid var(--c-border-soft);
@@ -1912,7 +1920,7 @@
             .soc-icon:hover { background: var(--c-white); color: var(--c-base); }
             .footer-bottom a:hover { color: var(--c-accent); }
             .cookie-notice-btn:hover { background: var(--c-accent-2); }
-            .nav-search-btn:hover { background: var(--c-white); color: var(--c-base); }
+            .nav-search-btn:hover, .nav-theme-btn:hover { background: var(--c-white); color: var(--c-base); }
             .search-close-btn:hover { background: var(--c-white); color: var(--c-base); }
             .search-result-item:hover { background: var(--c-overlay-hover); }
             .contact-close-btn:hover { background: var(--c-white); color: var(--c-base); }
@@ -1942,6 +1950,197 @@
                 -webkit-backdrop-filter: blur(10px) saturate(var(--glass-saturation));
             }
         }
+
+        /* ==========================================================================
+           TEMA „DISCOVER SSIC" — site-wide, comutabilă (clasic ⇄ discover)
+           Se activează cu clasa `ds-theme` pe <html> (butonul din navbar, salvat în
+           localStorage.ssicTheme). Site-ul e construit pe tokeni (var), deci tema
+           înlocuiește tokenii + câteva valori hard-codate (mai jos). `html.ds-forced`
+           = pagina /discover/, care își impune tema indiferent de preferință.
+           ========================================================================== */
+        @font-face {
+            font-family: 'Stinger Fit';
+            src: url('/assets/fonts/StingerFit-Bold.ttf') format('truetype');
+            font-weight: bold; font-style: normal; font-display: swap;
+        }
+        @font-face {
+            font-family: 'Stinger Fit';
+            src: url('/assets/fonts/StingerFit-Regular.otf') format('opentype');
+            font-weight: normal; font-style: normal; font-display: swap;
+        }
+
+        html.ds-theme {
+            --c-base: #f5f4e0;
+            --c-surface: #fbfae8;
+            --c-surface-elevated: #f5f4e0;
+            --c-primary: #b24aa8;
+            --c-primary-light: #c060b8;
+            --c-accent: #b24aa8;
+            --c-accent-glow: rgba(178, 74, 168, 0.4);
+            --c-accent-2: #1a8fb3;
+            --c-accent-2-glow: rgba(26, 143, 179, 0.32);
+            --c-white: #0c2340;
+            --c-white-off: #0c2340;
+            --c-gray: rgba(12, 35, 64, 0.62);
+            --c-border-hairline: rgba(12, 35, 64, 0.1);
+            --c-border-soft: rgba(12, 35, 64, 0.14);
+            --c-border: rgba(12, 35, 64, 0.2);
+            --c-border-strong: rgba(12, 35, 64, 0.32);
+            --c-border-med: rgba(12, 35, 64, 0.4);
+            --c-overlay-hover: rgba(178, 74, 168, 0.14);
+            --c-shadow-1: rgba(12, 35, 64, 0.28);
+            --c-shadow-2: rgba(12, 35, 64, 0.36);
+            --c-nav-bg: rgba(245, 244, 224, 0.92);
+            --c-nav-bg-solid: rgba(245, 244, 224, 0.98);
+            --c-footer-bg: #f5f4e0;
+            --c-cursor-ring: rgba(12, 35, 64, 0.5);
+            --c-scheme: light;
+            color-scheme: light;
+
+            --font-main: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
+            --font-display: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
+
+            /* Checkerboard: variantă pastel pe paginile obișnuite (text lizibil), vie pe /discover/ */
+            --ds-check-a: #efd3ea;
+            --ds-check-b: #f6f5c4;
+        }
+        html.ds-theme.ds-forced { --ds-check-a: #c060b8; --ds-check-b: #e8f05e; }
+
+        /* Fundal static, fix: pe <html> (canvas). Body/.app transparente, ca straturile din spate să se vadă. */
+        html.ds-theme {
+            background-color: var(--ds-check-b) !important;
+            background-image: repeating-conic-gradient(var(--ds-check-a) 0% 25%, var(--ds-check-b) 0% 50%) !important;
+            background-size: 72px 72px !important;
+            background-attachment: fixed !important;
+        }
+        html.ds-theme body, html.ds-theme .app { background: transparent !important; }
+        html.ds-theme .page-content::before { display: none; }
+
+        /* Stickere care cad lin, STRICT în fundal (sub navbar, conținut și footer) */
+        .ds-floaters {
+            position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
+            opacity: 0.55;
+        }
+        html.ds-forced .ds-floaters { opacity: 1; }
+        .ds-float { position: absolute; top: 0; will-change: transform; animation: dsFall var(--dur, 40s) linear var(--delay, 0s) infinite; }
+        .ds-float img {
+            display: block; width: 100%; height: 100%; object-fit: contain;
+            filter: drop-shadow(3px 4px 0 rgba(12, 35, 64, 0.22));
+            animation: dsSway var(--sway-dur, 6s) ease-in-out var(--sway-delay, 0s) infinite alternate;
+        }
+        @keyframes dsFall { from { transform: translateY(-20vh); } to { transform: translateY(120vh); } }
+        @keyframes dsSway {
+            from { transform: translateX(calc(var(--sway, 24px) * -1)) rotate(calc(var(--tilt, 12deg) * -1)); }
+            to   { transform: translateX(var(--sway, 24px)) rotate(var(--tilt, 12deg)); }
+        }
+        html.a11y-reduce-motion .ds-float, html.a11y-reduce-motion .ds-float img { animation: none !important; }
+        html.a11y-reduce-motion .ds-float { top: var(--static-top, 20vh); }
+        @media (prefers-reduced-motion: reduce) {
+            .ds-float, .ds-float img { animation: none !important; }
+            .ds-float { top: var(--static-top, 20vh); }
+        }
+
+        /* Butonul de temă: ascuns pe /discover/ (acolo tema e impusă de pagină) */
+        html.ds-forced .nav-theme-btn { display: none; }
+        html.ds-theme .nav-theme-btn { color: var(--c-accent); }
+
+        /* — Navbar — */
+        html.ds-theme nav { border-bottom: 3px solid #0c2340; }
+        html.ds-theme .nav-link { font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif; font-weight: 700; color: var(--c-gray); }
+        html.ds-theme .nav-link:hover, html.ds-theme .nav-link.active { color: var(--c-white); }
+        html.ds-theme .logo-wordmark { font-size: 32px; }
+        html.ds-theme .nav-burger span { background: #0c2340; }
+
+        /* — Meniul mobil (drawer) în temă: butoane crem, contur navy, umbră dură; activ = accent — */
+        @media (max-width: 768px) {
+            html.ds-theme .nav-links .nav-link {
+                font-size: 1.25rem; letter-spacing: 2px; color: #0c2340;
+                background: var(--c-surface-elevated);
+                border: 2.5px solid #0c2340;
+                box-shadow: 4px 4px 0 #0c2340;
+            }
+            html.ds-theme .nav-links .nav-link.active {
+                background: var(--c-accent); color: #f5f4e0; border-color: #0c2340;
+            }
+            html.ds-theme .nav-links .nav-link:active { transform: translate(2px, 2px) scale(0.98); box-shadow: 2px 2px 0 #0c2340; }
+        }
+
+        /* — Search / accesibilitate / contact: panouri cu contur navy — */
+        html.ds-theme .search-panel, html.ds-theme .a11y-panel, html.ds-theme .contact-card {
+            border: 3px solid #0c2340; box-shadow: 6px 6px 0 #0c2340;
+        }
+        html.ds-theme .search-close-btn, html.ds-theme .a11y-close-btn, html.ds-theme .contact-close-btn { background: rgba(12, 35, 64, 0.08); }
+        html.ds-theme .search-result-icon, html.ds-theme .a11y-option-icon { background: rgba(178, 74, 168, 0.14); }
+        html.ds-theme .search-result-title, html.ds-theme .search-result-group-label,
+        html.ds-theme .a11y-panel-head h3, html.ds-theme .a11y-group-label, html.ds-theme .a11y-option-text strong {
+            font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif; font-weight: 700; letter-spacing: 0.04em;
+        }
+        html.ds-theme .search-input, html.ds-theme .a11y-step-btn, html.ds-theme .a11y-reset-btn {
+            font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif; font-weight: 400; letter-spacing: 0.04em;
+        }
+
+        /* — Accesibilitate: stări ACTIVE cu culoarea de accent — */
+        html.ds-theme .a11y-option:hover { background: rgba(12, 35, 64, 0.04); }
+        html.ds-theme .a11y-step-btn { background: rgba(12, 35, 64, 0.06); }
+        html.ds-theme .a11y-step-btn:hover:not(:disabled) { background: var(--c-accent); border-color: #0c2340; color: #f5f4e0; }
+        html.ds-theme .a11y-switch { background: rgba(12, 35, 64, 0.12); border-color: rgba(12, 35, 64, 0.32); }
+        html.ds-theme .a11y-switch::after { background: #0c2340; }
+        html.ds-theme .a11y-switch.is-on { background: var(--c-accent); border-color: #0c2340; }
+        html.ds-theme .a11y-switch.is-on::after { background: #f5f4e0; }
+        html.ds-theme .a11y-step-dots i.is-filled { background: var(--c-accent); }
+        html.ds-theme .a11y-trigger { border: 2.5px solid #0c2340; background: rgba(12, 35, 64, 0.05); }
+        html.ds-theme .a11y-trigger:hover, html.ds-theme .a11y-trigger.is-active { background: var(--c-accent); border-color: #0c2340; color: #f5f4e0; }
+        html.ds-theme .a11y-narrator-bar button { background: rgba(12, 35, 64, 0.08); }
+        html.ds-theme .a11y-narrator-bar button:hover { background: rgba(178, 74, 168, 0.16); }
+
+        /* — Footer — */
+        html.ds-theme footer { border-top: 3px solid #0c2340; }
+        html.ds-theme .ft-dept-links a { background-image: linear-gradient(var(--c-accent), var(--c-accent)); }
+        html.ds-theme .ft-dept-links span { color: rgba(12, 35, 64, 0.35); }
+        html.ds-theme .ft-mail { color: var(--c-accent) !important; }
+        html.ds-theme .ft-mail:hover { color: var(--c-accent-2) !important; }
+        html.ds-theme .soc-icon { border: 2.5px solid #0c2340; color: #0c2340; border-radius: 12px; background: transparent; }
+        html.ds-theme .soc-icon:hover { background: #0c2340; color: #f5f4e0; }
+        html.ds-theme .footer-bottom { border-top: 1.5px solid rgba(12, 35, 64, 0.18); color: rgba(12, 35, 64, 0.55); }
+        html.ds-theme .footer-bottom a { color: rgba(12, 35, 64, 0.55); }
+        html.ds-theme .footer-bottom a:hover { color: var(--c-accent); }
+        html.ds-theme .ft-col h4 { letter-spacing: 0.05em; }
+
+        /* — Valori hard-codate pe temă închisă, refăcute pentru tema Discover — */
+        html.ds-theme .hero-grad { background: linear-gradient(to top, var(--c-base) 0%, rgba(245, 244, 224, 0.35) 100%); }
+        html.ds-theme .hero-video { mix-blend-mode: multiply; opacity: 0.45; }
+        html.ds-theme .contact-scroll-hint { background: rgba(245, 244, 224, 0.7); color: #0c2340; }
+        html.ds-theme .swipe-bar { background: var(--c-accent); }
+        html.ds-theme .swipe-bar:nth-child(2) { background: #0c2340; }
+
+        /* — Bordurile: site-ul are un „experiment fără borduri" global (`* { border-width: 0 !important }`,
+             mai sus). Tema Discover folosește contururi navy ca element de design, deci le reactivăm
+             DOAR aici, pe componentele ei. `:root.ds-theme` (0,2,0)+ bate specificitatea regulii globale. — */
+        :root.ds-theme nav { border-bottom-width: 3px !important; }
+        :root.ds-theme footer { border-top-width: 3px !important; }
+        :root.ds-theme .footer-bottom { border-top-width: 1.5px !important; }
+        :root.ds-theme .search-panel, :root.ds-theme .a11y-panel, :root.ds-theme .contact-card { border-width: 3px !important; }
+        :root.ds-theme .soc-icon, :root.ds-theme .a11y-trigger { border-width: 2.5px !important; }
+        :root.ds-theme .a11y-switch, :root.ds-theme .a11y-step-btn { border-width: 1px !important; }
+        @media (max-width: 768px) {
+            :root.ds-theme .nav-links .nav-link { border-width: 2.5px !important; }
+        }
+
+        /* — Contrast ridicat păstrează prioritate peste tema Discover — */
+        html.ds-theme.a11y-contrast {
+            --c-base: #ffffff; --c-surface: #ffffff; --c-surface-elevated: #ffffff;
+            --c-primary: #7a1f73; --c-primary-light: #7a1f73;
+            --c-accent: #7a1f73; --c-accent-glow: rgba(122, 31, 115, 0.5);
+            --c-accent-2: #00506b; --c-accent-2-glow: rgba(0, 80, 107, 0.4);
+            --c-white: #000000; --c-white-off: #000000; --c-gray: #1a1a1a;
+            --c-border-hairline: rgba(0, 0, 0, 0.5); --c-border-soft: rgba(0, 0, 0, 0.55);
+            --c-border: rgba(0, 0, 0, 0.65); --c-border-strong: rgba(0, 0, 0, 0.75);
+            --c-border-med: rgba(0, 0, 0, 0.8); --c-overlay-hover: rgba(0, 0, 0, 0.12);
+            --c-footer-bg: #ffffff; --c-nav-bg: #ffffff; --c-nav-bg-solid: #ffffff;
+            --c-cursor-ring: rgba(0, 0, 0, 0.7);
+            background-image: none !important; background-color: #ffffff !important;
+        }
+        html.ds-theme.a11y-contrast .ds-floaters { display: none; }
     </style>
 </head>
 <body>
@@ -2028,6 +2227,9 @@
         <div class="nav-right">
             <button class="nav-search-btn hover-target" id="navSearchBtn" aria-label="Caută în site" aria-haspopup="dialog" aria-expanded="false" aria-controls="searchOverlay">
                 <i data-lucide="search"></i>
+            </button>
+            <button class="nav-theme-btn hover-target" id="navThemeBtn" aria-label="Schimbă tema: clasic sau Discover SSIC" aria-pressed="false" title="Schimbă tema">
+                <i data-lucide="palette"></i>
             </button>
             <button class="nav-burger hover-target" id="navBurger" aria-label="Deschide meniul" aria-expanded="false">
                 <span></span><span></span><span></span>
@@ -3625,17 +3827,17 @@
         const galContainer = document.getElementById('gallery-container');
         if(galContainer) {
             const images = [
-                '/assets/events/chemistry-fest-1.jpg', '/assets/events/chemistry-fest-3.jpg', '/assets/events/chemistry-fest-4.jpg', '/assets/events/poli-fest-3.jpg',
-                '/assets/events/poli-fest-2.jpg', '/assets/events/chemistry-fest-2.jpg', '/assets/events/poli-fest-4.jpg', '/assets/events/chemex-3.jpg',
-                '/assets/events/chemistry-fest-5.jpg', '/assets/events/poli-fest-1.jpg', '/assets/events/poli-fest-5.jpg', '/assets/events/chemex-2.jpg',
-                '/assets/events/chemex-1.jpg'
+                '/assets/events/chemistry-fest-1.jpg', '/assets/events/poli-fest-2.jpg', '/assets/events/chemistry-fest-5.jpg',
+                '/assets/events/poli-fest-3.jpg', '/assets/events/chemistry-fest-3.jpg', '/assets/events/chemistry-fest-2.jpg',
+                '/assets/events/poli-fest-1.jpg', '/assets/events/chemistry-fest-4.jpg', '/assets/events/chemex-3.jpg',
+                '/assets/events/poli-fest-4.jpg', '/assets/events/poli-fest-5.jpg', '/assets/events/chemex-2.jpg', '/assets/events/chemex-1.jpg'
             ];
             let html = '';
-            const aspects = [1.2, 0.8, 1.5, 0.7, 1.1, 1.4, 0.9, 1.3, 0.6, 1.0, 1.25, 0.85, 1.45, 0.75, 1.15, 1.35];
+            const aspects = [1.2, 0.7, 0.6, 1.0, 1.5, 1.4, 0.8, 1.0, 1.45, 1.3, 1.1, 0.85, 1.25];
             images.forEach((src, i) => {
                 const delay = (i % 6) * 0.08;
                 const aspect = aspects[i % aspects.length];
-                html += `<div class="gal-item hover-target reveal" style="--aspect: ${aspect}; --r-delay: ${delay}s;"><img src="${src}" alt="Eveniment SSIC"></div>`;
+                html += `<div class="gal-item hover-target reveal" style="--aspect: ${aspect}; --r-delay: ${delay}s;"><img src="${src}" alt="Eveniment SSIC" loading="lazy" decoding="async" onerror="this.parentElement.style.display='none'"></div>`;
             });
             galContainer.innerHTML = html;
             observeReveals();
@@ -4354,6 +4556,90 @@
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
         });
+    </script>
+
+    <script>
+        /* ==========================================================================
+           JS: Temă site-wide (clasic ⇄ discover) + stickere în fundal
+           ========================================================================== */
+        (function () {
+            const root = document.documentElement;
+            const KEY = 'ssicTheme';
+            const btn = document.getElementById('navThemeBtn');
+            const IMAGES = [
+                '/assets/events/discover/smiley.png',
+                '/assets/events/discover/flower.png',
+                '/assets/events/discover/heart.png'
+            ];
+            let layer = null;
+
+            function rnd(min, max) { return Math.random() * (max - min) + min; }
+
+            function buildLayer() {
+                if (layer) return;
+                layer = document.createElement('div');
+                layer.className = 'ds-floaters';
+                layer.setAttribute('aria-hidden', 'true');
+                const isMobile = window.matchMedia('(max-width: 480px)').matches;
+                const COUNT = isMobile ? 5 : 8;
+                for (let i = 0; i < COUNT; i++) {
+                    const size = isMobile ? rnd(38, 64) : rnd(50, 92);
+                    const dur = rnd(34, 54);
+                    const wrap = document.createElement('div');
+                    wrap.className = 'ds-float';
+                    wrap.style.width = wrap.style.height = size + 'px';
+                    wrap.style.left = ((i + rnd(0.05, 0.85)) / COUNT * 96).toFixed(1) + 'vw';
+                    wrap.style.setProperty('--dur', dur.toFixed(1) + 's');
+                    wrap.style.setProperty('--delay', (-rnd(0, dur)).toFixed(1) + 's');
+                    wrap.style.setProperty('--static-top', rnd(5, 85).toFixed(0) + 'vh');
+                    const img = document.createElement('img');
+                    img.src = IMAGES[i % IMAGES.length];
+                    img.alt = '';
+                    img.draggable = false;
+                    img.onerror = function () { wrap.remove(); };
+                    img.style.setProperty('--sway', rnd(14, 36).toFixed(0) + 'px');
+                    img.style.setProperty('--tilt', rnd(8, 18).toFixed(0) + 'deg');
+                    img.style.setProperty('--sway-dur', rnd(4.5, 8).toFixed(1) + 's');
+                    img.style.setProperty('--sway-delay', (-rnd(0, 6)).toFixed(1) + 's');
+                    wrap.appendChild(img);
+                    layer.appendChild(wrap);
+                }
+                // Primul copil al <body>, cu z-index negativ: sub navbar, conținut și footer.
+                document.body.insertBefore(layer, document.body.firstChild);
+            }
+            function removeLayer() { if (layer) { layer.remove(); layer = null; } }
+
+            function sync() {
+                const on = root.classList.contains('ds-theme');
+                if (btn) {
+                    btn.setAttribute('aria-pressed', String(on));
+                    btn.title = on ? 'Treci la tema clasică' : 'Treci la tema Discover SSIC';
+                }
+                if (on) buildLayer(); else removeLayer();
+            }
+
+            function setTheme(name) {
+                root.classList.toggle('ds-theme', name === 'discover');
+                try { localStorage.setItem(KEY, name); } catch (e) { /* ignorăm */ }
+                sync();
+            }
+
+            if (btn) btn.addEventListener('click', () => {
+                setTheme(root.classList.contains('ds-theme') ? 'classic' : 'discover');
+                if (typeof haptic === 'function') haptic(10);
+            });
+
+            // bfcache: revenirea pe pagină trebuie să respecte tema salvată (mai puțin pe /discover/, unde e impusă)
+            window.addEventListener('pageshow', (e) => {
+                if (!e.persisted || root.classList.contains('ds-forced')) return;
+                let saved = 'classic';
+                try { saved = localStorage.getItem(KEY) || 'classic'; } catch (err) { /* ignorăm */ }
+                root.classList.toggle('ds-theme', saved === 'discover');
+                sync();
+            });
+
+            sync();
+        })();
     </script>
 </body>
 </html>
