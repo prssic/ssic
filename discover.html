@@ -39,41 +39,48 @@ body {
 
 /* ── Bloc titlu ── */
 .ds-title-block {
-    max-width: 580px;
+    max-width: 620px;
     margin: 0 auto 36px;
     padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 /* "DISCOVER" — static, mare, nav ── */
 .ds-title-discover {
     display: block;
     font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
-    font-size: clamp(3.2rem, 14vw, 6.5rem);
+    font-size: clamp(3.5rem, 16vw, 7rem);
     color: #0c2340;
     letter-spacing: 0.02em;
     line-height: 0.92;
     text-shadow: none;
     -webkit-text-stroke: 0;
+    margin-bottom: -5px;
 }
 
 /* Rândul 2: data + "SSIC" pe aceeași linie ── */
 .ds-title-row2 {
     display: flex;
     align-items: baseline;
-    gap: 14px;
-    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: nowrap;
+    width: 100%;
 }
 .ds-title-dates {
-    font-family: 'Stinger Fit', Impact, sans-serif;
-    font-size: clamp(0.9rem, 3vw, 1.3rem);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 900;
+    font-size: clamp(1rem, 4vw, 1.8rem);
     color: #0c2340;
-    letter-spacing: 0.08em;
+    letter-spacing: -0.02em;
     white-space: nowrap;
 }
 .ds-title-ssic {
     display: block;
     font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
-    font-size: clamp(3.2rem, 14vw, 6.5rem);
+    font-size: clamp(3.5rem, 16vw, 7.5rem);
     color: #0c2340;
     letter-spacing: 0.02em;
     line-height: 0.92;
@@ -96,18 +103,13 @@ body {
     flex: 0 0 80px;
     width: 80px;
     height: 80px;
-    clip-path: polygon(
-        50% 0%,53% 10%,61% 4%,62% 14%,70% 10%,69% 20%,78% 18%,75% 28%,84% 29%,79% 38%,
-        89% 42%,82% 50%,90% 56%,82% 62%,88% 70%,79% 73%,82% 83%,73% 83%,72% 93%,63% 89%,
-        59% 99%,50% 93%,41% 99%,37% 89%,28% 93%,27% 83%,18% 83%,21% 73%,12% 70%,18% 62%,
-        10% 56%,18% 50%,11% 42%,21% 38%,16% 29%,25% 28%,22% 18%,31% 20%,30% 10%,38% 14%,
-        39% 4%,47% 10%
-    );
+    clip-path: polygon(50.0% 0.0%,57.6% 9.7%,65.5% 4.9%,69.8% 15.6%,79.4% 15.5%,79.8% 26.6%,88.0% 30.9%,85.0% 41.5%,95.1% 49.0%,89.0% 58.8%,97.6% 68.5%,89.4% 76.5%,95.1% 87.6%,85.0% 92.8%,88.0% 103.5%,76.6% 104.9%,74.8% 115.8%,62.6% 112.5%,55.7% 121.8%,45.0% 114.7%,34.5% 121.8%,30.1% 111.1%,18.4% 114.5%,18.0% 103.5%,6.0% 101.9%,10.0% 91.2%,-1.2% 84.7%,6.0% 74.8%,-3.7% 64.0%,5.8% 54.9%,-1.2% 43.1%,10.0% 38.2%,6.0% 26.8%,18.0% 25.8%,18.4% 14.8%,30.1% 18.2%,34.5% 7.4%,45.0% 14.5%);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-family: 'Stinger Fit', Impact, sans-serif;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 900;
     font-size: 1.8rem;
     color: #0c2340;
     line-height: 1;
@@ -119,9 +121,9 @@ body {
 }
 .ds-row.star-right .ds-star { transform: rotate(5deg); }
 .ds-star .ds-day {
-    font-family: 'Stinger Fit', Impact, sans-serif;
-    font-size: 0.5rem;
-    font-weight: bold;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.55rem;
+    font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     margin-top: 2px;
@@ -133,26 +135,31 @@ body {
     flex: 1;
     background: #f5f4e0;
     border: 3px solid #1a2a5e;
-    border-radius: 999px;
+    border-radius: 16px;
     box-shadow: 5px 5px 0 #1a2a5e;
-    padding: 16px 22px;
-    min-height: 78px;
+    padding: 12px 16px;
+    min-height: 70px;
     display: flex;
     align-items: center;
     position: relative;
     z-index: 2;
+    overflow: hidden;
 }
 
 /* Textul glitch — DOAR litere, mai lent ── */
 .ds-glitch {
-    font-family: 'Stinger Fit', Impact, sans-serif;
-    font-size: clamp(0.8rem, 2.5vw, 1.05rem);
-    font-weight: normal;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: clamp(0.75rem, 2.5vw, 1.05rem);
+    font-weight: 800;
     color: #0c2340;
-    line-height: 1.3;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    word-break: break-word;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    text-transform: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    width: 100%;
 }
 
 /* ── Stickere ── */
@@ -182,6 +189,9 @@ body {
     .ds-sticker { width: 52px; }
     .ds-row   { padding: 0 12px; }
 }
+
+/* Ascunde umbra de sus din default.html */
+.page-content::before { display: none !important; }
 </style>
 
 <section class="view active" id="view-discover">
@@ -236,8 +246,8 @@ body {
 
 <script>
 (function () {
-    // Doar litere mari + câteva cifre — fără simboluri
-    const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    // Doar litere și câteva cifre
+    const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
     function randChar() {
         return LETTERS[Math.floor(Math.random() * LETTERS.length)];
