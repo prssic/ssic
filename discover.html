@@ -1,0 +1,130 @@
+---
+layout: default
+view: discover
+permalink: /discover/
+title: Discover SSIC
+description: "Easter egg - Discover SSIC event"
+---
+<style>
+body {
+    background-color: #e8f05e !important;
+    background-image: repeating-linear-gradient(45deg, #af5d9e 25%, transparent 25%, transparent 75%, #af5d9e 75%, #af5d9e), repeating-linear-gradient(45deg, #af5d9e 25%, #e8f05e 25%, #e8f05e 75%, #af5d9e 75%, #af5d9e) !important;
+    background-position: 0 0, 40px 40px !important;
+    background-size: 80px 80px !important;
+}
+
+body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: radial-gradient(circle, transparent 20%, #e8f05e 20%, #e8f05e 80%, transparent 80%, transparent) 0 0 / 6px 6px;
+    opacity: 0.15; pointer-events: none; z-index: -1;
+}
+
+.app { background: transparent !important; }
+
+@keyframes textGlitch {
+    0% { transform: translate(0); letter-spacing: 0; filter: blur(0); }
+    20% { transform: translate(-2px, 1px); letter-spacing: 2px; filter: blur(1px); color: #af5d9e; }
+    40% { transform: translate(2px, -1px); letter-spacing: -1px; filter: blur(0); color: #111; }
+    60% { transform: translate(-1px, 2px); letter-spacing: 4px; filter: blur(2px); }
+    80% { transform: translate(1px, -2px); letter-spacing: -2px; filter: blur(0); color: #af5d9e; }
+    100% { transform: translate(0); letter-spacing: 0; filter: blur(0); color: #111; }
+}
+.glitch-text {
+    display: inline-block;
+    animation: textGlitch 0.4s infinite;
+    font-family: 'Stinger Fit', sans-serif, monospace;
+    font-weight: 900;
+}
+
+@keyframes swayRot {
+    0% { transform: rotate(-10deg); }
+    100% { transform: rotate(10deg); }
+}
+
+.sticker {
+    position: absolute;
+    animation: swayRot 3s infinite alternate ease-in-out;
+    filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.3));
+    z-index: 10;
+}
+
+.discover-box {
+    background: #fdfdf5;
+    border: 3px solid #111;
+    border-radius: 40px;
+    box-shadow: 6px 6px 0px #111;
+    padding: 15px 30px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    color: #111;
+    font-family: 'Stinger Fit', sans-serif;
+    font-weight: 900;
+    font-size: 1.2rem;
+    min-height: 80px;
+    max-width: 500px;
+    margin-left: auto; margin-right: auto;
+}
+
+.discover-date-star {
+    position: absolute;
+    left: -20px;
+    width: 80px; height: 80px;
+    background: #ff55aa;
+    clip-path: polygon(50% 0%, 61% 16%, 80% 10%, 84% 29%, 100% 35%, 94% 53%, 100% 70%, 83% 76%, 79% 95%, 60% 89%, 47% 100%, 35% 88%, 15% 94%, 19% 75%, 2% 69%, 9% 50%, 0% 32%, 18% 25%, 19% 5%, 38% 12%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: #111; border: 2px solid #111;
+    font-size: 1.5rem; line-height: 1; transform: rotate(-5deg);
+}
+.discover-date-star span { font-size: 0.7rem; font-weight: bold; }
+
+.db-text { margin-left: 60px; flex: 1; line-height: 1.2; text-transform: uppercase; }
+
+.d-title {
+    text-align: center;
+    font-family: 'Stinger Fit', sans-serif;
+    font-size: clamp(3rem, 10vw, 5rem); font-weight: 900; color: #0c2340;
+    text-transform: uppercase; margin-bottom: 40px;
+    text-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+}
+
+h1, p { color: #111 !important; }
+.nav-backdrop { background: rgba(232, 240, 94, 0.7) !important; }
+</style>
+
+<section class="view active" id="view-discover">
+    <div class="page-content" style="padding-top: 150px; min-height: 100vh;">
+        <div class="d-title reveal">DISCOVER SSIC</div>
+        
+        <div style="position:relative; padding-bottom: 40px; max-width: 600px; margin: 0 auto;" class="reveal">
+            <!-- Stickere libere -->
+            <img src="/assets/events/discover/smiley.png" class="sticker" style="top: -40px; right: 0; width: 80px;">
+            <img src="/assets/events/discover/daisy.png" class="sticker" style="top: 200px; right: -20px; width: 90px; animation-delay: -1s;">
+            <img src="/assets/events/discover/heart.png" class="sticker" style="bottom: -20px; left: -10px; width: 100px; animation-delay: -2s;">
+
+            <!-- Casute glitch -->
+            <div class="discover-box">
+                <div class="discover-date-star" style="background: #ff55aa;">28<span>LUNI</span></div>
+                <div class="db-text glitch-text">P@3z&nt*r^ $$IC - J!c d% cun0@st#re</div>
+            </div>
+            <div class="discover-box">
+                <div class="discover-date-star" style="background: #55ccee;">29<span>MARȚI</span></div>
+                <div class="db-text glitch-text">Ph0t0 $c@v&ng#r H*nt</div>
+            </div>
+            <div class="discover-box">
+                <div class="discover-date-star" style="background: #ffdd44;">30<span>MIERCURI</span></div>
+                <div class="db-text glitch-text">Tr!v!@ N!ght $$IC x L$F$A x Y@IMM</div>
+            </div>
+            <div class="discover-box">
+                <div class="discover-date-star" style="background: #99eeaa;">1<span>JOI</span></div>
+                <div class="db-text glitch-text">B!ng0 M*z!c@l & Un!St@rt P@rty</div>
+            </div>
+            <div class="discover-box">
+                <div class="discover-date-star" style="background: #ff6622;">2<span>VINERI</span></div>
+                <div class="db-text glitch-text">G&t t0 kn0w B*ch@r&st ft. $$IC</div>
+            </div>
+        </div>
+    </div>
+</section>
