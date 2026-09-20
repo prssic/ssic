@@ -451,6 +451,12 @@
         }
         .typed-cursor.is-typing { animation: none; opacity: 1; }
         @keyframes cursorBlink { 0%, 45% { opacity: 1; } 50%, 95% { opacity: 0; } 100% { opacity: 1; } }
+
+        /* Legănarea micii iconițe (margaretă) de lângă "DiscoverSSIC" din Calendar — clasa
+           inline din evenimente.html o folosește (animation: swayRot ...), dar definiția
+           lipsea complet din default.html, deci nu se mișca niciodată. Toate stilurile/
+           animațiile noi trebuie să existe aici, nu doar referite din paginile individuale. */
+        @keyframes swayRot { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
         @media (prefers-reduced-motion: reduce) {
             .typed-cursor { animation: cursorBlink 1.4s steps(1) infinite; }
         }
@@ -1936,13 +1942,7 @@
                 -webkit-backdrop-filter: blur(10px) saturate(var(--glass-saturation));
             }
         }
-    
-    @media (max-width: 480px) {
-        #view-evenimente .event-content-wrapper,
-        #view-evenimente .evsub { padding-left: 20px !important; padding-right: 20px !important; }
-        #view-evenimente .carousel-container { max-width: calc(100vw - 40px) !important; margin: 0 auto !important; }
-    }
-</style>
+    </style>
 </head>
 <body>
 
@@ -2023,7 +2023,7 @@
             <li><a class="nav-link hover-target{% if page.view == 'board' %} active{% endif %}" data-target="board" href="/board/">Board</a></li>
             <li><a class="nav-link hover-target{% if page.view == 'facultate' %} active{% endif %}" data-target="facultate" href="/facultate/">Facultate</a></li>
             <li><a class="nav-link hover-target{% if page.view == 'studenti' %} active{% endif %}" data-target="studenti" href="/studenti/">Studenți</a></li>
-            <li><a class="nav-link hover-target{% if page.view == 'gallery' %} active{% endif %}" data-target="gallery" href="/gallery/">Galerie</a></li>
+            <li><a class="nav-link hover-target{% if page.view == 'galerie' %} active{% endif %}" data-target="galerie" href="/galerie/">Galerie</a></li>
         </ul>
         <div class="nav-right">
             <button class="nav-search-btn hover-target" id="navSearchBtn" aria-label="Caută în site" aria-haspopup="dialog" aria-expanded="false" aria-controls="searchOverlay">
@@ -3127,8 +3127,8 @@
            server/GitHub Pages. Nu mai există un singur "view" ascuns/arătat prin JS:
            id-ul paginii curente vine direct din front matter-ul paginii Jekyll.
            ========================================================================== */
-        const viewUrls = { home: '/', avizier: '/avizier/', evenimente: '/evenimente/', board: '/board/', facultate: '/facultate/', studenti: '/studenti/', gallery: '/gallery/' };
-        const navOrder = ['home', 'avizier', 'evenimente', 'board', 'facultate', 'studenti', 'gallery'];
+        const viewUrls = { home: '/', avizier: '/avizier/', evenimente: '/evenimente/', board: '/board/', facultate: '/facultate/', studenti: '/studenti/', galerie: '/galerie/' };
+        const navOrder = ['home', 'avizier', 'evenimente', 'board', 'facultate', 'studenti', 'galerie'];
         let currentViewId = '{{ page.view }}';
         // Verificată LA FIECARE navigare (nu memorată o singură dată la încărcarea paginii):
         // comutatorul de accesibilitate poate fi activat chiar în timpul sesiunii curente,
@@ -3625,11 +3625,10 @@
         const galContainer = document.getElementById('gallery-container');
         if(galContainer) {
             const images = [
-                '/assets/events/chemistry-fest-1.jpg', '/assets/events/chemex-1.jpg', '/assets/events/poli-fest-1.jpg',
-                '/assets/events/chemistry-fest-2.jpg', '/assets/events/chemex-2.jpg', '/assets/events/poli-fest-2.jpg',
-                '/assets/events/chemistry-fest-3.jpg', '/assets/events/chemex-3.jpg', '/assets/events/poli-fest-3.jpg',
-                '/assets/events/chemistry-fest-4.jpg', '/assets/events/poli-fest-4.jpg',
-                '/assets/events/chemistry-fest-5.jpg', '/assets/events/poli-fest-5.jpg'
+                '/assets/events/chemistry-fest-1.jpg', '/assets/events/poli-fest-1.jpg', '/assets/events/chemistry-fest-2.jpg', '/assets/events/poli-fest-2.jpg',
+                '/assets/events/chemistry-fest-3.jpg', '/assets/events/poli-fest-3.jpg', '/assets/events/chemistry-fest-4.jpg', '/assets/events/poli-fest-4.jpg',
+                '/assets/events/chemistry-fest-5.jpg', '/assets/events/poli-fest-5.jpg',
+                '/assets/events/chemex-1.jpg', '/assets/events/chemex-2.jpg', '/assets/events/chemex-3.jpg'
             ];
             let html = '';
             const aspects = [1.2, 0.8, 1.5, 0.7, 1.1, 1.4, 0.9, 1.3, 0.6, 1.0, 1.25, 0.85, 1.45, 0.75, 1.15, 1.35];
@@ -3747,7 +3746,7 @@
                 { group: 'Secțiuni', title: 'Structură Board', sub: 'Echipa de conducere', icon: 'users', view: 'board' },
                 { group: 'Secțiuni', title: 'Reprezentare în Facultate', sub: 'Conducere, senatori, consilieri', icon: 'landmark', view: 'facultate' },
                 { group: 'Secțiuni', title: 'Studenți: Cămine, Tips & Hartă', sub: 'Info cămine, sfaturi practice, hartă interactivă', icon: 'graduation-cap', view: 'studenti' },
-                { group: 'Secțiuni', title: 'Galerie', sub: 'Poze din activități', icon: 'image', view: 'gallery' },
+                { group: 'Secțiuni', title: 'Galerie', sub: 'Poze din activități', icon: 'image', view: 'galerie' },
 
                 { group: 'Evenimente', title: 'Poli Chemistry Fest', sub: 'Evenimente', icon: 'flask-conical', view: 'evenimente', eventIndex: 0, targetId: 'ev-0' },
                 { group: 'Evenimente', title: 'Poli Fest', sub: 'Evenimente', icon: 'flask-conical', view: 'evenimente', eventIndex: 1, targetId: 'ev-1' },
