@@ -1307,6 +1307,9 @@
         html.a11y-narrator-mode :is(p, h1, h2, h3, h4, li, a, button, .team-name, .search-result-title):hover {
             outline: 2px dashed var(--c-accent); outline-offset: 4px; border-radius: 3px;
         }
+        html.a11y-narrator-mode .a11y-narrator-armed {
+            outline: 2px solid var(--c-accent); outline-offset: 4px; border-radius: 3px;
+        }
         .a11y-narrator-bar {
             position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(12px);
             z-index: 9300; display: flex; align-items: center; gap: 10px;
@@ -4506,6 +4509,7 @@
             function stopNarration() {
                 isPaused = false;
                 spokenOffset = 0;
+                if (typeof clearArmed === 'function') clearArmed();
                 if (canSpeak) window.speechSynthesis.cancel();
                 if (narratorBar) narratorBar.classList.remove('is-visible');
             }
@@ -4518,14 +4522,79 @@
                 if (!prefs.narrator) stopNarration();
             });
 
-            const NARRATOR_SELECTOR = 'p, h1, h2, h3, h4, li, a, button, .team-name, .search-result-title';
+            /* ---- Click în modul narator: PRIMUL click/tap citește, AL DOILEA acționează ----
+               Elementele de text (p, titluri, li...) sunt doar citite. Elementele interactive
+               (butoane, linkuri, file, comutatoare, .hover-target) se comportă în doi pași:
+               1) primul click/tap: le citim (nume + tip) și le „armăm”;
+               2) al doilea click/tap pe ACELAȘI element (în 20 s): oprim citirea și lăsăm
+                  click-ul să treacă normal, deci butonul/linkul acționează.
+               Click-ul pe alt element schimbă elementul armat. */
+            const NARRATOR_TEXT = 'p, h1, h2, h3, h4, li, .team-name, .search-result-title';
+            const NARRATOR_INTERACTIVE = 'a[href], button, [role="button"], [role="link"], [role="tab"], [role="switch"], [role="menuitem"], summary, .hover-target';
+            const NARRATOR_EXEMPT = '#a11yOverlay, .a11y-narrator-bar, #a11yTriggerBtn, .a11y-trigger';
+            const ARM_WINDOW_MS = 20000;
+            let armedEl = null;
+            let armedAt = 0;
+
+            function clearArmed() {
+                if (armedEl) armedEl.classList.remove('a11y-narrator-armed');
+                armedEl = null;
+            }
+            function armElement(el) {
+                clearArmed();
+                armedEl = el;
+                armedAt = Date.now();
+                el.classList.add('a11y-narrator-armed');
+            }
+            function setNarratorHint(text) {
+                if (narratorLabel) narratorLabel.textContent = text;
+            }
+
+            // Ce se citește pentru un element interactiv: nume + tip (ex. „Galerie, link”).
+            function describeInteractive(el) {
+                const clean = (t) => (t || '').replace(/\s+/g, ' ').trim();
+                let name = clean(el.getAttribute('aria-label'));
+                if (!name) name = clean(el.textContent);
+                if (!name) name = clean(el.getAttribute('title'));
+                if (!name) { const img = el.querySelector('img[alt]'); if (img) name = clean(img.getAttribute('alt')); }
+                if (!name) name = clean(el.getAttribute('placeholder') || el.value);
+                if (name.length > 400) name = name.slice(0, 400) + '…';
+
+                let kind = 'buton';
+                if (el.matches('a[href], [role="link"]')) kind = 'link';
+                else if (el.matches('[role="tab"]')) kind = 'filă';
+                else if (el.matches('[role="switch"]')) kind = 'comutator, ' + (el.getAttribute('aria-checked') === 'true' ? 'activat' : 'dezactivat');
+                return (name ? name + ', ' : '') + kind;
+            }
+
             document.addEventListener('click', (e) => {
                 if (!html.classList.contains('a11y-narrator-mode')) return;
-                if (e.target.closest('#a11yOverlay, .a11y-narrator-bar, #a11yTriggerBtn')) return;
-                const el = e.target.closest(NARRATOR_SELECTOR);
+                if (e.target.closest(NARRATOR_EXEMPT)) return;
+
+                // 1) Element interactiv (are prioritate, chiar dacă textul din el e un <p>/<li>)
+                const inter = e.target.closest(NARRATOR_INTERACTIVE);
+                if (inter) {
+                    const isSecondTap = armedEl === inter && (Date.now() - armedAt) < ARM_WINDOW_MS;
+                    if (isSecondTap) {
+                        // Al doilea click: lăsăm acțiunea să se întâmple normal.
+                        clearArmed();
+                        stopNarration();
+                        return;
+                    }
+                    e.preventDefault(); e.stopPropagation();
+                    armElement(inter);
+                    speak(describeInteractive(inter));
+                    setNarratorHint('Apasă din nou pentru a activa');
+                    return;
+                }
+
+                // 2) Text simplu: doar se citește
+                const el = e.target.closest(NARRATOR_TEXT);
                 if (!el) return;
+                clearArmed();
                 e.preventDefault(); e.stopPropagation();
                 speak(el.textContent);
+                setNarratorHint('Se citește...');
             }, true);
 
             if (narratorPlayPause) narratorPlayPause.addEventListener('click', () => {
