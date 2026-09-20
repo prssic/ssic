@@ -441,52 +441,88 @@ html.ds-io .ds-row.in { animation-play-state: running; animation-delay: 0s; }
     <footer class="global-footer"></footer>
 </section>
 
-<!-- Frumos încercat, dar nu e nimic de citit aici 😏 -->
+<!-- Titlurile sunt criptate (AES-256-GCM). Cheia NU e în pagină: apare într-un fișier separat, publicat la dezvăluire. -->
 <script>
 (function () {
     const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
-    // Titlurile evenimentelor NU stau ca text simplu în pagină — sunt encodate
-    // și decodate abia în browser, în ordinea rândurilor (LUNI → VINERI).
-    const ENCODED = [
-        "UHJlemVudGFyZSBTU0lDLSBKb2MgZGUgY3Vub2HImXRlcmU=",
-        "UGhvdG8gU2NhdmVuZ2VyIEh1bnQ=",
-        "VHJpdmlhIE5pZ2h0IFNTSUMgeCBMU0ZTQSB4IFlBSU1N",
-        "QmluZ28gTXV6aWNhbCAmIFVuaVN0YXJ0IFBhcnR5",
-        "R2V0IHRvIGtub3cgQnVjaGFyZXN0IGZ0LiBTU0lD"
+    // Forme de zgomot inventate (nu au legătură cu lungimea sau cuvintele reale ale titlurilor).
+    const SHAPES = [
+        'XXXXXXXXXXX XXXX XXXXXXXXXXXX',
+        'XXXXX XXXXXXXXXX XXXX',
+        'XXXXXX XXXXX XXXX x XXXXX',
+        'XXXXX XXXXXXX & XXXXXXXX XXXXX',
+        'XXX XX XXXXX XXXXXXXXX XX. XXXX'
     ];
 
-    function decode(b64) {
-        const binary = atob(b64);
-        const bytes = new Uint8Array(binary.length);
-        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-        return new TextDecoder('utf-8').decode(bytes);
-    }
+    // Titlurile evenimentelor (LUNI → VINERI), criptate. Fără cheie sunt inutile.
+    const ENCRYPTED = [
+        "0vizrvzfiVS9XhgHRyhFhY9GjKg5gX6/IwLPPGpCOcsxbyKHudtz2H7/aqkS/TbTGHTMQO4iIKaZRwSVKchW",
+        "r3kX5eld3nUviCiPog4kX2nNzcC3C+l6QRbG91eDlzoozd38TNGNoauF+4MvMtWB",
+        "DHqZoUxpzCkY2UiROhcwHB2/282zzkQuUTnd2J11UjIjfO+yPm7fxBOOMLHJn7CnGvy5fKeY12yk02sosg==",
+        "Z9oBF0pXD3MAXi+HwXgxPBiO/rV2DFh1bMe5GUZH4iRMhetyERbt3AuASqziUuBZfAHE/A4RZ1HgfA==",
+        "sf8RaGYvivzOT1SkaMzN0Bi6/U4Bn0egVekNk5+8DZy/bC0jmR51Z3XWVrelYomOi9evtEbqcqkQiA=="
+    ];
+
+    // Cheia se citește DOAR de aici, și doar după REVEAL_AT. Până când nu publici fișierul, fetch-ul dă 404 și pagina rămâne pe zgomot.
+    const KEY_URL = '/assets/discover-key.txt';
+    const REVEAL_AT = new Date('2026-09-21T12:00:00+03:00').getTime();
+    const RETRY_MS = 30000;
+
+    const els = Array.from(document.querySelectorAll('.ds-glitch'));
+    const timers = [];
 
     function randChar() {
         return LETTERS[Math.floor(Math.random() * LETTERS.length)];
     }
 
-    document.querySelectorAll('.ds-glitch').forEach((el, i) => {
-        const orig = decode(ENCODED[i] || '');
-
+    els.forEach((el, i) => {
+        const shape = SHAPES[i % SHAPES.length];
         function randomizeText() {
-            let newText = '';
-            for (let c = 0; c < orig.length; c++) {
-                if (orig[c] === ' ' || orig[c] === '-') {
-                    newText += orig[c]; // Preserve only spaces/hyphens, for word-shape/spacing
-                } else {
-                    // Always a fresh random letter — the real character is never
-                    // shown, so nothing ever reads as a recognizable word
-                    newText += randChar();
-                }
+            let t = '';
+            for (let c = 0; c < shape.length; c++) {
+                const ch = shape[c];
+                t += (ch === ' ' || ch === '-' || ch === '&' || ch === '.') ? ch : randChar();
             }
-            el.textContent = newText;
+            el.textContent = t;
         }
-
         randomizeText();
-        setInterval(randomizeText, 45); // zgomot rapid, dar nu 1ms: nu blochează pagina și nu încurcă animațiile stickerelor
+        timers[i] = setInterval(randomizeText, 45); // zgomot rapid, dar nu 1ms: nu blochează pagina și nu încurcă animațiile stickerelor
     });
+
+    function b64bytes(b64) {
+        const bin = atob(b64.trim());
+        const out = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+        return out;
+    }
+
+    async function decryptAll(keyB64) {
+        const key = await crypto.subtle.importKey('raw', b64bytes(keyB64), 'AES-GCM', false, ['decrypt']);
+        return Promise.all(ENCRYPTED.map(async (e) => {
+            const b = b64bytes(e);
+            const buf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b.slice(0, 12) }, key, b.slice(12));
+            return new TextDecoder('utf-8').decode(buf);
+        }));
+    }
+
+    function tryReveal() {
+        if (!(window.crypto && crypto.subtle)) return;        // fără HTTPS/WebCrypto rămâne zgomotul
+        fetch(KEY_URL, { cache: 'no-store' })
+            .then((r) => { if (!r.ok) throw new Error('no key'); return r.text(); })
+            .then(decryptAll)
+            .then((names) => {
+                els.forEach((el, i) => {
+                    clearInterval(timers[i]);
+                    el.style.whiteSpace = 'normal';
+                    el.style.textOverflow = 'clip';
+                    el.textContent = names[i] || '';
+                });
+            })
+            .catch(() => { setTimeout(tryReveal, RETRY_MS); });
+    }
+    // Nu întrebăm de cheie înainte de ora dezvăluirii (mic jitter, ca să nu vină toți vizitatorii deodată).
+    setTimeout(tryReveal, Math.max(0, REVEAL_AT - Date.now()) + Math.random() * 5000);
 })();
 
 /* Zilele din stele (LUNI … MIERCURI) se micșorează automat dacă nu încap în steluță —
