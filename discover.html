@@ -39,7 +39,7 @@ html.ds-theme body { background: transparent !important; }
 .page-content { background: transparent !important; position: relative; z-index: 2; }
 
 /* Navbar — rămâne dark ca restul site-ului, nu se îngălbenește */
-.nav-glass-blur { background: rgba(10, 15, 35, 0.97) !important; } /* aproape opac: nimic nu se vede prin el */
+.nav-glass-blur { background: rgba(10, 15, 35, 0.85) !important; }
 
 /* ── @font-face local Stinger Fit (Varianta FULL) — DOAR pt. titlu ── */
 @font-face {
@@ -69,10 +69,39 @@ html.ds-theme #a11yOverlay {
     font-family: var(--ds-font);
 }
 
+/* ── Hero fullscreen: titlul umple primul ecran, navbar-ul e ascuns până la scroll ── */
+.ds-hero {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 0 56px;
+    box-sizing: border-box;
+}
+.ds-scroll-cue {
+    position: absolute;
+    bottom: 22px;
+    left: 50%;
+    margin-left: -17px;
+    animation: ds-cue 1.8s ease-in-out infinite;
+    transition: opacity .3s ease;
+}
+html.ds-scrolled .ds-scroll-cue { opacity: 0; }
+@keyframes ds-cue {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(9px); }
+}
+@media (prefers-reduced-motion: reduce) { .ds-scroll-cue { animation: none; } }
+
+/* Navbar-ul se ascunde/arată prin clasa `nav-hidden` din default.html (vezi scriptul de la finalul paginii). */
+
 /* ── Bloc titlu ── */
 .ds-title-block {
-    max-width: 620px;
-    margin: 0 auto 36px;
+    max-width: 1100px;
+    width: 100%;
+    margin: 0 auto;
     padding: 0 20px;
     display: flex;
     flex-direction: column;
@@ -84,7 +113,7 @@ html.ds-theme #a11yOverlay {
     display: block;
     font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
     font-weight: 700;
-    font-size: clamp(3.5rem, 16vw, 7rem);
+    font-size: clamp(4rem, 17vw, 12rem);
     color: #0c2340;
     letter-spacing: 0.02em;
     line-height: 0.92;
@@ -105,7 +134,7 @@ html.ds-theme #a11yOverlay {
 .ds-title-dates {
     font-family: 'Stinger Fit', Impact, sans-serif;
     font-weight: 700;
-    font-size: clamp(1.1rem, 5vw, 2rem);
+    font-size: clamp(1.2rem, 4.2vw, 3rem);
     color: #0c2340;
     letter-spacing: 0.05em;
     white-space: nowrap;
@@ -116,7 +145,7 @@ html.ds-theme #a11yOverlay {
     display: block;
     font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
     font-weight: 700;
-    font-size: clamp(3.5rem, 16vw, 7.5rem);
+    font-size: clamp(4rem, 17vw, 12rem);
     color: #0c2340;
     letter-spacing: 0.02em;
     line-height: 0.92;
@@ -178,7 +207,8 @@ html.ds-theme #a11yOverlay {
     font-size: 0.65rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
     margin-top: 2px;
     color: #0c2340;
 }
@@ -257,9 +287,9 @@ html.ds-theme #a11yOverlay {
 
 /* ── Mobile ── */
 @media (max-width: 480px) {
-    .ds-title-discover { font-size: clamp(3rem, 15vw, 6rem); margin-bottom: 0px; }
-    .ds-title-ssic { font-size: clamp(3rem, 15vw, 6rem); }
-    .ds-title-dates { font-size: clamp(0.9rem, 4.5vw, 1.4rem); }
+    .ds-title-discover { font-size: clamp(3rem, 18vw, 6rem); margin-bottom: 0px; }
+    .ds-title-ssic { font-size: clamp(3rem, 18vw, 6rem); }
+    .ds-title-dates { font-size: clamp(0.9rem, 5vw, 1.4rem); }
     .ds-star-wrap { flex: 0 0 66px; width: 66px; height: 66px; margin: 0 -12px; }
     .ds-star { font-size: 1.7rem; }
     .ds-pill  { padding: 10px 14px; min-height: 60px; border-radius: 14px; }
@@ -389,6 +419,9 @@ html.ds-theme #a11yOverlay {
     100% { opacity: 1; transform: translateX(0); }
 }
 
+html.ds-io .ds-row { animation-play-state: paused; }
+html.ds-io .ds-row.in { animation-play-state: running; animation-delay: 0s; }
+
 @media (prefers-reduced-motion: reduce) {
     .ds-title-discover, .ds-title-dates, .ds-title-ssic, .ds-row {
         animation: none !important; opacity: 1 !important; transform: none !important; filter: none !important;
@@ -452,53 +485,55 @@ html.ds-theme #a11yOverlay .a11y-switch { background: rgba(12,35,64,0.12); }
 html.ds-theme #a11yOverlay .a11y-switch::after { background: #0c2340; }
 
 /* ══════════════════════════════════════════════════════════════
-   STINGER FIT extins: navbar, titluri search / accesibilitate / footer.
-   Bold (700) pe titluri, Regular (400) pe linkuri, etichete și butoane.
-   Textele lungi (descrieri, paragrafe) rămân în DM Sans.
+   STINGER FIT extins — selectori exacți din default.html.
+   Bold (700) pe titluri și navigare, Regular (400) pe etichete/inputuri.
+   Descrierile și textele lungi rămân în DM Sans.
    ══════════════════════════════════════════════════════════════ */
 
-/* Navbar — tot textul, Regular; brandul/titlurile, Bold */
-html.ds-theme nav, html.ds-theme nav a, html.ds-theme nav button, html.ds-theme nav span,
-html.ds-theme header, html.ds-theme header a, html.ds-theme header button,
-html.ds-theme .nav-glass-blur, html.ds-theme .nav-glass-blur a, html.ds-theme .nav-glass-blur button {
+/* Navbar + meniul mobil (.nav-links devine drawer pe mobil) */
+html.ds-theme nav .nav-link,
+html.ds-theme .nav-links .nav-link,
+html.ds-theme nav .logo-wordmark {
     font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
-    font-weight: 400;
-    letter-spacing: 0.04em;
-}
-html.ds-theme nav [class*="logo"], html.ds-theme nav [class*="brand"],
-html.ds-theme nav [class*="active"], html.ds-theme nav a.active,
-html.ds-theme header [class*="logo"], html.ds-theme header [class*="brand"] {
     font-weight: 700;
+    font-synthesis: weight;
+}
+html.ds-theme nav .nav-link { font-size: 16px; letter-spacing: 2px; }
+html.ds-theme nav .logo-wordmark { font-size: 32px; }
+@media (max-width: 900px) {
+    html.ds-theme .nav-links .nav-link { font-size: 1.25rem; letter-spacing: 2px; }
 }
 
-/* Search + Accesibilitate — titluri Bold, etichete/inputuri Regular */
-html.ds-theme #searchOverlay h1, html.ds-theme #searchOverlay h2,
-html.ds-theme #searchOverlay h3, html.ds-theme #searchOverlay h4,
-html.ds-theme #searchOverlay [class*="title"], html.ds-theme #searchOverlay [class*="heading"],
-html.ds-theme #searchOverlay [class*="header"],
-html.ds-theme #a11yOverlay h1, html.ds-theme #a11yOverlay h2,
-html.ds-theme #a11yOverlay h3, html.ds-theme #a11yOverlay h4,
-html.ds-theme #a11yOverlay [class*="title"], html.ds-theme #a11yOverlay [class*="heading"],
-html.ds-theme #a11yOverlay [class*="header"] {
+/* Search */
+html.ds-theme #searchOverlay .search-result-title,
+html.ds-theme #searchOverlay .search-result-group-label {
     font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
     font-weight: 700;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.04em;
 }
-html.ds-theme #searchOverlay .search-input,
-html.ds-theme #searchOverlay .search-input::placeholder,
-html.ds-theme #searchOverlay [class*="label"], html.ds-theme #searchOverlay [class*="category"],
-html.ds-theme #searchOverlay [class*="section"],
-html.ds-theme #a11yOverlay [class*="label"], html.ds-theme #a11yOverlay [class*="option-name"],
-html.ds-theme #a11yOverlay [class*="option-title"], html.ds-theme #a11yOverlay [class*="section"] {
+html.ds-theme #searchOverlay .search-input {
     font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
     font-weight: 400;
     letter-spacing: 0.04em;
 }
 
-/* Footer — titluri Bold, linkuri și subsol Regular */
-#view-discover footer.global-footer .ft-col h4,
-#view-discover footer.global-footer h1, #view-discover footer.global-footer h2,
-#view-discover footer.global-footer h3 {
+/* Accesibilitate */
+html.ds-theme #a11yOverlay .a11y-panel-head h3,
+html.ds-theme #a11yOverlay .a11y-group-label,
+html.ds-theme #a11yOverlay .a11y-option-text strong {
+    font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+html.ds-theme #a11yOverlay .a11y-reset-btn,
+html.ds-theme #a11yOverlay .a11y-step-btn {
+    font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+}
+
+/* Footer */
+#view-discover footer.global-footer .ft-col h4 {
     font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
     font-weight: 700;
     letter-spacing: 0.05em;
@@ -522,20 +557,89 @@ html.ds-theme #a11yOverlay [class*="option-title"], html.ds-theme #a11yOverlay [
     document.documentElement.classList.add('ds-theme');
 </script>
 
+<script>
+/* Navbar ascuns la deschidere, apare la scroll (desktop + mobil).
+   Scroll-ul acestui site NU e pe window (html/body au overflow:hidden), ci pe containerul
+   .view — de-asta ascultăm #view-discover. Folosim aceeași clasă `nav-hidden` ca pe Acasă,
+   deci animația/tranziția vin direct din default.html. */
+(function () {
+    const root = document.documentElement;
+    const THRESHOLD = 24;
+    const supportsHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    let nearTop = false;
+
+    // Ascuns din primul moment (navbar-ul există deja în DOM, înaintea conținutului) — fără flash.
+    const navNow = document.querySelector('nav');
+    if (navNow) navNow.classList.add('nav-hidden');
+
+    function apply() {
+        const view = document.getElementById('view-discover');
+        const nav = document.querySelector('nav');
+        if (!view || !nav) return;
+        const top = view.scrollTop;
+        root.classList.toggle('ds-scrolled', top > THRESHOLD);
+        const menu = document.getElementById('navLinks');
+        const keepOpen = nearTop || nav.contains(document.activeElement) ||
+                         (menu && menu.classList.contains('nav-open'));
+        nav.classList.toggle('nav-hidden', top <= THRESHOLD && !keepOpen);
+    }
+
+    // Pe desktop, ca pe Acasă: navbar-ul reapare dacă duci cursorul lângă marginea de sus.
+    if (supportsHover) {
+        document.addEventListener('mousemove', function (e) {
+            const near = e.clientY < 120;
+            if (near !== nearTop) { nearTop = near; apply(); }
+        });
+    }
+    document.addEventListener('focusin', apply);
+    document.addEventListener('focusout', function () { setTimeout(apply, 0); });
+
+    document.addEventListener('scroll', function (e) {
+        if (e.target && e.target.id === 'view-discover') apply();
+    }, true);
+
+    // default.html cheamă updateNavForView(...) la încărcare și scoate `nav-hidden`;
+    // reaplicăm după el (DOMContentLoaded/load vin după scripturile din pagină).
+    document.addEventListener('DOMContentLoaded', apply);
+    window.addEventListener('load', apply);
+    window.addEventListener('pageshow', apply);
+    apply();
+
+    /* Rândurile cu evenimente se animează când ajung în ecran, nu în timp ce sunt încă sub hero. */
+    if ('IntersectionObserver' in window) {
+        root.classList.add('ds-io');
+        const io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (en) {
+                if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+            });
+        }, { threshold: 0.15 });
+        const observeRows = function () {
+            document.querySelectorAll('.ds-row').forEach(function (r) { io.observe(r); });
+        };
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', observeRows);
+        else observeRows();
+        window.addEventListener('load', observeRows);
+    }
+})();
+</script>
+
 <!-- Fundal static + stickere plutitoare (fixe pe viewport, în spatele conținutului) -->
 <div class="ds-bg" aria-hidden="true"></div>
 <div class="ds-floaters" id="dsFloaters" aria-hidden="true"></div>
 
 <section class="view active" id="view-discover">
-    <div class="page-content" style="padding-top:120px; padding-bottom:80px; min-height:100vh;">
+    <div class="page-content" style="padding-top:0; padding-bottom:80px; min-height:100vh;">
 
         <!-- Titlu STATIC — nu se glitchuiește -->
-        <div class="ds-title-block">
-            <span class="ds-title-discover">DISCOVER</span>
-            <div class="ds-title-row2">
-                <span class="ds-title-dates">28 SEPT – 2 OCT</span>
-                <span class="ds-title-ssic">SSIC</span>
+        <div class="ds-hero">
+            <div class="ds-title-block">
+                <span class="ds-title-discover">DISCOVER</span>
+                <div class="ds-title-row2">
+                    <span class="ds-title-dates">28 SEPT – 2 OCT</span>
+                    <span class="ds-title-ssic">SSIC</span>
+                </div>
             </div>
+            <svg class="ds-scroll-cue" viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="#0c2340" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg>
         </div>
 
         <!-- 28 LUNI — stea stânga, smiley dreapta -->
@@ -703,5 +807,28 @@ html.ds-theme #a11yOverlay [class*="option-title"], html.ds-theme #a11yOverlay [
         wrap.appendChild(img);
         layer.appendChild(wrap);
     }
+})();
+
+/* Zilele din stele (LUNI … MIERCURI) se micșorează automat dacă nu încap în steluță —
+   Safari randează fontul puțin mai lat și clip-path-ul stelei tăia ultimele litere. */
+(function () {
+    function fitDays() {
+        document.querySelectorAll('.ds-star .ds-day').forEach(function (el) {
+            el.style.fontSize = '';
+            const wrap = el.closest('.ds-star-wrap');
+            if (!wrap) return;
+            const max = wrap.offsetWidth * 0.6;
+            let fs = parseFloat(getComputedStyle(el).fontSize);
+            let guard = 0;
+            while (el.offsetWidth > max && fs > 6 && guard++ < 40) {
+                fs -= 0.25;
+                el.style.fontSize = fs + 'px';
+            }
+        });
+    }
+    fitDays();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitDays);
+    window.addEventListener('load', fitDays);
+    window.addEventListener('resize', fitDays);
 })();
 </script>
