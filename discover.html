@@ -24,14 +24,14 @@ body {
 /* ── @font-face local Stinger Fit (Varianta FULL) ── */
 @font-face {
     font-family: 'Stinger Fit';
-    src: url('/assets/fonts/StingerFit-Bold.ttf') format('truetype');
+    src: url('assets/fonts/StingerFit-Bold.ttf') format('truetype');
     font-weight: bold;
     font-style: normal;
     font-display: swap;
 }
 @font-face {
     font-family: 'Stinger Fit';
-    src: url('/assets/fonts/StingerFit-Regular.otf') format('opentype');
+    src: url('assets/fonts/StingerFit-Regular.otf') format('opentype');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
@@ -63,18 +63,18 @@ body {
 /* Rândul 2: data + "SSIC" pe aceeași linie ── */
 .ds-title-row2 {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: center;
-    gap: 16px;
+    gap: 12px;
     flex-wrap: nowrap;
     width: 100%;
+    margin-top: -12px;
 }
 .ds-title-dates {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    font-weight: 900;
-    font-size: clamp(1rem, 4vw, 1.8rem);
+    font-family: 'Stinger Fit', Impact, sans-serif;
+    font-size: clamp(1.1rem, 5vw, 2rem);
     color: #0c2340;
-    letter-spacing: -0.02em;
+    letter-spacing: 0.05em;
     white-space: nowrap;
 }
 .ds-title-ssic {
@@ -99,31 +99,29 @@ body {
 .ds-row.star-right { flex-direction: row-reverse; }
 
 /* ── Steluță starburst ── */
+.ds-star-wrapper { filter: drop-shadow(4px 4px 0 #1a2a5e); z-index: 3; flex-shrink: 0; margin: 0 -16px; display: flex; align-items: center; justify-content: center; }
 .ds-star {
     flex: 0 0 80px;
     width: 80px;
     height: 80px;
-    clip-path: polygon(50.0% 0.0%,57.6% 9.7%,65.5% 4.9%,69.8% 15.6%,79.4% 15.5%,79.8% 26.6%,88.0% 30.9%,85.0% 41.5%,95.1% 49.0%,89.0% 58.8%,97.6% 68.5%,89.4% 76.5%,95.1% 87.6%,85.0% 92.8%,88.0% 103.5%,76.6% 104.9%,74.8% 115.8%,62.6% 112.5%,55.7% 121.8%,45.0% 114.7%,34.5% 121.8%,30.1% 111.1%,18.4% 114.5%,18.0% 103.5%,6.0% 101.9%,10.0% 91.2%,-1.2% 84.7%,6.0% 74.8%,-3.7% 64.0%,5.8% 54.9%,-1.2% 43.1%,10.0% 38.2%,6.0% 26.8%,18.0% 25.8%,18.4% 14.8%,30.1% 18.2%,34.5% 7.4%,45.0% 14.5%);
+    clip-path: polygon(50.0% 2.0%,57.6% 11.7%,65.5% 6.9%,69.8% 17.6%,79.4% 17.5%,79.8% 28.6%,88.0% 32.9%,85.0% 43.5%,95.1% 51.0%,89.0% 60.8%,97.6% 70.5%,89.4% 78.5%,95.1% 89.6%,85.0% 94.8%,88.0% 105.5%,76.6% 106.9%,74.8% 117.8%,62.6% 114.5%,55.7% 123.8%,45.0% 116.7%,34.5% 123.8%,30.1% 113.1%,18.4% 116.5%,18.0% 105.5%,6.0% 103.9%,10.0% 93.2%,-1.2% 86.7%,6.0% 76.8%,-3.7% 66.0%,5.8% 56.9%,-1.2% 45.1%,10.0% 40.2%,6.0% 28.8%,18.0% 27.8%,18.4% 16.8%,30.1% 20.2%,34.5% 9.4%,45.0% 16.5%);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    font-weight: 900;
+    font-family: 'Stinger Fit', Impact, sans-serif;
+    font-weight: bold;
     font-size: 1.8rem;
     color: #0c2340;
     line-height: 1;
-    margin: 0 -16px;
-    z-index: 3;
-    flex-shrink: 0;
+    z-index: 1;
     transform: rotate(-5deg);
-    filter: drop-shadow(4px 4px 0 #1a2a5e);
 }
 .ds-row.star-right .ds-star { transform: rotate(5deg); }
 .ds-star .ds-day {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    font-size: 0.55rem;
-    font-weight: 900;
+    font-family: 'Stinger Fit', Impact, sans-serif;
+    font-size: 0.6rem;
+    font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     margin-top: 2px;
@@ -164,8 +162,10 @@ body {
 
 /* ── Stickere ── */
 .ds-sticker {
-    flex: 0 0 auto;
+    flex: 0 0 66px;
     width: 66px;
+    height: 66px;
+    object-fit: contain;
     animation: swayRot 3s ease-in-out infinite alternate;
     filter: drop-shadow(3px 4px 0 rgba(0,0,0,0.2));
     margin: 0 -6px;
@@ -184,10 +184,15 @@ body {
 
 /* ── Mobile ── */
 @media (max-width: 480px) {
-    .ds-star  { width: 66px; height: 66px; font-size: 1.5rem; }
-    .ds-pill  { padding: 12px 16px; min-height: 64px; }
-    .ds-sticker { width: 52px; }
-    .ds-row   { padding: 0 12px; }
+    .ds-title-discover { font-size: clamp(3rem, 15vw, 6rem); margin-bottom: 0px; }
+    .ds-title-ssic { font-size: clamp(3rem, 15vw, 6rem); }
+    .ds-title-dates { font-size: clamp(0.9rem, 4.5vw, 1.4rem); }
+    .ds-star-wrapper { flex: 0 0 66px; margin: 0 -12px; }
+    .ds-star  { flex: 0 0 66px; width: 66px; height: 66px; font-size: 1.5rem; }
+    .ds-pill  { padding: 10px 14px; min-height: 60px; border-radius: 14px; }
+    .ds-sticker { flex: 0 0 52px; width: 52px; height: 52px; margin: 0 -4px; object-fit: contain; }
+    .ds-sticker-placeholder { flex: 0 0 52px; width: 52px; }
+    .ds-row   { padding: 0 6px; }
 }
 
 /* Ascunde umbra de sus din default.html */
@@ -208,37 +213,57 @@ body {
 
         <!-- 28 LUNI — stea stânga, smiley dreapta -->
         <div class="ds-row">
-            <div class="ds-star" style="background:#ff55aa;">28<span class="ds-day">LUNI</span></div>
-            <div class="ds-pill"><span class="ds-glitch" data-text="PREZENTARE SSIC JOC DE CUNOASTERE"></span></div>
-            <img src="/assets/events/discover/smiley.png" class="ds-sticker s1">
+            <div class="ds-star-wrapper"><div class="ds-star" style="background:#ff3399;">
+                28<div class="ds-day">LUNI</div>
+            </div></div>
+            <div class="ds-pill">
+                <span class="ds-glitch" data-orig="Prezentare SSIC- Joc de cunoaștere"></span>
+            </div>
+            <img src="/assets/events/discover/smiley.png" class="ds-sticker s1" alt="smiley">
         </div>
 
-        <!-- 29 MARȚI — stea dreapta, fără sticker -->
+        <!-- Rândul 2 -->
         <div class="ds-row star-right">
-            <div class="ds-star" style="background:#55ccee;">29<span class="ds-day">MARȚI</span></div>
-            <div class="ds-pill"><span class="ds-glitch" data-text="PHOTO SCAVENGER HUNT"></span></div>
+            <div class="ds-star-wrapper"><div class="ds-star" style="background:#33ccff;">
+                29<div class="ds-day">MARȚI</div>
+            </div></div>
+            <div class="ds-pill">
+                <span class="ds-glitch" data-orig="Photo Scavenger Hunt"></span>
+            </div>
             <div class="ds-sticker-placeholder"></div>
         </div>
 
-        <!-- 30 MIERCURI — stea stânga, daisy dreapta -->
+        <!-- Rândul 3 -->
         <div class="ds-row">
-            <div class="ds-star" style="background:#d4ea3a;">30<span class="ds-day">MIERCURI</span></div>
-            <div class="ds-pill"><span class="ds-glitch" data-text="TRIVIA NIGHT SSIC X LSFSA X YAIMM"></span></div>
-            <img src="/assets/events/discover/daisy.png" class="ds-sticker s2">
+            <div class="ds-star-wrapper"><div class="ds-star" style="background:#ccff33;">
+                30<div class="ds-day">MIERCURI</div>
+            </div></div>
+            <div class="ds-pill">
+                <span class="ds-glitch" data-orig="Trivia Night SSIC x LSFSA x YAIMM"></span>
+            </div>
+            <img src="/assets/events/discover/flower.png" class="ds-sticker s2" alt="flower">
         </div>
 
-        <!-- 1 JOI — stea dreapta, fără sticker -->
+        <!-- Rândul 4 -->
         <div class="ds-row star-right">
-            <div class="ds-star" style="background:#a8f0b0;">1<span class="ds-day">JOI</span></div>
-            <div class="ds-pill"><span class="ds-glitch" data-text="BINGO MUZICAL UNISTART PARTY"></span></div>
+            <div class="ds-star-wrapper"><div class="ds-star" style="background:#99ffcc;">
+                1<div class="ds-day">JOI</div>
+            </div></div>
+            <div class="ds-pill">
+                <span class="ds-glitch" data-orig="Bingo Muzical & UniStart Party"></span>
+            </div>
             <div class="ds-sticker-placeholder"></div>
         </div>
 
-        <!-- 2 VINERI — stea stânga, heart dreapta -->
+        <!-- Rândul 5 -->
         <div class="ds-row">
-            <div class="ds-star" style="background:#ff6622;">2<span class="ds-day">VINERI</span></div>
-            <div class="ds-pill"><span class="ds-glitch" data-text="GET TO KNOW BUCHAREST FT SSIC"></span></div>
-            <img src="/assets/events/discover/heart.png" class="ds-sticker s3">
+            <div class="ds-star-wrapper"><div class="ds-star" style="background:#ff6600;">
+                2<div class="ds-day">VINERI</div>
+            </div></div>
+            <div class="ds-pill">
+                <span class="ds-glitch" data-orig="Get to know Bucharest ft. SSIC"></span>
+            </div>
+            <img src="/assets/events/discover/heart.png" class="ds-sticker s3" alt="heart">
         </div>
 
     </div>
@@ -246,38 +271,29 @@ body {
 
 <script>
 (function () {
-    // Doar litere și câteva cifre
     const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
     function randChar() {
         return LETTERS[Math.floor(Math.random() * LETTERS.length)];
     }
 
-    // Înlocuiește literele din textul original cu litere random
-    // — păstrează spațiile ca să nu pară un bloc solid
-    function scramble(original) {
-        let result = '';
-        for (let i = 0; i < original.length; i++) {
-            if (original[i] === ' ') {
-                result += ' ';
-            } else {
-                // 15% șanse să păstrăm litera originală (creează iluzia că "aproape" se descifrează)
-                result += Math.random() < 0.15 ? original[i] : randChar();
+    document.querySelectorAll('.ds-glitch').forEach(el => {
+        let orig = el.getAttribute('data-orig') || '';
+        
+        function randomizeText() {
+            let newText = '';
+            for (let i = 0; i < orig.length; i++) {
+                if (orig[i] === ' ' || orig[i] === '-') {
+                    newText += orig[i]; // Preserve spaces and hyphens
+                } else {
+                    newText += randChar();
+                }
             }
+            el.innerText = newText;
         }
-        return result;
-    }
 
-    // Titlul NU se glitchuiește — rămâne static
-
-    // Casetele — mai lent: la fiecare 180-280ms
-    document.querySelectorAll('.ds-glitch').forEach(function (el) {
-        const original = el.dataset.text || '';
-        function animBox() {
-            el.textContent = scramble(original);
-            setTimeout(animBox, 180 + Math.random() * 100);
-        }
-        animBox();
+        randomizeText();
+        setInterval(randomizeText, 800 + Math.random() * 400);
     });
 })();
 </script>
