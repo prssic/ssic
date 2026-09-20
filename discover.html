@@ -207,7 +207,8 @@ html.ds-scrolled .ds-scroll-cue { opacity: 0; }
     font-size: 0.65rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
     margin-top: 2px;
     color: #0c2340;
 }
@@ -806,5 +807,28 @@ html.ds-theme #a11yOverlay .a11y-step-btn {
         wrap.appendChild(img);
         layer.appendChild(wrap);
     }
+})();
+
+/* Zilele din stele (LUNI … MIERCURI) se micșorează automat dacă nu încap în steluță —
+   Safari randează fontul puțin mai lat și clip-path-ul stelei tăia ultimele litere. */
+(function () {
+    function fitDays() {
+        document.querySelectorAll('.ds-star .ds-day').forEach(function (el) {
+            el.style.fontSize = '';
+            const wrap = el.closest('.ds-star-wrap');
+            if (!wrap) return;
+            const max = wrap.offsetWidth * 0.6;
+            let fs = parseFloat(getComputedStyle(el).fontSize);
+            let guard = 0;
+            while (el.offsetWidth > max && fs > 6 && guard++ < 40) {
+                fs -= 0.25;
+                el.style.fontSize = fs + 'px';
+            }
+        });
+    }
+    fitDays();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitDays);
+    window.addEventListener('load', fitDays);
+    window.addEventListener('resize', fitDays);
 })();
 </script>
