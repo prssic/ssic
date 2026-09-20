@@ -3,7 +3,7 @@ layout: default
 view: discover
 permalink: /discover/
 title: Discover SSIC
-description: "Discover SSIC"
+description: "Easter egg - Discover SSIC event"
 ---
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,12 +14,19 @@ description: "Discover SSIC"
    layout-ul site-ului): punem un strat propriu, position:fixed, cu pattern
    SVG inline (nu gradient), care se încarcă instant și nu are cum să lipsească.
    Culorile sunt puse și pe html/body ca fallback. ── */
-html.ds-theme, html.ds-theme body { background: #e8f05e !important; }
+html.ds-theme {
+    background-color: #e8f05e !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72'%3E%3Crect width='72' height='72' fill='%23e8f05e'/%3E%3Crect width='36' height='36' fill='%23c060b8'/%3E%3Crect x='36' y='36' width='36' height='36' fill='%23c060b8'/%3E%3C/svg%3E") !important;
+    background-size: 72px 72px !important;
+    background-attachment: fixed !important;
+}
+/* body transparent: altfel și-ar picta fundalul PESTE straturile cu z-index negativ */
+html.ds-theme body { background: transparent !important; }
 
 .ds-bg {
     position: fixed;
     inset: 0;
-    z-index: 0;
+    z-index: -2; /* sub tot conținutul: navbar, titlu, rânduri, footer */
     pointer-events: none;
     background-color: #e8f05e;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72'%3E%3Crect width='72' height='72' fill='%23e8f05e'/%3E%3Crect width='36' height='36' fill='%23c060b8'/%3E%3Crect x='36' y='36' width='36' height='36' fill='%23c060b8'/%3E%3C/svg%3E");
@@ -32,7 +39,7 @@ html.ds-theme, html.ds-theme body { background: #e8f05e !important; }
 .page-content { background: transparent !important; position: relative; z-index: 2; }
 
 /* Navbar — rămâne dark ca restul site-ului, nu se îngălbenește */
-.nav-glass-blur { background: rgba(10, 15, 35, 0.85) !important; }
+.nav-glass-blur { background: rgba(10, 15, 35, 0.97) !important; } /* aproape opac: nimic nu se vede prin el */
 
 /* ── @font-face local Stinger Fit (Varianta FULL) — DOAR pt. titlu ── */
 @font-face {
@@ -159,16 +166,16 @@ html.ds-theme #a11yOverlay {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-family: var(--ds-font);
-    font-weight: 800;
-    font-size: 1.8rem;
+    font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif !important;
+    font-weight: 700;
+    font-size: 2rem;
     color: #0c2340;
     line-height: 1;
     z-index: 1;
 }
 .ds-star .ds-day {
-    font-family: 'Stinger Fit', Impact, sans-serif;
-    font-size: 0.6rem;
+    font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif !important;
+    font-size: 0.65rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -211,31 +218,41 @@ html.ds-theme #a11yOverlay {
     width: 100%;
 }
 
-/* ── Stickere plutitoare în fundal ──
-   Generate din JS: poziție, mărime, traseu, viteză și rotație random.
-   Stau între checkerboard (z 0) și conținut (z 2). ── */
+/* ── Stickere care cad lin, STRICT în fundal ──
+   Strat fix, în spatele conținutului (z 1 < conținut z 2). Puține la număr.
+   Wrapper-ul cade pe verticală (liniar, lent); imaginea din el se leagănă ușor. ── */
 .ds-floaters {
     position: fixed;
     inset: 0;
-    z-index: 1;
+    z-index: -1; /* deasupra checkerboard-ului (-2), sub absolut orice altceva */
     pointer-events: none;
     overflow: hidden;
 }
 .ds-float {
     position: absolute;
+    top: 0;
+    will-change: transform;
+    animation: ds-fall var(--dur, 40s) linear var(--delay, 0s) infinite;
+}
+.ds-float img {
+    display: block;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
     filter: drop-shadow(3px 4px 0 rgba(12,35,64,0.22));
-    will-change: transform;
-    animation: ds-drift var(--dur, 20s) ease-in-out var(--delay, 0s) infinite alternate;
+    animation: ds-sway var(--sway-dur, 6s) ease-in-out var(--sway-delay, 0s) infinite alternate;
 }
-@keyframes ds-drift {
-    0%   { transform: translate(0, 0) rotate(var(--r0, 0deg)); }
-    33%  { transform: translate(var(--x1, 10vw), var(--y1, -8vh)) rotate(var(--r1, 60deg)); }
-    66%  { transform: translate(var(--x2, -8vw), var(--y2, 10vh)) rotate(var(--r2, -40deg)); }
-    100% { transform: translate(var(--x3, 6vw), var(--y3, 4vh)) rotate(var(--r3, 90deg)); }
+@keyframes ds-fall {
+    from { transform: translateY(-20vh); }
+    to   { transform: translateY(120vh); }
+}
+@keyframes ds-sway {
+    from { transform: translateX(calc(var(--sway, 24px) * -1)) rotate(calc(var(--tilt, 12deg) * -1)); }
+    to   { transform: translateX(var(--sway, 24px)) rotate(var(--tilt, 12deg)); }
 }
 @media (prefers-reduced-motion: reduce) {
-    .ds-float { animation: none !important; }
+    .ds-float, .ds-float img { animation: none !important; }
+    .ds-float { top: var(--static-top, 20vh); }
 }
 
 /* ── Mobile ── */
@@ -244,7 +261,7 @@ html.ds-theme #a11yOverlay {
     .ds-title-ssic { font-size: clamp(3rem, 15vw, 6rem); }
     .ds-title-dates { font-size: clamp(0.9rem, 4.5vw, 1.4rem); }
     .ds-star-wrap { flex: 0 0 66px; width: 66px; height: 66px; margin: 0 -12px; }
-    .ds-star { font-size: 1.5rem; }
+    .ds-star { font-size: 1.7rem; }
     .ds-pill  { padding: 10px 14px; min-height: 60px; border-radius: 14px; }
     .ds-row   { padding: 0 6px; }
 }
@@ -390,7 +407,7 @@ html.ds-theme #a11yOverlay {
    ══════════════════════════════════════════════════════════════ */
 html.ds-theme {
     --font-main: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
-    --font-display: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
+    --font-display: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
 }
 
 /* Panoul de căutare */
@@ -433,6 +450,68 @@ html.ds-theme #a11yOverlay .a11y-close-btn { background: rgba(12,35,64,0.08); }
 html.ds-theme #a11yOverlay .a11y-option-icon { background: rgba(192,96,184,0.14); }
 html.ds-theme #a11yOverlay .a11y-switch { background: rgba(12,35,64,0.12); }
 html.ds-theme #a11yOverlay .a11y-switch::after { background: #0c2340; }
+
+/* ══════════════════════════════════════════════════════════════
+   STINGER FIT extins: navbar, titluri search / accesibilitate / footer.
+   Bold (700) pe titluri, Regular (400) pe linkuri, etichete și butoane.
+   Textele lungi (descrieri, paragrafe) rămân în DM Sans.
+   ══════════════════════════════════════════════════════════════ */
+
+/* Navbar — tot textul, Regular; brandul/titlurile, Bold */
+html.ds-theme nav, html.ds-theme nav a, html.ds-theme nav button, html.ds-theme nav span,
+html.ds-theme header, html.ds-theme header a, html.ds-theme header button,
+html.ds-theme .nav-glass-blur, html.ds-theme .nav-glass-blur a, html.ds-theme .nav-glass-blur button {
+    font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+}
+html.ds-theme nav [class*="logo"], html.ds-theme nav [class*="brand"],
+html.ds-theme nav [class*="active"], html.ds-theme nav a.active,
+html.ds-theme header [class*="logo"], html.ds-theme header [class*="brand"] {
+    font-weight: 700;
+}
+
+/* Search + Accesibilitate — titluri Bold, etichete/inputuri Regular */
+html.ds-theme #searchOverlay h1, html.ds-theme #searchOverlay h2,
+html.ds-theme #searchOverlay h3, html.ds-theme #searchOverlay h4,
+html.ds-theme #searchOverlay [class*="title"], html.ds-theme #searchOverlay [class*="heading"],
+html.ds-theme #searchOverlay [class*="header"],
+html.ds-theme #a11yOverlay h1, html.ds-theme #a11yOverlay h2,
+html.ds-theme #a11yOverlay h3, html.ds-theme #a11yOverlay h4,
+html.ds-theme #a11yOverlay [class*="title"], html.ds-theme #a11yOverlay [class*="heading"],
+html.ds-theme #a11yOverlay [class*="header"] {
+    font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+html.ds-theme #searchOverlay .search-input,
+html.ds-theme #searchOverlay .search-input::placeholder,
+html.ds-theme #searchOverlay [class*="label"], html.ds-theme #searchOverlay [class*="category"],
+html.ds-theme #searchOverlay [class*="section"],
+html.ds-theme #a11yOverlay [class*="label"], html.ds-theme #a11yOverlay [class*="option-name"],
+html.ds-theme #a11yOverlay [class*="option-title"], html.ds-theme #a11yOverlay [class*="section"] {
+    font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+}
+
+/* Footer — titluri Bold, linkuri și subsol Regular */
+#view-discover footer.global-footer .ft-col h4,
+#view-discover footer.global-footer h1, #view-discover footer.global-footer h2,
+#view-discover footer.global-footer h3 {
+    font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+#view-discover footer.global-footer .ft-dept-links a,
+#view-discover footer.global-footer .ft-mail,
+#view-discover footer.global-footer .footer-bottom,
+#view-discover footer.global-footer .footer-bottom a,
+#view-discover footer.global-footer .a11y-trigger {
+    font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+}
 </style>
 
 <script>
@@ -576,10 +655,17 @@ html.ds-theme #a11yOverlay .a11y-switch::after { background: #0c2340; }
     });
 })();
 
-/* ── Stickere plutitoare random prin fundal ── */
+/* ── Stickere care cad lin în fundal ── */
 (function () {
     const layer = document.getElementById('dsFloaters');
     if (!layer) return;
+
+    // Mutăm straturile de fundal direct în <body> (primele elemente): așa nu mai sunt
+    // prinse în stacking context-ul vreunui container al layout-ului și rămân
+    // garantat sub navbar, titlu, rânduri și footer.
+    const bgLayer = document.querySelector('.ds-bg');
+    if (bgLayer) document.body.insertBefore(bgLayer, document.body.firstChild);
+    document.body.insertBefore(layer, bgLayer ? bgLayer.nextSibling : document.body.firstChild);
 
     const IMAGES = [
         '/assets/events/discover/smiley.png',
@@ -587,46 +673,35 @@ html.ds-theme #a11yOverlay .a11y-switch::after { background: #0c2340; }
         '/assets/events/discover/heart.png'
     ];
     const isMobile = window.matchMedia('(max-width: 480px)').matches;
-    const COUNT = isMobile ? 12 : 20;
-
+    const COUNT = isMobile ? 5 : 8;
     const rnd = (min, max) => Math.random() * (max - min) + min;
-    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
     for (let i = 0; i < COUNT; i++) {
+        const size = isMobile ? rnd(38, 64) : rnd(50, 92);
+        const dur = rnd(34, 54);
+
+        const wrap = document.createElement('div');
+        wrap.className = 'ds-float';
+        const w = wrap.style;
+        w.width = w.height = size + 'px';
+        w.left = ((i + rnd(0.05, 0.85)) / COUNT * 96).toFixed(1) + 'vw'; // împrăștiate uniform pe lățime
+        w.setProperty('--dur', dur.toFixed(1) + 's');
+        w.setProperty('--delay', (-rnd(0, dur)).toFixed(1) + 's'); // pornesc deja distribuite pe verticală
+        w.setProperty('--static-top', rnd(5, 85).toFixed(0) + 'vh');
+
         const img = document.createElement('img');
-        img.src = IMAGES[i % IMAGES.length]; // distribuție egală între cele 3 imagini
+        img.src = IMAGES[i % IMAGES.length];
         img.alt = '';
-        img.className = 'ds-float';
         img.draggable = false;
-        img.onerror = function () { this.remove(); };
+        img.onerror = function () { wrap.remove(); };
+        const m = img.style;
+        m.setProperty('--sway', rnd(14, 36).toFixed(0) + 'px');
+        m.setProperty('--tilt', rnd(8, 18).toFixed(0) + 'deg');
+        m.setProperty('--sway-dur', rnd(4.5, 8).toFixed(1) + 's');
+        m.setProperty('--sway-delay', (-rnd(0, 6)).toFixed(1) + 's');
 
-        const size = isMobile ? rnd(36, 72) : rnd(48, 110);
-        const s = img.style;
-        s.width = s.height = size + 'px';
-        s.left = rnd(-3, 96) + 'vw';
-        s.top = rnd(-3, 94) + 'vh';
-        s.opacity = rnd(0.75, 1).toFixed(2);
-
-        // Traseu random: 3 puncte prin care trece, înainte-înapoi
-        s.setProperty('--x1', rnd(-25, 25).toFixed(1) + 'vw');
-        s.setProperty('--y1', rnd(-25, 25).toFixed(1) + 'vh');
-        s.setProperty('--x2', rnd(-30, 30).toFixed(1) + 'vw');
-        s.setProperty('--y2', rnd(-30, 30).toFixed(1) + 'vh');
-        s.setProperty('--x3', rnd(-25, 25).toFixed(1) + 'vw');
-        s.setProperty('--y3', rnd(-25, 25).toFixed(1) + 'vh');
-
-        // Rotații random
-        const r0 = rnd(-30, 30);
-        s.setProperty('--r0', r0.toFixed(0) + 'deg');
-        s.setProperty('--r1', (r0 + rnd(-90, 90)).toFixed(0) + 'deg');
-        s.setProperty('--r2', (r0 + rnd(-120, 120)).toFixed(0) + 'deg');
-        s.setProperty('--r3', (r0 + rnd(-180, 180)).toFixed(0) + 'deg');
-
-        // Viteză lentă și diferită pentru fiecare; delay negativ = nu pornesc toate la fel
-        s.setProperty('--dur', rnd(16, 34).toFixed(1) + 's');
-        s.setProperty('--delay', (-rnd(0, 30)).toFixed(1) + 's');
-
-        layer.appendChild(img);
+        wrap.appendChild(img);
+        layer.appendChild(wrap);
     }
 })();
 </script>
