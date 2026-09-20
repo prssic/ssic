@@ -1096,6 +1096,88 @@
             position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;
         }
 
+        /* ==========================================================================
+           LIGHTBOX — meniu scrollabil cu buline (galerie, evenimente, oriunde pe site)
+           ========================================================================== */
+        html.lb-open, html.lb-open body { overflow: hidden; }
+        .lb-overlay {
+            /* sub cursorul custom (9998), deasupra modalului de contact (9200) */
+            position: fixed; inset: 0; z-index: 9300;
+            display: flex; flex-direction: column; align-items: stretch;
+            padding: max(64px, calc(env(safe-area-inset-top, 0px) + 56px)) 3vw max(18px, env(safe-area-inset-bottom, 0px));
+            background: rgba(8, 5, 13, 0.92);
+            backdrop-filter: blur(28px) saturate(var(--glass-saturation));
+            -webkit-backdrop-filter: blur(28px) saturate(var(--glass-saturation));
+            opacity: 0; visibility: hidden; pointer-events: none;
+            transition: opacity 0.25s var(--ease-out), visibility 0s linear 0.25s;
+        }
+        .lb-overlay.open {
+            opacity: 1; visibility: visible; pointer-events: auto;
+            transition: opacity 0.25s var(--ease-out), visibility 0s linear 0s;
+        }
+        .lb-close, .lb-nav {
+            position: absolute; z-index: 3; width: 42px; height: 42px; border-radius: 12px;
+            border: 0; padding: 0; cursor: pointer; color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(34, 22, 49, 0.96);
+            transition: background 0.2s var(--ease-out), color 0.2s var(--ease-out), transform 0.2s var(--ease-out);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .lb-close { top: max(14px, calc(env(safe-area-inset-top, 0px) + 10px)); right: max(14px, 3vw); }
+        .lb-close:hover, .lb-nav:hover { background: var(--c-accent); color: #14091f; }
+        .lb-close svg, .lb-nav svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+        .lb-nav { top: 50%; margin-top: -21px; }
+        .lb-prev { left: max(14px, 2vw); }
+        .lb-next { right: max(14px, 2vw); }
+        .lb-nav[hidden] { display: none; }
+        /* Săgeți doar pe dispozitive cu mouse — pe touch se folosește swipe-ul */
+        @media (hover: none) { .lb-nav { display: none; } }
+
+        .lb-stage {
+            flex: 1 1 auto; min-height: 0; position: relative;
+            transform: scale(0.97); opacity: 0;
+            transition: transform 0.3s var(--ease-out), opacity 0.3s var(--ease-out);
+        }
+        .lb-overlay.open .lb-stage { transform: scale(1); opacity: 1; }
+
+        .lb-track {
+            display: flex; width: 100%; height: 100%;
+            overflow-x: auto; overflow-y: hidden;
+            scroll-snap-type: x mandatory; overscroll-behavior: contain;
+            touch-action: pan-x; -webkit-overflow-scrolling: touch;
+            /* fără bare de scroll native (vertical / orizontal) */
+            scrollbar-width: none; -ms-overflow-style: none;
+            cursor: grab; -webkit-tap-highlight-color: transparent;
+        }
+        .lb-track::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
+        .lb-track.dragging { cursor: grabbing; scroll-snap-type: none; }
+        .lb-slide {
+            flex: 0 0 100%; height: 100%; scroll-snap-align: center; scroll-snap-stop: always;
+            display: flex; align-items: center; justify-content: center; min-width: 0;
+        }
+        .lb-slide img {
+            max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain;
+            border-radius: 12px; user-select: none; -webkit-user-select: none; -webkit-user-drag: none;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Buline — aceleași ca la carusele: gri neutru, activ = --c-accent (galben) */
+        .lb-dots {
+            flex: 0 0 auto; display: flex; justify-content: center; flex-wrap: wrap;
+            gap: 8px; padding-top: 18px; min-height: 26px;
+        }
+        .lb-dots[hidden] { display: none; }
+        .lb-dots .carousel-dot {
+            position: relative; padding: 0; border: 0; cursor: pointer; flex: 0 0 auto;
+            background: rgba(255, 255, 255, 0.28); -webkit-tap-highlight-color: transparent;
+        }
+        .lb-dots .carousel-dot::after { content: ''; position: absolute; inset: -8px; }
+        .lb-dots .carousel-dot.active { background: var(--c-accent); }
+
+        @media (prefers-reduced-motion: reduce) {
+            .lb-overlay, .lb-stage, .lb-close, .lb-nav { transition: none !important; }
+        }
+
         /* Easter Egg Particle Styles */
         .easter-particle {
             position: fixed; color: var(--c-accent); font-family: var(--font-display);
@@ -2288,6 +2370,193 @@
             <div class="contact-scroll-hint" id="contactScrollHint" aria-hidden="true"><i data-lucide="chevron-down"></i></div>
         </div>
     </div>
+
+    <!-- ================= LIGHTBOX: poze (galerie / evenimente / oriunde) ================= -->
+    <div class="lb-overlay" id="lbOverlay" role="dialog" aria-modal="true" aria-label="Vizualizare poze">
+        <button class="lb-close hover-target" id="lbClose" type="button" aria-label="Închide">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+        <button class="lb-nav lb-prev hover-target" id="lbPrev" type="button" aria-label="Poza anterioară">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <button class="lb-nav lb-next hover-target" id="lbNext" type="button" aria-label="Poza următoare">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="lb-stage"><div class="lb-track" id="lbTrack"></div></div>
+        <div class="lb-dots" id="lbDots" role="tablist" aria-label="Alege poza"></div>
+    </div>
+    <script>
+    /* ==========================================================================
+       JS: LIGHTBOX — tap/click pe orice poză din conținut → meniu scrollabil cu buline
+       ==========================================================================
+       - Delegare pe document: prinde și pozele create dinamic (galerie, echipă).
+       - Grupare automată: carusel de eveniment → slide-urile lui; galerie → toată galeria;
+         poze echipă → colegii din același grid; altfel → doar poza apăsată.
+       - Excluse: logo, navbar/footer, căutare, modale, pozele din <a>/<button> (rămân link-uri),
+         sau orice element cu data-no-lightbox. */
+    (function () {
+        const overlay = document.getElementById('lbOverlay');
+        const track = document.getElementById('lbTrack');
+        const dotsEl = document.getElementById('lbDots');
+        const btnClose = document.getElementById('lbClose');
+        const btnPrev = document.getElementById('lbPrev');
+        const btnNext = document.getElementById('lbNext');
+        if (!overlay || !track) return;
+
+        const EXCLUDE = '.lb-overlay, .search-overlay, .contact-overlay, .a11y-overlay, nav, header, footer, .swipe-container, [data-no-lightbox]';
+        let dots = [], current = 0, lastFocus = null, count = 0;
+
+        function usable(img) {
+            return img && img.tagName === 'IMG' && img.complete && img.naturalWidth > 0 && (img.currentSrc || img.src);
+        }
+        function eligible(img) {
+            if (!usable(img) || img.closest(EXCLUDE)) return false;
+            // Poze din link/buton rămân link/buton — dar carusel/galerie/echipă sunt mereu permise
+            if (img.closest('a, button') && !img.closest('.carousel-slide, .gal-item, .team-photo')) return false;
+            // Elementele cu propriul onclick (ex. cardurile care deschid modalul de contact) rămân neatinse
+            if (img.closest('[onclick]') && !img.closest('.carousel-slide, .gal-item')) return false;
+            return true;
+        }
+        function groupFor(img) {
+            let list = null;
+            const car = img.closest('.carousel-container');
+            const gal = img.closest('#gallery-container, .gallery-grid');
+            const member = img.closest('.team-member');
+            if (car) list = car.querySelectorAll('.carousel-slide img');
+            else if (gal) list = gal.querySelectorAll('.gal-item img');
+            else if (member && member.parentElement) list = member.parentElement.querySelectorAll('.team-photo img');
+            let arr = list ? Array.from(list).filter(usable) : [img];
+            // exclude elementele ascunse (ex. poze lipsă ascunse prin onerror)
+            arr = arr.filter(i => i === img || i.getClientRects().length > 0);
+            return arr;
+        }
+
+        function setActive(i) {
+            current = i;
+            dots.forEach((d, k) => {
+                d.classList.toggle('active', k === i);
+                d.setAttribute('aria-selected', k === i ? 'true' : 'false');
+            });
+            btnPrev.hidden = i <= 0;
+            btnNext.hidden = i >= count - 1;
+        }
+        function goTo(i, smooth) {
+            i = Math.max(0, Math.min(count - 1, i));
+            track.scrollTo({ left: i * track.clientWidth, behavior: smooth === false ? 'auto' : 'smooth' });
+        }
+
+        let raf = 0;
+        track.addEventListener('scroll', () => {
+            if (raf) return;
+            raf = requestAnimationFrame(() => {
+                raf = 0;
+                const i = Math.round(track.scrollLeft / (track.clientWidth || 1));
+                if (i !== current && i >= 0 && i < count) setActive(i);
+            });
+        }, { passive: true });
+
+        function open(imgs, startIndex, trigger) {
+            track.innerHTML = ''; dotsEl.innerHTML = ''; dots = [];
+            count = imgs.length;
+            imgs.forEach((im, i) => {
+                const s = document.createElement('div');
+                s.className = 'lb-slide';
+                const c = document.createElement('img');
+                c.src = im.currentSrc || im.src;
+                c.alt = im.alt || '';
+                c.draggable = false;
+                s.appendChild(c);
+                track.appendChild(s);
+                const d = document.createElement('button');
+                d.type = 'button'; d.className = 'carousel-dot hover-target';
+                d.setAttribute('role', 'tab');
+                d.setAttribute('aria-label', 'Poza ' + (i + 1) + ' din ' + count);
+                d.addEventListener('click', () => goTo(i));
+                dotsEl.appendChild(d); dots.push(d);
+            });
+            dotsEl.hidden = count < 2;
+            lastFocus = trigger || document.activeElement;
+            document.documentElement.classList.add('lb-open');
+            overlay.classList.add('open');
+            // poziționare instant pe poza apăsată (fără animație de scroll)
+            track.style.scrollSnapType = 'none';
+            track.scrollLeft = startIndex * track.clientWidth;
+            requestAnimationFrame(() => { track.style.scrollSnapType = ''; track.scrollLeft = startIndex * track.clientWidth; });
+            setActive(startIndex);
+            btnClose.focus({ preventScroll: true });
+            if (typeof haptic === 'function') haptic(8);
+        }
+        function close() {
+            if (!overlay.classList.contains('open')) return;
+            overlay.classList.remove('open');
+            document.documentElement.classList.remove('lb-open');
+            setTimeout(() => { if (!overlay.classList.contains('open')) { track.innerHTML = ''; dotsEl.innerHTML = ''; } }, 300);
+            if (lastFocus && lastFocus.focus) { try { lastFocus.focus({ preventScroll: true }); } catch (e) {} }
+        }
+
+        /* --- Deschidere: click/tap pe poză (ignorăm dacă a fost drag, ex. la caruselul de evenimente) --- */
+        let downX = 0, downY = 0;
+        document.addEventListener('pointerdown', e => { downX = e.clientX; downY = e.clientY; }, true);
+        document.addEventListener('click', e => {
+            if (overlay.classList.contains('open')) return;
+            if (Math.hypot(e.clientX - downX, e.clientY - downY) > 8) return;
+            const img = e.target.closest && e.target.closest('img');
+            if (!eligible(img)) return;
+            const group = groupFor(img);
+            const idx = Math.max(0, group.indexOf(img));
+            e.preventDefault();
+            open(group, idx, img.closest('.gal-item, .carousel-slide, .team-member') || img);
+        });
+
+        /* --- Închidere --- */
+        btnClose.addEventListener('click', close);
+        btnPrev.addEventListener('click', () => goTo(current - 1));
+        btnNext.addEventListener('click', () => goTo(current + 1));
+        // tap în afara pozei (pe fundal / zona goală din slide) închide
+        overlay.addEventListener('click', e => {
+            if (e.target.closest('.lb-slide img, .lb-dots, .lb-close, .lb-nav')) return;
+            if (dragMoved) return;
+            close();
+        });
+        document.addEventListener('keydown', e => {
+            if (!overlay.classList.contains('open')) return;
+            if (e.key === 'Escape') { e.preventDefault(); close(); }
+            else if (e.key === 'ArrowRight') { e.preventDefault(); goTo(current + 1); }
+            else if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(current - 1); }
+            else if (e.key === 'Tab') {
+                const f = Array.from(overlay.querySelectorAll('button:not([hidden])')).filter(b => b.offsetParent !== null);
+                if (!f.length) return;
+                const first = f[0], last = f[f.length - 1];
+                if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+                else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+            }
+        });
+
+        /* --- Drag cu mouse-ul pe desktop (pe touch scroll-ul e nativ) --- */
+        let isDown = false, dragMoved = false, sx = 0, sl = 0;
+        track.addEventListener('mousedown', e => {
+            if (e.button !== 0) return;
+            isDown = true; dragMoved = false; sx = e.pageX; sl = track.scrollLeft;
+        });
+        window.addEventListener('mousemove', e => {
+            if (!isDown) return;
+            const dx = e.pageX - sx;
+            if (!dragMoved && Math.abs(dx) > 5) { dragMoved = true; track.classList.add('dragging'); }
+            if (dragMoved) { e.preventDefault(); track.scrollLeft = sl - dx * 1.3; }
+        });
+        window.addEventListener('mouseup', () => {
+            if (!isDown) return;
+            isDown = false;
+            if (dragMoved) {
+                track.classList.remove('dragging');
+                const i = Math.round(track.scrollLeft / (track.clientWidth || 1));
+                track.scrollTo({ left: Math.max(0, Math.min(count - 1, i)) * track.clientWidth, behavior: 'smooth' });
+                setTimeout(() => { dragMoved = false; }, 0);
+            }
+        });
+        window.addEventListener('resize', () => { if (overlay.classList.contains('open')) goTo(current, false); });
+    })();
+    </script>
 
     <script>
         /* ==========================================================================
