@@ -39,7 +39,7 @@ html.ds-theme body { background: transparent !important; }
 .page-content { background: transparent !important; position: relative; z-index: 2; }
 
 /* Navbar — rămâne dark ca restul site-ului, nu se îngălbenește */
-.nav-glass-blur { background: rgba(10, 15, 35, 0.97) !important; } /* aproape opac: nimic nu se vede prin el */
+.nav-glass-blur { background: rgba(10, 15, 35, 0.85) !important; }
 
 /* ── @font-face local Stinger Fit (Varianta FULL) — DOAR pt. titlu ── */
 @font-face {
@@ -457,18 +457,31 @@ html.ds-theme #a11yOverlay .a11y-switch::after { background: #0c2340; }
    Textele lungi (descrieri, paragrafe) rămân în DM Sans.
    ══════════════════════════════════════════════════════════════ */
 
-/* Navbar — tot textul, Regular; brandul/titlurile, Bold */
-html.ds-theme nav, html.ds-theme nav a, html.ds-theme nav button, html.ds-theme nav span,
-html.ds-theme header, html.ds-theme header a, html.ds-theme header button,
-html.ds-theme .nav-glass-blur, html.ds-theme .nav-glass-blur a, html.ds-theme .nav-glass-blur button {
+/* Navbar + meniul de navigare de pe mobil — tot textul, Stinger Bold */
+html.ds-theme nav, html.ds-theme nav a, html.ds-theme nav button, html.ds-theme nav span, html.ds-theme nav li,
+html.ds-theme header, html.ds-theme header a, html.ds-theme header button, html.ds-theme header span,
+html.ds-theme .nav-glass-blur, html.ds-theme .nav-glass-blur a, html.ds-theme .nav-glass-blur button,
+html.ds-theme .nav-glass-blur span,
+html.ds-theme [class*="mobile-nav"], html.ds-theme [class*="mobile-menu"], html.ds-theme [class*="nav-menu"],
+html.ds-theme [class*="nav-drawer"], html.ds-theme [class*="nav-overlay"], html.ds-theme [class*="nav-links"],
+html.ds-theme [id*="mobile-nav"], html.ds-theme [id*="mobileNav"], html.ds-theme [id*="mobile-menu"],
+html.ds-theme [id*="mobileMenu"], html.ds-theme [id*="navMenu"], html.ds-theme [id*="nav-menu"],
+html.ds-theme [class*="mobile-nav"] :is(a, button, span, li, p, div),
+html.ds-theme [class*="mobile-menu"] :is(a, button, span, li, p, div),
+html.ds-theme [class*="nav-menu"] :is(a, button, span, li, p, div),
+html.ds-theme [class*="nav-drawer"] :is(a, button, span, li, p, div),
+html.ds-theme [class*="nav-overlay"] :is(a, button, span, li, p, div),
+html.ds-theme [class*="nav-links"] :is(a, button, span, li),
+html.ds-theme [id*="mobile-nav"] :is(a, button, span, li, p, div),
+html.ds-theme [id*="mobileNav"] :is(a, button, span, li, p, div),
+html.ds-theme [id*="mobile-menu"] :is(a, button, span, li, p, div),
+html.ds-theme [id*="mobileMenu"] :is(a, button, span, li, p, div),
+html.ds-theme [id*="navMenu"] :is(a, button, span, li, p, div),
+html.ds-theme [id*="nav-menu"] :is(a, button, span, li, p, div) {
     font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
-    font-weight: 400;
-    letter-spacing: 0.04em;
-}
-html.ds-theme nav [class*="logo"], html.ds-theme nav [class*="brand"],
-html.ds-theme nav [class*="active"], html.ds-theme nav a.active,
-html.ds-theme header [class*="logo"], html.ds-theme header [class*="brand"] {
     font-weight: 700;
+    font-synthesis: weight;
+    letter-spacing: 0.04em;
 }
 
 /* Search + Accesibilitate — titluri Bold, etichete/inputuri Regular */
