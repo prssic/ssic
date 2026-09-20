@@ -4,72 +4,29 @@ view: discover
 permalink: /discover/
 title: Discover SSIC
 description: "Discover SSIC!"
+<<<<<<< HEAD
 image: /assets/events/discover/discover-og.png
+=======
+>>>>>>> 8845e0384dbb81566141c307f995a88fb2a29feb
 ---
+<!-- Fallback pentru randare IZOLATĂ (preview, fără default.html): fundal + fonturi.
+     Pe site, aceleași reguli vin din default.html; duplicatele sunt inofensive. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&display=swap" rel="stylesheet">
 <style>
-/* ── Checkerboard — fundal STATIC, fix pe viewport.
-   Nu mai depindem de background-ul lui <body> (care putea fi acoperit de
-   layout-ul site-ului): punem un strat propriu, position:fixed, cu pattern
-   SVG inline (nu gradient), care se încarcă instant și nu are cum să lipsească.
-   Culorile sunt puse și pe html/body ca fallback. ── */
-html.ds-theme {
-    background-color: #e8f05e !important;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72'%3E%3Crect width='72' height='72' fill='%23e8f05e'/%3E%3Crect width='36' height='36' fill='%23c060b8'/%3E%3Crect x='36' y='36' width='36' height='36' fill='%23c060b8'/%3E%3C/svg%3E") !important;
-    background-size: 72px 72px !important;
-    background-attachment: fixed !important;
-}
-/* body transparent: altfel și-ar picta fundalul PESTE straturile cu z-index negativ */
-html.ds-theme body { background: transparent !important; }
-
-.ds-bg {
-    position: fixed;
-    inset: 0;
-    z-index: -2; /* sub tot conținutul: navbar, titlu, rânduri, footer */
-    pointer-events: none;
+@font-face { font-family: 'Stinger Fit'; src: url('/assets/fonts/StingerFit-Bold.ttf') format('truetype'); font-weight: bold; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Stinger Fit'; src: url('/assets/fonts/StingerFit-Regular.otf') format('opentype'); font-weight: normal; font-style: normal; font-display: swap; }
+html.ds-forced {
     background-color: #e8f05e;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72'%3E%3Crect width='72' height='72' fill='%23e8f05e'/%3E%3Crect width='36' height='36' fill='%23c060b8'/%3E%3Crect x='36' y='36' width='36' height='36' fill='%23c060b8'/%3E%3C/svg%3E");
+    background-image: repeating-conic-gradient(#c060b8 0% 25%, #e8f05e 0% 50%);
     background-size: 72px 72px;
+    background-attachment: fixed;
 }
-
-/* Scoatem fundalul întunecat al app-ului și al paginii, dar păstrăm
-   conținutul deasupra straturilor de fundal */
-.app, .view, #view-discover { background: transparent !important; }
-.page-content { background: transparent !important; position: relative; z-index: 2; }
-
-/* Navbar — rămâne dark ca restul site-ului, nu se îngălbenește */
-.nav-glass-blur { background: rgba(10, 15, 35, 0.85) !important; }
-
-/* ── @font-face local Stinger Fit (Varianta FULL) — DOAR pt. titlu ── */
-@font-face {
-    font-family: 'Stinger Fit';
-    src: url('/assets/fonts/StingerFit-Bold.ttf') format('truetype');
-    font-weight: bold;
-    font-style: normal;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'Stinger Fit';
-    src: url('/assets/fonts/StingerFit-Regular.otf') format('opentype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
-
-/* ── Font complementar (DM Sans) — pentru tot ce NU e titlul.
-   Stinger Fit rămâne exclusiv pe titlu (DISCOVER / date / SSIC). ── */
-:root { --ds-font: 'DM Sans', 'Helvetica Neue', Arial, sans-serif; }
-
-html.ds-theme body,
-#view-discover,
-#view-discover footer.global-footer,
-html.ds-theme #searchOverlay,
-html.ds-theme #a11yOverlay {
-    font-family: var(--ds-font);
-}
-
+html.ds-forced body { background: transparent; }
+#view-discover { font-family: var(--font-main, 'DM Sans', 'Helvetica Neue', Arial, sans-serif); }
+</style>
+<style>
 /* ── Hero fullscreen: titlul umple primul ecran, navbar-ul e ascuns până la scroll ── */
 .ds-hero {
     position: relative;
@@ -234,7 +191,7 @@ html.ds-scrolled .ds-scroll-cue { opacity: 0; }
 
 /* Textul glitch — DOAR litere, mai lent ── */
 .ds-glitch {
-    font-family: var(--ds-font);
+    font-family: var(--font-main);
     font-size: clamp(0.75rem, 2.5vw, 1.05rem);
     font-weight: 800;
     color: #0c2340;
@@ -249,43 +206,6 @@ html.ds-scrolled .ds-scroll-cue { opacity: 0; }
     width: 100%;
 }
 
-/* ── Stickere care cad lin, STRICT în fundal ──
-   Strat fix, în spatele conținutului (z 1 < conținut z 2). Puține la număr.
-   Wrapper-ul cade pe verticală (liniar, lent); imaginea din el se leagănă ușor. ── */
-.ds-floaters {
-    position: fixed;
-    inset: 0;
-    z-index: -1; /* deasupra checkerboard-ului (-2), sub absolut orice altceva */
-    pointer-events: none;
-    overflow: hidden;
-}
-.ds-float {
-    position: absolute;
-    top: 0;
-    will-change: transform;
-    animation: ds-fall var(--dur, 40s) linear var(--delay, 0s) infinite;
-}
-.ds-float img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    filter: drop-shadow(3px 4px 0 rgba(12,35,64,0.22));
-    animation: ds-sway var(--sway-dur, 6s) ease-in-out var(--sway-delay, 0s) infinite alternate;
-}
-@keyframes ds-fall {
-    from { transform: translateY(-20vh); }
-    to   { transform: translateY(120vh); }
-}
-@keyframes ds-sway {
-    from { transform: translateX(calc(var(--sway, 24px) * -1)) rotate(calc(var(--tilt, 12deg) * -1)); }
-    to   { transform: translateX(var(--sway, 24px)) rotate(var(--tilt, 12deg)); }
-}
-@media (prefers-reduced-motion: reduce) {
-    .ds-float, .ds-float img { animation: none !important; }
-    .ds-float { top: var(--static-top, 20vh); }
-}
-
 /* ── Mobile ── */
 @media (max-width: 480px) {
     .ds-title-discover { font-size: clamp(3rem, 18vw, 6rem); margin-bottom: 0px; }
@@ -297,75 +217,11 @@ html.ds-scrolled .ds-scroll-cue { opacity: 0; }
     .ds-row   { padding: 0 6px; }
 }
 
+/* Pilulele își păstrează conturul navy (default.html are un `* { border-width: 0 !important }` global) */
+:root.ds-theme .ds-pill { border-width: 3px !important; }
+
 /* Ascunde umbra de sus din default.html */
 .page-content::before { display: none !important; }
-
-/* ──────────────────────────────────────────────────────────────
-   FOOTER — restilizat în tema Discover (cream/navy/roz), nu în
-   tema dark a restului site-ului. Footer-ul e generat/populat de
-   scriptul global din default.html (document.querySelectorAll('.global-footer')...),
-   așa că elementele lui rămân identice ca structură — aici doar
-   îi schimbăm complet aspectul, scoped strict la #view-discover.
-   ── */
-#view-discover footer.global-footer {
-    --c-accent: #c060b8;
-    --c-accent-2: #33ccff;
-    --c-white: #0c2340;
-    --c-white-off: #0c2340;
-    --c-gray: rgba(12,35,64,0.62);
-    --c-border-strong: rgba(12,35,64,0.28);
-    --c-base: #f5f4e0;
-    background: #f5f4e0;
-    border-top: 3px solid #0c2340;
-    margin-top: 40px;
-    padding: 56px 6vw 0;
-    position: relative;
-    z-index: 5;
-}
-#view-discover footer.global-footer .ft-col h4 {
-    font-weight: 700;
-    color: #0c2340;
-    letter-spacing: 0.03em;
-}
-#view-discover footer.global-footer .ft-col p {
-    color: rgba(12,35,64,0.65);
-}
-#view-discover footer.global-footer .ft-dept-links a {
-    color: #0c2340;
-    background-image: linear-gradient(#c060b8, #c060b8);
-}
-#view-discover footer.global-footer .ft-dept-links a:hover { color: #c060b8; }
-#view-discover footer.global-footer .ft-dept-links span { color: rgba(12,35,64,0.35); }
-#view-discover footer.global-footer .ft-mail { color: #c060b8 !important; }
-#view-discover footer.global-footer .ft-mail:hover { color: #1a8fb3 !important; }
-#view-discover footer.global-footer .soc-icon {
-    border: 2.5px solid #0c2340;
-    color: #0c2340;
-    border-radius: 12px;
-    background: transparent;
-}
-#view-discover footer.global-footer .soc-icon:hover {
-    background: #0c2340;
-    color: #f5f4e0;
-}
-#view-discover footer.global-footer .a11y-trigger {
-    border: 2.5px solid #0c2340;
-    background: rgba(12,35,64,0.05);
-    color: #0c2340;
-    border-radius: 12px;
-}
-#view-discover footer.global-footer .a11y-trigger:hover,
-#view-discover footer.global-footer .a11y-trigger.is-active {
-    background: #c060b8;
-    border-color: #c060b8;
-    color: #f5f4e0;
-}
-#view-discover footer.global-footer .footer-bottom {
-    border-top: 1.5px solid rgba(12,35,64,0.18);
-    color: rgba(12,35,64,0.55);
-}
-#view-discover footer.global-footer .footer-bottom a { color: rgba(12,35,64,0.55); }
-#view-discover footer.global-footer .footer-bottom a:hover { color: #c060b8; }
 
 /* ══════════════════════════════════════════════════════════════
    INTRARE DRAMATICĂ pt. titlu — "anunț important", o singură dată
@@ -429,133 +285,14 @@ html.ds-io .ds-row.in { animation-play-state: running; animation-delay: 0s; }
     }
     .ds-title-block { animation: none !important; }
 }
-
-/* ══════════════════════════════════════════════════════════════
-   FONTUL STINGER + TEMA DISCOVER, aplicate cât timp ești pe
-   pagina asta — inclusiv peste search și accesibilitate, care
-   trăiesc *în afara* #view-discover (injectate global de layout).
-   ds-theme e adăugată pe <html> de scriptul de mai jos, doar când
-   pagina /discover/ e încărcată — nu afectează restul site-ului.
-   Navbar-ul rămâne intenționat neschimbat (dark), ca să nu se
-   piardă contrastul/lizibilitatea pe fundalul lui închis.
-   ══════════════════════════════════════════════════════════════ */
-html.ds-theme {
-    --font-main: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
-    --font-display: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
-}
-
-/* Panoul de căutare */
-html.ds-theme #searchOverlay {
-    --c-surface-elevated: #f5f4e0;
-    --c-surface: #fbfae8;
-    --c-border: rgba(12,35,64,0.18);
-    --c-border-strong: rgba(12,35,64,0.3);
-    --c-border-med: rgba(12,35,64,0.18);
-    --c-white: #0c2340;
-    --c-white-off: #0c2340;
-    --c-gray: rgba(12,35,64,0.6);
-    --c-accent: #c060b8;
-    --c-overlay-hover: rgba(192,96,184,0.14);
-    --c-shadow-2: rgba(12,35,64,0.3);
-}
-html.ds-theme #searchOverlay .search-panel { border: 3px solid #0c2340; }
-html.ds-theme #searchOverlay .search-input { letter-spacing: 0.02em; }
-html.ds-theme #searchOverlay .search-result-icon { background: rgba(192,96,184,0.14); }
-html.ds-theme #searchOverlay .search-close-btn,
-html.ds-theme #searchOverlay .a11y-close-btn { background: rgba(12,35,64,0.08); }
-
-/* Panoul de accesibilitate */
-html.ds-theme #a11yOverlay {
-    --c-surface-elevated: #f5f4e0;
-    --c-surface: #fbfae8;
-    --c-border: rgba(12,35,64,0.18);
-    --c-border-strong: rgba(12,35,64,0.3);
-    --c-border-med: rgba(12,35,64,0.18);
-    --c-white: #0c2340;
-    --c-white-off: #0c2340;
-    --c-gray: rgba(12,35,64,0.6);
-    --c-accent: #c060b8;
-    --c-base: #f5f4e0;
-    --c-overlay-hover: rgba(192,96,184,0.14);
-    --c-shadow-2: rgba(12,35,64,0.3);
-}
-html.ds-theme #a11yOverlay .a11y-panel { border: 3px solid #0c2340; }
-html.ds-theme #a11yOverlay .a11y-close-btn { background: rgba(12,35,64,0.08); }
-html.ds-theme #a11yOverlay .a11y-option-icon { background: rgba(192,96,184,0.14); }
-html.ds-theme #a11yOverlay .a11y-switch { background: rgba(12,35,64,0.12); }
-html.ds-theme #a11yOverlay .a11y-switch::after { background: #0c2340; }
-
-/* ══════════════════════════════════════════════════════════════
-   STINGER FIT extins — selectori exacți din default.html.
-   Bold (700) pe titluri și navigare, Regular (400) pe etichete/inputuri.
-   Descrierile și textele lungi rămân în DM Sans.
-   ══════════════════════════════════════════════════════════════ */
-
-/* Navbar + meniul mobil (.nav-links devine drawer pe mobil) */
-html.ds-theme nav .nav-link,
-html.ds-theme .nav-links .nav-link,
-html.ds-theme nav .logo-wordmark {
-    font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
-    font-weight: 700;
-    font-synthesis: weight;
-}
-html.ds-theme nav .nav-link { font-size: 16px; letter-spacing: 2px; }
-html.ds-theme nav .logo-wordmark { font-size: 32px; }
-@media (max-width: 900px) {
-    html.ds-theme .nav-links .nav-link { font-size: 1.25rem; letter-spacing: 2px; }
-}
-
-/* Search */
-html.ds-theme #searchOverlay .search-result-title,
-html.ds-theme #searchOverlay .search-result-group-label {
-    font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-}
-html.ds-theme #searchOverlay .search-input {
-    font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
-    font-weight: 400;
-    letter-spacing: 0.04em;
-}
-
-/* Accesibilitate */
-html.ds-theme #a11yOverlay .a11y-panel-head h3,
-html.ds-theme #a11yOverlay .a11y-group-label,
-html.ds-theme #a11yOverlay .a11y-option-text strong {
-    font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-}
-html.ds-theme #a11yOverlay .a11y-reset-btn,
-html.ds-theme #a11yOverlay .a11y-step-btn {
-    font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
-    font-weight: 400;
-    letter-spacing: 0.04em;
-}
-
-/* Footer */
-#view-discover footer.global-footer .ft-col h4 {
-    font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-}
-#view-discover footer.global-footer .ft-dept-links a,
-#view-discover footer.global-footer .ft-mail,
-#view-discover footer.global-footer .footer-bottom,
-#view-discover footer.global-footer .footer-bottom a,
-#view-discover footer.global-footer .a11y-trigger {
-    font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
-    font-weight: 400;
-    letter-spacing: 0.04em;
-}
 </style>
 
 <script>
-    /* Marchează <html> ca fiind pe pagina Discover, doar cât timp e
-       încărcată această pagină — permite temei să ajungă și la
-       search/accesibilitate, care sunt randate global, în afara
-       #view-discover. */
-    document.documentElement.classList.add('ds-theme');
+    /* /discover/ își impune tema Discover SSIC (ds-theme) indiferent de preferința salvată,
+       fără să o modifice: pe celelalte pagini rămâne tema aleasă din butonul din navbar.
+       Tema propriu-zisă (culori, fonturi, fundal, stickere, navbar, search, accesibilitate,
+       footer) e definită site-wide în default.html. */
+    document.documentElement.classList.add('ds-theme', 'ds-forced');
 </script>
 
 <script>
@@ -623,10 +360,6 @@ html.ds-theme #a11yOverlay .a11y-step-btn {
     }
 })();
 </script>
-
-<!-- Fundal static + stickere plutitoare (fixe pe viewport, în spatele conținutului) -->
-<div class="ds-bg" aria-hidden="true"></div>
-<div class="ds-floaters" id="dsFloaters" aria-hidden="true"></div>
 
 <section class="view active" id="view-discover">
     <div class="page-content" style="padding-top:0; padding-bottom:80px; min-height:100vh;">
@@ -758,56 +491,6 @@ html.ds-theme #a11yOverlay .a11y-step-btn {
         randomizeText();
         setInterval(randomizeText, 45); // zgomot rapid, dar nu 1ms: nu blochează pagina și nu încurcă animațiile stickerelor
     });
-})();
-
-/* ── Stickere care cad lin în fundal ── */
-(function () {
-    const layer = document.getElementById('dsFloaters');
-    if (!layer) return;
-
-    // Mutăm straturile de fundal direct în <body> (primele elemente): așa nu mai sunt
-    // prinse în stacking context-ul vreunui container al layout-ului și rămân
-    // garantat sub navbar, titlu, rânduri și footer.
-    const bgLayer = document.querySelector('.ds-bg');
-    if (bgLayer) document.body.insertBefore(bgLayer, document.body.firstChild);
-    document.body.insertBefore(layer, bgLayer ? bgLayer.nextSibling : document.body.firstChild);
-
-    const IMAGES = [
-        '/assets/events/discover/smiley.png',
-        '/assets/events/discover/flower.png',
-        '/assets/events/discover/heart.png'
-    ];
-    const isMobile = window.matchMedia('(max-width: 480px)').matches;
-    const COUNT = isMobile ? 5 : 8;
-    const rnd = (min, max) => Math.random() * (max - min) + min;
-
-    for (let i = 0; i < COUNT; i++) {
-        const size = isMobile ? rnd(38, 64) : rnd(50, 92);
-        const dur = rnd(34, 54);
-
-        const wrap = document.createElement('div');
-        wrap.className = 'ds-float';
-        const w = wrap.style;
-        w.width = w.height = size + 'px';
-        w.left = ((i + rnd(0.05, 0.85)) / COUNT * 96).toFixed(1) + 'vw'; // împrăștiate uniform pe lățime
-        w.setProperty('--dur', dur.toFixed(1) + 's');
-        w.setProperty('--delay', (-rnd(0, dur)).toFixed(1) + 's'); // pornesc deja distribuite pe verticală
-        w.setProperty('--static-top', rnd(5, 85).toFixed(0) + 'vh');
-
-        const img = document.createElement('img');
-        img.src = IMAGES[i % IMAGES.length];
-        img.alt = '';
-        img.draggable = false;
-        img.onerror = function () { wrap.remove(); };
-        const m = img.style;
-        m.setProperty('--sway', rnd(14, 36).toFixed(0) + 'px');
-        m.setProperty('--tilt', rnd(8, 18).toFixed(0) + 'deg');
-        m.setProperty('--sway-dur', rnd(4.5, 8).toFixed(1) + 's');
-        m.setProperty('--sway-delay', (-rnd(0, 6)).toFixed(1) + 's');
-
-        wrap.appendChild(img);
-        layer.appendChild(wrap);
-    }
 })();
 
 /* Zilele din stele (LUNI … MIERCURI) se micșorează automat dacă nu încap în steluță —
