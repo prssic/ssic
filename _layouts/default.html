@@ -90,7 +90,7 @@
             /* z-swipe > z-ului barei de progres (10001), ca animația de tranziție să acopere
                complet și bara subțire de sus, nu doar navbar-ul/conținutul — altfel bara de
                progres rămânea vizibilă, "plutind" peste bara de swipe în timpul tranziției. */
-            --z-bg: 0; --z-content: 10; --z-nav: 100; --z-cursor: 999999; --z-swipe: 10010;
+            --z-bg: 0; --z-content: 10; --z-nav: 100; --z-cursor: 9998; --z-swipe: 10010;
 
             /* Frosted Glass — DOAR blur + saturație (backdrop-filter), fără nicio muchie/
                contur/highlight suplimentar. Exemplul primit avea și border + inset highlights,
@@ -169,7 +169,6 @@
            timp mouse-ul e deasupra widget-ului (vezi JS: initCursor), iar cursorul nativ al
            Instagram-ului (singurul pe care avem voie să-l vedem acolo) rămâne vizibil normal. */
         .cursor.is-hidden { opacity: 0; }
-        .cursor.clicking { transform: translate(-50%, -50%) scale(0.7); background: var(--c-accent); opacity: 0.8; }
 
         .cursor.hovering {
             width: 40px; height: 40px; background: var(--c-overlay-hover);
@@ -757,7 +756,7 @@
             border-radius: 16px; margin-top: 30px;
         }
         .carousel-track {
-            display: flex; width: 100%; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 30px; margin-bottom: -30px;
+            display: flex; width: 100%; overflow-x: auto; scroll-snap-type: x mandatory;
             scrollbar-width: none; -ms-overflow-style: none; cursor: grab;
             -webkit-tap-highlight-color: transparent;
         }
@@ -1285,7 +1284,7 @@
         }
 
         /* --- Mod narator: evidențiază la hover blocul de text ce va fi citit --- */
-        html.a11y-narrator-mode :is(p, h1, h2, h3, h4, li, a, button, .team-name, .search-result-title, .horizontal-tab):hover {
+        html.a11y-narrator-mode :is(p, h1, h2, h3, h4, li, a, button, .team-name, .search-result-title):hover {
             outline: 2px dashed var(--c-accent); outline-offset: 4px; border-radius: 3px;
         }
         .a11y-narrator-bar {
@@ -1828,7 +1827,51 @@
             /* Hero pe tot ecranul la deschiderea Acasă: video + textul care se scrie umplu integral viewport-ul */
             .hero { height: 100vh; height: 100svh; padding: 0 6vw; }
             .home-extended-area { padding: 56px 6vw; }
-           }
+            .home-huge-stats { gap: 24px; margin-bottom: 56px; padding-bottom: 36px; }
+            .home-stat { min-width: 45%; }
+            .home-about-extended { margin-bottom: 56px; }
+            .home-about-extended h2 { font-size: 2.2rem; }
+            .home-about-extended p { font-size: 1.05rem; margin-bottom: 14px; }
+            .instagram-embed-wrapper { margin: 0 auto 70px; }
+            
+
+            .horizontal-nav { margin-bottom: 32px; justify-content: flex-start; }
+            .horizontal-tab { padding: 10px 18px; font-size: 0.92rem; }
+            .dept-intro { margin-bottom: 32px; }
+            .dept-intro p, .stu-block p { font-size: 1.08rem; }
+            .team-grid { grid-template-columns: 1fr; gap: 40px; }
+            .team-photo { aspect-ratio: 4/5; }
+            .team-name { font-size: 1.15rem; }
+            .event-desc { margin-bottom: 32px; }
+            .event-desc p { font-size: 1.08rem; }
+            .carousel-container { margin-top: 20px; }
+        }
+        @media (max-width: 430px) {
+            /* Widget-ul oficial Instagram cere min-width:326px pe blockquote. Sub 430px,
+               padding-ul ramei + padding-ul lateral al secțiunii puteau lăsa mai puțin loc
+               decât atât, iar rama tăia/strângea postarea. Reducem paddingurile ca să
+               rămână mereu destul spațiu; overflow-x:auto (mai sus) e plasa de siguranță
+               dacă totuși nu încape pe un telefon foarte îngust. */
+            .home-extended-area { padding: 56px 3vw; }
+            
+
+            /* Text hero + mic pe telefoane înguste (majoritatea Android-urilor), ca titlul
+               să nu domine tot ecranul. */
+            .title-huge { font-size: 2.3rem; line-height: 1.18; }
+            /* Rândul care se scrie/șterge rămâne puțin mai mare decât "Inginerie Chimică" de
+               dedesubt, chiar și pe telefoane foarte înguste — plasa de siguranță e fitLineToViewport()
+               din JS, care micșorează pe loc dacă o variantă anume nu încape (fără despărțire în silabe,
+               fără text tăiat de margine). */
+            .typed-line { font-size: clamp(1.9rem, 8.5vw, 2.3rem); }
+
+            /* "200+" și "3+" stăteau prea aproape unul de altul pe ecrane înguste (Android) —
+               le forțăm câte unul pe rând, cu spațiu clar între ele, în loc să se înghesuie
+               unul lângă altul la jumătate de ecran fiecare. */
+            .home-huge-stats { flex-direction: column; gap: 32px; }
+            .home-stat { min-width: 100%; }
+            .home-stat span { font-size: 2.9rem; }
+        }
+
         /* ==========================================================================
            EXPERIMENT: fără borduri nicăieri în site (poze, carduri, butoane, inputuri,
            tab-uri). Un singur switch global, ca să fie ușor de dat înapoi dacă nu place —
@@ -1900,25 +1943,7 @@
         #view-evenimente .carousel-container { max-width: calc(100vw - 40px) !important; margin: 0 auto !important; }
     }
 </style>
-
-    <!-- Mockup Mode (Ascunde elementele nedorite in screenshot-uri) -->
-    <script>
-        if (window.location.search.includes('mockup=1')) {
-            document.head.insertAdjacentHTML('beforeend', `
-                <style>
-                    /* Ascunde scrollbar-ul browserului */
-                    ::-webkit-scrollbar { display: none !important; }
-                    * { scrollbar-width: none !important; }
-                    /* Ascunde cursorul galben custom, butonul de accesibilitate si notice-ul de cookie */
-                    #cursor, #a11yTriggerBtn, .cookie-notice, .scroll-progress { display: none !important; opacity: 0 !important; visibility: hidden !important; }
-                    /* Inghesuie navbar-ul pentru a reduce spatiul mort in mockup */
-                    nav { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; height: 90px !important; padding: 0 4vw !important; display: flex !important; justify-content: space-between !important; align-items: center !important; transform: none !important; transition: none !important; }
-                </style>
-            `);
-        }
-    </script>
 </head>
-
 <body>
 
     <!-- Confidențialitate: acest site nu colectează date despre vizitatori. Orice cookie tehnic
@@ -2265,8 +2290,6 @@
             loopCursor();
 
             window.addEventListener('mousemove', e => { mX = e.clientX; mY = e.clientY; });
-            window.addEventListener('mousedown', () => cursor.classList.add('clicking'));
-            window.addEventListener('mouseup', () => cursor.classList.remove('clicking'));
         }
 
         /* Peste widget-ul Instagram (iframe încărcat de pe instagram.com), browserul nu mai
@@ -2276,21 +2299,11 @@
            wrapper-ul din jurul iframe-ului (acela e al nostru, nu cross-origin) și estompăm
            inelul cât timp mouse-ul e deasupra — nativul Instagram-ului rămâne vizibil acolo,
            inevitabil, dar cel puțin al nostru nu mai arată stricat restul timpului. */
-        /* Hides custom cursor gracefully over ANY iframe wrapper to prevent it from freezing at the edge */
-        /* Hides custom cursor gracefully over ANY iframe wrapper to prevent it from freezing at the edge */
-        (function initIframeCursorFade() {
-            const wrappers = document.querySelectorAll('#ig-embed-wrapper, .map-fs-wrapper');
-            wrappers.forEach(wrapper => {
-                wrapper.addEventListener('mouseenter', () => cursor.classList.add('is-hidden'));
-                wrapper.addEventListener('mouseleave', () => cursor.classList.remove('is-hidden'));
-            });
-            
-            // Exceptions: UI elements floating ON TOP of the map iframe
-            const exceptions = document.querySelectorAll('.map-filters, .map-toolbar');
-            exceptions.forEach(exc => {
-                exc.addEventListener('mouseenter', (e) => { e.stopPropagation(); cursor.classList.remove('is-hidden'); });
-                exc.addEventListener('mouseleave', (e) => { e.stopPropagation(); cursor.classList.add('is-hidden'); });
-            });
+        (function initInstagramCursorFade() {
+            const igWrapper = document.getElementById('ig-embed-wrapper');
+            if (!igWrapper) return;
+            igWrapper.addEventListener('mouseenter', () => cursor.classList.add('is-hidden'));
+            igWrapper.addEventListener('mouseleave', () => cursor.classList.remove('is-hidden'));
         })();
 
         /* ==========================================================================
@@ -3188,31 +3201,10 @@
             try { sessionStorage.setItem('ssicSwipeDir', dir); } catch (e) { /* ignorăm */ }
 
             swiper.className = 'swipe-container';
-            swiper.style.visibility = 'visible';
-            
-            const bars = swiper.querySelectorAll('.swipe-bar');
-            if (bars.length > 0 && typeof bars[0].animate === 'function') {
-                const fromX = dir === 'ltr' ? '-100%' : '100%';
-                bars.forEach((bar, index) => {
-                    const anim = bar.animate([
-                        { transform: `translateX(${fromX})` },
-                        { transform: 'translateX(0%)' }
-                    ], {
-                        duration: 360,
-                        delay: index * 50,
-                        easing: 'cubic-bezier(0.8, 0, 0.2, 1)',
-                        fill: 'forwards'
-                    });
-                    // Navigăm EFECTIV abia după ce animația a terminat de rulat fizic pe ecran
-                    if (index === 1) {
-                        anim.onfinish = () => { location.href = url; };
-                    }
-                });
-            } else {
-                // Fallback de siguranță
-                swiper.classList.add('swipe-' + dir, 'covering');
-                setTimeout(() => { location.href = url; }, 420);
-            }
+            void swiper.offsetWidth;
+            swiper.classList.add('swipe-' + dir, 'covering');
+
+            setTimeout(() => { location.href = url; }, 360);
         }
 
         // navigate() rămâne ca funcție (nu doar location.href direct), ca restul codului
@@ -4319,18 +4311,14 @@
                 if (!prefs.narrator) stopNarration();
             });
 
-                        const NARRATOR_SELECTOR = 'p, h1, h2, h3, h4, li, a, button, .team-name, .search-result-title, .horizontal-tab';
+            const NARRATOR_SELECTOR = 'p, h1, h2, h3, h4, li, a, button, .team-name, .search-result-title';
             document.addEventListener('click', (e) => {
                 if (!html.classList.contains('a11y-narrator-mode')) return;
                 if (e.target.closest('#a11yOverlay, .a11y-narrator-bar, #a11yTriggerBtn')) return;
                 const el = e.target.closest(NARRATOR_SELECTOR);
                 if (!el) return;
-                
-                // Extragem textul, folosind aria-label sau title daca textContent e gol (ex. la iconite)
-                let textToSpeak = el.getAttribute('aria-label') || el.title || el.innerText || el.textContent;
-                
-                // Lasam evenimentul sa curga (fara preventDefault) si lansam citirea asincron
-                setTimeout(() => speak(textToSpeak), 0);
+                e.preventDefault(); e.stopPropagation();
+                speak(el.textContent);
             }, true);
 
             if (narratorPlayPause) narratorPlayPause.addEventListener('click', () => {
@@ -4368,167 +4356,5 @@
             if (window.lucide) lucide.createIcons();
         });
     </script>
-
-    <!-- ================= LIGHTBOX (FROSTED GLASS) ================= -->
-    <div id="globalLightbox" class="global-lightbox" oncontextmenu="return false;">
-        <button class="lightbox-close" id="lightboxClose" aria-label="Închide galeria"><i data-lucide="x"></i></button>
-        <div class="lightbox-track" id="lightboxTrack"></div>
-        <div class="lightbox-pagination" id="lightboxPagination"></div>
-    </div>
-
-    <style>
-        .global-lightbox {
-            position: fixed; inset: 0; z-index: 100000;
-            background: rgba(10, 10, 12, 0.4);
-            -webkit-backdrop-filter: blur(25px) saturate(180%);
-            backdrop-filter: blur(25px) saturate(180%);
-            display: flex; opacity: 0; visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0s linear 0.3s;
-            user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
-            flex-direction: column; overflow: hidden;
-        }
-        .global-lightbox.active {
-            opacity: 1; visibility: visible;
-            transition: opacity 0.3s ease, visibility 0s;
-        }
-        .lightbox-close {
-            position: absolute; top: 20px; right: 20px; z-index: 100001;
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 12px; width: 44px; height: 44px; color: white;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: background 0.2s, transform 0.2s;
-        }
-        .lightbox-close:hover { background: rgba(255,255,255,0.2); }
-        .lightbox-close:active { transform: scale(0.92); }
-        .lightbox-track {
-            display: flex; width: 100%; height: 100%;
-            padding-bottom: 50px; margin-bottom: -50px; box-sizing: content-box;
-            overflow-x: auto; overflow-y: hidden;
-            scroll-snap-type: x mandatory; scroll-behavior: smooth;
-            -ms-overflow-style: none; scrollbar-width: none; /* Ascunde nativ */
-            overscroll-behavior: none; /* Previne bounce-ul pe iOS */
-        }
-        .lightbox-track::-webkit-scrollbar, .lightbox-slide-wrapper::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
-        
-        .lightbox-slide-wrapper {
-            flex: 0 0 100%; width: 100%; height: 100%; box-sizing: border-box;
-            display: flex; align-items: center; justify-content: center;
-            scroll-snap-align: center; scroll-snap-stop: always; /* Ancorare stricta */
-            position: relative;
-            padding: 40px 20px 60px; box-sizing: border-box;
-        }
-        .lightbox-slide-wrapper img {
-            max-width: 100%; max-height: 100%;
-            object-fit: contain; border-radius: 12px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            /* ANTI-DOWNLOAD SECURITIES */
-            pointer-events: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
-        }
-        
-        /* Pagination Dots */
-        .lightbox-pagination {
-            position: absolute; bottom: 30px; left: 0; width: 100%;
-            display: flex; justify-content: center; gap: 8px; z-index: 100001;
-        }
-        .lightbox-dot {
-            width: 8px; height: 8px; border-radius: 50%;
-            background: rgba(255,255,255,0.3); transition: background 0.3s, transform 0.3s;
-        }
-        .lightbox-dot.active {
-            background: var(--c-accent); /* Yellow active state */
-            transform: scale(1.3);
-        }
-
-        /* Make sure all gallery imgs outside lightbox also prevent download */
-        .gal-item img, .carousel-slide img {
-            pointer-events: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
-        }
-        .gal-item, .carousel-slide {
-            cursor: zoom-in;
-        }
-    </style>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const lightbox = document.getElementById('globalLightbox');
-            const track = document.getElementById('lightboxTrack');
-            const closeBtn = document.getElementById('lightboxClose');
-            const pagination = document.getElementById('lightboxPagination');
-            let slideCount = 0;
-            
-            function openLightbox(images, activeIndex) {
-                track.innerHTML = '';
-                pagination.innerHTML = '';
-                slideCount = images.length;
-                
-                images.forEach((src, i) => {
-                    // Slide
-                    const slide = document.createElement('div');
-                    slide.className = 'lightbox-slide-wrapper';
-                    slide.innerHTML = `<img src="${src}" alt="Gallery Image">`;
-                    track.appendChild(slide);
-                    
-                    // Dot
-                    const dot = document.createElement('div');
-                    dot.className = 'lightbox-dot' + (i === activeIndex ? ' active' : '');
-                    pagination.appendChild(dot);
-                });
-                
-                lightbox.classList.add('active');
-                
-                // Scroll to active index without smooth scrolling initially
-                track.style.scrollBehavior = 'auto';
-                // Wait a tick for DOM to render layout
-                setTimeout(() => {
-                    if(track.children[activeIndex]) {
-                        track.children[activeIndex].scrollIntoView({ block: 'center', inline: 'center' });
-                    }
-                    track.style.scrollBehavior = 'smooth';
-                }, 10);
-            }
-
-            function closeLightbox() {
-                lightbox.classList.remove('active');
-                setTimeout(() => { track.innerHTML = ''; pagination.innerHTML = ''; }, 300);
-            }
-
-            closeBtn.addEventListener('click', closeLightbox);
-            
-            // Inchide daca dau click pe fundal gol (in afara pozei)
-            lightbox.addEventListener('click', (e) => {
-                if (e.target === track || e.target.classList.contains('lightbox-slide-wrapper')) {
-                    closeLightbox();
-                }
-            });
-            
-            // Update dots on scroll
-            track.addEventListener('scroll', () => {
-                if (slideCount === 0) return;
-                const index = Math.round(track.scrollLeft / track.clientWidth);
-                const dots = pagination.children;
-                for(let i=0; i<dots.length; i++) {
-                    dots[i].classList.toggle('active', i === index);
-                }
-            }, { passive: true });
-
-            // Ascultator global pentru deschidere lightbox
-            document.addEventListener('click', (e) => {
-                // Poate au facut click pe container (.gal-item) pentru ca imaginea are pointer-events: none
-                const item = e.target.closest('.gal-item, .carousel-slide');
-                if (item) {
-                    const clickedImg = item.querySelector('img');
-                    if (!clickedImg) return;
-                    
-                    const container = item.closest('.gallery-grid, .carousel-track');
-                    if (container) {
-                        const allImgs = Array.from(container.querySelectorAll('img')).map(img => img.src);
-                        const idx = allImgs.indexOf(clickedImg.src);
-                        openLightbox(allImgs, idx !== -1 ? idx : 0);
-                    }
-                }
-            });
-        });
-    </script>
-
 </body>
 </html>
