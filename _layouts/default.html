@@ -4,8 +4,14 @@
     <script>
         /* Temă site-wide: "clasic" (implicit) sau "discover" (clasa ds-theme pe <html>).
            Aplicată aici, înainte de orice CSS/randare, ca să nu existe flash la încărcare. */
+        /* COMUTATOR TEMĂ: momentan DEZACTIVAT (butonul e ascuns, tema salvată e ignorată).
+           Ca să-l reactivezi: schimbă `false` în `true` de mai jos. Tema Discover rămâne
+           activă doar pe pagina /discover/, care și-o impune singură. */
+        window.SSIC_THEME_SWITCH = false;
         (function () {
-            try { if (localStorage.getItem('ssicTheme') === 'discover') document.documentElement.classList.add('ds-theme'); }
+            var root = document.documentElement;
+            if (!window.SSIC_THEME_SWITCH) { root.classList.add('no-theme-switch'); return; }
+            try { if (localStorage.getItem('ssicTheme') === 'discover') root.classList.add('ds-theme'); }
             catch (e) { /* ignorăm */ }
         })();
     </script>
@@ -2041,7 +2047,7 @@
         }
 
         /* Butonul de temă: ascuns pe /discover/ (acolo tema e impusă de pagină) */
-        html.ds-forced .nav-theme-btn { display: none; }
+        html.ds-forced .nav-theme-btn, html.no-theme-switch .nav-theme-btn { display: none; }
         html.ds-theme .nav-theme-btn { color: var(--c-accent); }
 
         /* — Navbar — */
@@ -4631,7 +4637,7 @@
 
             // bfcache: revenirea pe pagină trebuie să respecte tema salvată (mai puțin pe /discover/, unde e impusă)
             window.addEventListener('pageshow', (e) => {
-                if (!e.persisted || root.classList.contains('ds-forced')) return;
+                if (!window.SSIC_THEME_SWITCH || !e.persisted || root.classList.contains('ds-forced')) return;
                 let saved = 'classic';
                 try { saved = localStorage.getItem(KEY) || 'classic'; } catch (err) { /* ignorăm */ }
                 root.classList.toggle('ds-theme', saved === 'discover');
