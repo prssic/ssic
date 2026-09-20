@@ -2143,6 +2143,8 @@
             --ds-card: 0 0 0 3px #0c2340, 6px 7px 0 3px #0c2340;
             --ds-card-sm: 0 0 0 2.5px #0c2340, 4px 5px 0 2.5px #0c2340;
             --ds-card-hover: 0 0 0 3px #0c2340, 9px 11px 0 3px #0c2340;
+            /* saturate(2) era pensat pt. fundal închis; peste carourile vii „ardea" culorile în noroi */
+            --glass-saturation: 1;
         }
 
         /* Fundal static, fix: pe <html> (canvas). Body/.app transparente, ca straturile din spate să se vadă. */
@@ -2430,8 +2432,16 @@
         html.ds-theme footer { padding-top: 98px; }
         html.ds-theme .footer-bottom .ft-credit { opacity: 1; color: rgba(12, 35, 64, 0.78); }
 
+        /* — Fundalul modalelor (căutare / accesibilitate / contact): în loc de negru 82% + blur 28px + saturate(2),
+             care transforma carourile într-un maro murdar, un văl navy transparent + blur mic → se văd în continuare
+             culorile afișului, doar mai calme și în plan secund — */
+        html.ds-theme .search-overlay, html.ds-theme .a11y-overlay, html.ds-theme .contact-overlay {
+            background: rgba(12, 35, 64, 0.5);
+            backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+        }
+
         /* — Lightbox în temă: fundal navy, butoane crem cu umbră roz, poză „lipită", buline galbene — */
-        html.ds-theme .lb-overlay { background: rgba(12, 35, 64, 0.93); }
+        html.ds-theme .lb-overlay { background: rgba(12, 35, 64, 0.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
         html.ds-theme .lb-close, html.ds-theme .lb-nav {
             background: var(--c-base); color: var(--ds-navy); border-radius: 14px;
             box-shadow: 0 0 0 2.5px var(--ds-navy), 3px 3px 0 2.5px var(--ds-pink);
