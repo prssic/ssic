@@ -24,14 +24,14 @@ body {
 /* ── @font-face local Stinger Fit (Varianta FULL) ── */
 @font-face {
     font-family: 'Stinger Fit';
-    src: url('assets/fonts/StingerFit-Bold.ttf') format('truetype');
+    src: url('/assets/fonts/StingerFit-Bold.ttf') format('truetype');
     font-weight: bold;
     font-style: normal;
     font-display: swap;
 }
 @font-face {
     font-family: 'Stinger Fit';
-    src: url('assets/fonts/StingerFit-Regular.otf') format('opentype');
+    src: url('/assets/fonts/StingerFit-Regular.otf') format('opentype');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
@@ -57,7 +57,6 @@ body {
     line-height: 0.92;
     text-shadow: none;
     -webkit-text-stroke: 0;
-    margin-bottom: -5px;
 }
 
 /* Rândul 2: data + "SSIC" pe aceeași linie ── */
@@ -68,7 +67,6 @@ body {
     gap: 12px;
     flex-wrap: nowrap;
     width: 100%;
-    margin-top: -12px;
 }
 .ds-title-dates {
     font-family: 'Stinger Fit', Impact, sans-serif;
@@ -99,8 +97,9 @@ body {
 .ds-row.star-right { flex-direction: row-reverse; }
 
 /* ── Steluță starburst ── */
-.ds-star-wrapper { filter: drop-shadow(4px 4px 0 #1a2a5e); z-index: 3; flex-shrink: 0; margin: 0 -16px; display: flex; align-items: center; justify-content: center; }
+
 .ds-star {
+    filter: drop-shadow(4px 4px 0 #1a2a5e);
     flex: 0 0 80px;
     width: 80px;
     height: 80px;
@@ -116,8 +115,10 @@ body {
     line-height: 1;
     z-index: 1;
     transform: rotate(-5deg);
+    margin: 0 -16px;
 }
-.ds-row.star-right .ds-star { transform: rotate(5deg); }
+.ds-row.star-right .ds-star {
+    filter: drop-shadow(4px 4px 0 #1a2a5e); transform: rotate(5deg); }
 .ds-star .ds-day {
     font-family: 'Stinger Fit', Impact, sans-serif;
     font-size: 0.6rem;
@@ -187,8 +188,7 @@ body {
     .ds-title-discover { font-size: clamp(3rem, 15vw, 6rem); margin-bottom: 0px; }
     .ds-title-ssic { font-size: clamp(3rem, 15vw, 6rem); }
     .ds-title-dates { font-size: clamp(0.9rem, 4.5vw, 1.4rem); }
-    .ds-star-wrapper { flex: 0 0 66px; margin: 0 -12px; }
-    .ds-star  { flex: 0 0 66px; width: 66px; height: 66px; font-size: 1.5rem; }
+    .ds-star  { flex: 0 0 66px; width: 66px; height: 66px; font-size: 1.5rem; margin: 0 -12px; }
     .ds-pill  { padding: 10px 14px; min-height: 60px; border-radius: 14px; }
     .ds-sticker { flex: 0 0 52px; width: 52px; height: 52px; margin: 0 -4px; object-fit: contain; }
     .ds-sticker-placeholder { flex: 0 0 52px; width: 52px; }
@@ -213,10 +213,10 @@ body {
 
         <!-- 28 LUNI — stea stânga, smiley dreapta -->
         <div class="ds-row">
-            <div class="ds-star-wrapper"><div class="ds-star" style="background:#ff3399;">
+            <div class="ds-star" style="background:#ff3399;">
                 28<div class="ds-day">LUNI</div>
-            </div></div>
-            <div class="ds-pill">
+            </div>
+                <div class="ds-pill">
                 <span class="ds-glitch" data-orig="Prezentare SSIC- Joc de cunoaștere"></span>
             </div>
             <img src="/assets/events/discover/smiley.png" class="ds-sticker s1" alt="smiley">
@@ -224,10 +224,10 @@ body {
 
         <!-- Rândul 2 -->
         <div class="ds-row star-right">
-            <div class="ds-star-wrapper"><div class="ds-star" style="background:#33ccff;">
+            <div class="ds-star" style="background:#33ccff;">
                 29<div class="ds-day">MARȚI</div>
-            </div></div>
-            <div class="ds-pill">
+            </div>
+                <div class="ds-pill">
                 <span class="ds-glitch" data-orig="Photo Scavenger Hunt"></span>
             </div>
             <div class="ds-sticker-placeholder"></div>
@@ -235,10 +235,10 @@ body {
 
         <!-- Rândul 3 -->
         <div class="ds-row">
-            <div class="ds-star-wrapper"><div class="ds-star" style="background:#ccff33;">
+            <div class="ds-star" style="background:#ccff33;">
                 30<div class="ds-day">MIERCURI</div>
-            </div></div>
-            <div class="ds-pill">
+            </div>
+                <div class="ds-pill">
                 <span class="ds-glitch" data-orig="Trivia Night SSIC x LSFSA x YAIMM"></span>
             </div>
             <img src="/assets/events/discover/flower.png" class="ds-sticker s2" alt="flower">
@@ -246,10 +246,10 @@ body {
 
         <!-- Rândul 4 -->
         <div class="ds-row star-right">
-            <div class="ds-star-wrapper"><div class="ds-star" style="background:#99ffcc;">
+            <div class="ds-star" style="background:#99ffcc;">
                 1<div class="ds-day">JOI</div>
-            </div></div>
-            <div class="ds-pill">
+            </div>
+                <div class="ds-pill">
                 <span class="ds-glitch" data-orig="Bingo Muzical & UniStart Party"></span>
             </div>
             <div class="ds-sticker-placeholder"></div>
@@ -257,10 +257,10 @@ body {
 
         <!-- Rândul 5 -->
         <div class="ds-row">
-            <div class="ds-star-wrapper"><div class="ds-star" style="background:#ff6600;">
+            <div class="ds-star" style="background:#ff6600;">
                 2<div class="ds-day">VINERI</div>
-            </div></div>
-            <div class="ds-pill">
+            </div>
+                <div class="ds-pill">
                 <span class="ds-glitch" data-orig="Get to know Bucharest ft. SSIC"></span>
             </div>
             <img src="/assets/events/discover/heart.png" class="ds-sticker s3" alt="heart">
@@ -286,7 +286,8 @@ body {
                 if (orig[i] === ' ' || orig[i] === '-') {
                     newText += orig[i]; // Preserve spaces and hyphens
                 } else {
-                    newText += randChar();
+                    // 85% chance to show original letter, 15% chance to glitch
+                    newText += Math.random() > 0.85 ? randChar() : orig[i];
                 }
             }
             el.innerText = newText;
@@ -297,3 +298,4 @@ body {
     });
 })();
 </script>
+
