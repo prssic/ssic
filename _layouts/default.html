@@ -1828,54 +1828,6 @@
             /* Hero pe tot ecranul la deschiderea Acasă: video + textul care se scrie umplu integral viewport-ul */
             .hero { height: 100vh; height: 100svh; padding: 0 6vw; }
             .home-extended-area { padding: 56px 6vw; }
-            .home-huge-stats { gap: 24px; margin-bottom: 56px; padding-bottom: 36px; }
-            .home-stat { min-width: 45%; }
-            .home-about-extended { margin-bottom: 56px; }
-            .home-about-extended h2 { font-size: 2.2rem; }
-            .home-about-extended p { font-size: 1.05rem; margin-bottom: 14px; }
-            .instagram-embed-wrapper { margin: 0 auto 70px; }
-            
-
-            .horizontal-nav { margin-bottom: 32px; justify-content: flex-start; }
-            .horizontal-tab { padding: 10px 18px; font-size: 0.92rem; }
-            .dept-intro { margin-bottom: 32px; }
-            .dept-intro p, .stu-block p { font-size: 1.08rem; }
-            .team-grid { grid-template-columns: 1fr; gap: 40px; }
-            .team-photo { aspect-ratio: 4/5; }
-            .team-name { font-size: 1.15rem; }
-            .event-desc { margin-bottom: 32px; }
-            .event-desc p { font-size: 1.08rem; }
-            .carousel-container { margin-top: 20px; }
-        }
-        @media (max-width: 430px) {
-            /* Widget-ul oficial Instagram cere min-width:326px pe blockquote. Sub 430px,
-               padding-ul ramei + padding-ul lateral al secțiunii puteau lăsa mai puțin loc
-               decât atât, iar rama tăia/strângea postarea. Reducem paddingurile ca să
-               rămână mereu destul spațiu; overflow-x:auto (mai sus) e plasa de siguranță
-               dacă totuși nu încape pe un telefon foarte îngust. */
-            .home-extended-area { padding: 56px 3vw; }
-            
-
-            /* Text hero + mic pe telefoane înguste (majoritatea Android-urilor), ca titlul
-               să nu domine tot ecranul. */
-            .title-huge { font-size: 2.3rem; line-height: 1.18; }
-            /* Rândul care se scrie/șterge rămâne puțin mai mare decât "Inginerie Chimică" de
-               dedesubt, chiar și pe telefoane foarte înguste — plasa de siguranță e fitLineToViewport()
-               din JS, care micșorează pe loc dacă o variantă anume nu încape (fără despărțire în silabe,
-               fără text tăiat de margine). */
-            .typed-line { font-size: clamp(1.9rem, 8.5vw, 2.3rem); }
-
-            /* "200+" și "3+" stăteau prea aproape unul de altul pe ecrane înguste (Android) —
-               le forțăm câte unul pe rând, cu spațiu clar între ele, în loc să se înghesuie
-               unul lângă altul la jumătate de ecran fiecare. */
-            .home-huge-stats { flex-direction: column; gap: 32px; }
-            .home-stat { min-width: 100%; }
-            .home-stat span { font-size: 2.9rem; }
-        }
-
-        /* ==========================================================================
-           EXPERIMENT: fără borduri nicăieri în site (poze, carduri, butoane, inputuri,
-           tab-uri). Un singur switch global, ca să fie ușor de dat înapoi dacă nu place —
            elementul .instagram-media e conținutul embed-ului Instagram (widget străin,
            cu propriul markup/stil), deci îl lăsăm exact cum e, ca să nu-l stricăm.
            ========================================================================== */
