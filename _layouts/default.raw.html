@@ -1828,10 +1828,6 @@
             /* Hero pe tot ecranul la deschiderea Acasă: video + textul care se scrie umplu integral viewport-ul */
             .hero { height: 100vh; height: 100svh; padding: 0 6vw; }
             .home-extended-area { padding: 56px 6vw; }
-           }
-        /* ==========================================================================
-           EXPERIMENT: fără borduri nicăieri în site (poze, carduri, butoane, inputuri,
-           tab-uri). Un singur switch global, ca să fie ușor de dat înapoi dacă nu place —
            elementul .instagram-media e conținutul embed-ului Instagram (widget străin,
            cu propriul markup/stil), deci îl lăsăm exact cum e, ca să nu-l stricăm.
            ========================================================================== */
@@ -1893,13 +1889,7 @@
                 -webkit-backdrop-filter: blur(10px) saturate(var(--glass-saturation));
             }
         }
-    
-    @media (max-width: 480px) {
-        #view-evenimente .event-content-wrapper,
-        #view-evenimente .evsub { padding-left: 20px !important; padding-right: 20px !important; }
-        #view-evenimente .carousel-container { max-width: calc(100vw - 40px) !important; margin: 0 auto !important; }
-    }
-</style>
+    </style>
 
     <!-- Mockup Mode (Ascunde elementele nedorite in screenshot-uri) -->
     <script>
