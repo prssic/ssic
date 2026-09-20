@@ -1260,6 +1260,21 @@
             font-size: 0.82rem; color: var(--c-gray);
         }
         .footer-bottom a { color: var(--c-gray); transition: color 0.2s var(--ease-out); }
+        /* Credit discret: Web Developer & Designer — pe rând separat, sub restul textului */
+        .ft-credit {
+            flex: 0 0 100%; display: inline-flex; align-items: center; gap: 8px;
+            font-size: 0.74rem; letter-spacing: 0.3px; opacity: 0.7;
+            transition: opacity 0.3s var(--ease-out);
+        }
+        .ft-credit-glyph {
+            font-family: var(--font-mono); font-weight: 700; color: var(--c-accent);
+            display: inline-block; transition: transform 0.35s var(--ease-out);
+        }
+        .ft-credit strong { font-weight: 700; color: inherit; transition: color 0.3s var(--ease-out); }
+        .ft-credit:hover { opacity: 1; }
+        .ft-credit:hover .ft-credit-glyph { transform: rotate(-8deg) scale(1.12); }
+        .ft-credit:hover strong { color: var(--c-accent); }
+        @media (prefers-reduced-motion: reduce) { .ft-credit, .ft-credit-glyph, .ft-credit strong { transition: none; } .ft-credit:hover .ft-credit-glyph { transform: none; } }
 
         /* ==========================================================================
            10.1 WIDGET ACCESIBILITATE
@@ -2431,7 +2446,8 @@
 
         // Excluderi ferme (UI-ul site-ului) vs. excluderi "moi" (nav/header/footer) — acestea din urmă
         // NU se aplică pozelor din carusele / galerie / echipă, chiar dacă markup-ul lor e învelit într-un <header>/<nav>.
-        const HARD_EXCLUDE = '.lb-overlay, .search-overlay, .contact-overlay, .a11y-overlay, .swipe-container, [data-no-lightbox]';
+        // .team-member: pozele din cardurile de Board/Facultate nu deschid lightbox (numele/funcția sunt deja vizibile pe card)
+        const HARD_EXCLUDE = '.lb-overlay, .search-overlay, .contact-overlay, .a11y-overlay, .swipe-container, .team-member, [data-no-lightbox]';
         const SOFT_EXCLUDE = 'nav, header, footer';
         const CONTENT_IMG = '.carousel-slide, .gal-item, .team-photo';
         let dots = [], metas = [], current = 0, lastFocus = null, count = 0;
@@ -2815,6 +2831,7 @@
             <div class="footer-bottom">
                 <span>&copy; ${new Date().getFullYear()} SSIC &mdash; Societatea Studenților în Inginerie Chimică și Biotehnologii. Toate drepturile rezervate.</span>
                 <span>Acest site nu colectează date personale ale vizitatorilor.</span>
+                <span class="ft-credit"><span class="ft-credit-glyph" aria-hidden="true">&lt;/&gt;</span><span>Web Developer &amp; Designer &mdash; <strong>Andrei Pătru</strong></span></span>
             </div>
         `;
         document.querySelectorAll('.global-footer').forEach(f => f.innerHTML = footerHTML);
