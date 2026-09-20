@@ -15,6 +15,7 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
                      sincronizate; ordinea butoanelor nu afectează logica, doar poziția vizuală. -->
                 <div class="horizontal-nav" id="nav-evenimente">
                     <div class="horizontal-tab active hover-target" onclick="switchEventItem('calendar', null, this)">Calendar</div>
+                    <div class="horizontal-tab hover-target" id="tab-discover" onclick="switchEventItem('event', 'discover', this)"><img src="/assets/events/discover/daisy.png" width="18" style="vertical-align:middle; margin-right:6px; animation: swayRot 3s infinite alternate ease-in-out;">Discover</div>
                     <div class="horizontal-tab hover-target" onclick="switchEventItem('event', 0, this)">ChemistryFest</div>
                     <div class="horizontal-tab hover-target" onclick="switchEventItem('event', 1, this)">PoliFest</div>
                     <div class="horizontal-tab hover-target" onclick="switchEventItem('event', 2, this)">ChemEx</div>
@@ -24,16 +25,51 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
                     <div class="calendar-section reveal">
                         <h2><i data-lucide="calendar-days" style="color:var(--c-accent); margin-right:10px;"></i>Calendar</h2>
                         <div class="calendar-list">
-                            <div class="calendar-item hover-target">
+                            <div class="calendar-item hover-target" onclick="switchEventItem('event', 'discover', document.getElementById('tab-discover'))">
                                 <div class="calendar-date"><span class="cal-day">28</span><span class="cal-month">Sep</span></div>
                                 <div class="calendar-info">
-                                    <h3>DiscoverSSIC</h3>
+                                    <h3 style="display:flex; align-items:center; gap:8px;"><img src="/assets/events/discover/daisy.png" width="24" style="animation: swayRot 3s infinite alternate ease-in-out;">DiscoverSSIC</h3>
                                     <p>Detalii în curând</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div><!-- /evsub-calendar -->
+
+                <!-- Articol Discover SSIC (Easter Egg) -->
+                <div class="event-content-wrapper" id="ev-discover" style="display: none; padding-top: 20px;">
+                    <div class="d-title reveal">DISCOVER SSIC</div>
+                    
+                    <div style="position:relative; padding-bottom: 40px;" class="reveal">
+                        <!-- Stickere libere -->
+                        <img src="/assets/events/discover/smiley.png" class="sticker" style="top: 0; right: 0; width: 80px;">
+                        <img src="/assets/events/discover/daisy.png" class="sticker" style="top: 200px; right: 10px; width: 90px; animation-delay: -1s;">
+                        <img src="/assets/events/discover/heart.png" class="sticker" style="bottom: -20px; right: 30px; width: 100px; animation-delay: -2s;">
+
+                        <!-- Casute glitch -->
+                        <div class="discover-box">
+                            <div class="discover-date-star" style="background: #ff55aa;">28<span>LUNI</span></div>
+                            <div class="db-text glitch-text">P@3z&nt*r^ $IC - J!c d% cun0@st#re</div>
+                        </div>
+                        <div class="discover-box">
+                            <div class="discover-date-star" style="background: #55ccee;">29<span>MARȚI</span></div>
+                            <div class="db-text glitch-text">Ph0t0 $c@v&ng#r H*nt</div>
+                        </div>
+                        <div class="discover-box">
+                            <div class="discover-date-star" style="background: #ffdd44;">30<span>MIERCURI</span></div>
+                            <div class="db-text glitch-text">Tr!v!@ N!ght $IC x L$F$A x Y@IMM</div>
+                        </div>
+                        <div class="discover-box">
+                            <div class="discover-date-star" style="background: #99eeaa;">1<span>JOI</span></div>
+                            <div class="db-text glitch-text">B!ng0 M*z!c@l & Un!St@rt P@rty</div>
+                        </div>
+                        <div class="discover-box">
+                            <div class="discover-date-star" style="background: #ff6622;">2<span>VINERI</span></div>
+                            <div class="db-text glitch-text">G&t t0 kn0w B*ch@r&st ft. $IC</div>
+                        </div>
+                    </div>
+                </div>
+
 
                 <!-- Poze evenimente: creează folderul assets/events/ lângă acest index.html și
                      pune acolo poza pentru fiecare eveniment, denumită exact ca în src="..." de mai
@@ -124,5 +160,11 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
                 const nextId = kind === 'calendar' ? 'evsub-calendar' : `ev-${index}`;
                 const next = document.getElementById(nextId);
                 if (typeof swapTabPanel === 'function') swapTabPanel(panels, next);
+
+                if (nextId === 'ev-discover') {
+                    document.body.classList.add('theme-discover-active');
+                } else {
+                    document.body.classList.remove('theme-discover-active');
+                }
             }
-        </script>
+          </script>
