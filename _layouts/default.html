@@ -2523,16 +2523,10 @@
            ========================================================================== */
         .ds-countdown {
             position: relative; z-index: 1; width: fit-content; max-width: 100%;
-            margin: 0 auto 44px; padding: 22px 28px 20px; border-radius: 28px; text-align: center;
+            margin: 44px auto; padding: 22px 28px 18px; border-radius: 28px; text-align: center;
             background: #f5f4e0; color: #0c2340;
             box-shadow: 0 0 0 3px #0c2340, 6px 7px 0 3px #0c2340;
             rotate: -1deg;
-        }
-        .ds-cd-label {
-            display: inline-block; margin-bottom: 14px; padding: 5px 18px 7px; border-radius: 14px;
-            background: #ff70b6; color: #0c2340; box-shadow: 0 0 0 2.5px #0c2340;
-            font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif; font-weight: 700;
-            font-size: 1.05rem; letter-spacing: 0.06em; text-transform: uppercase;
         }
         .ds-cd-row { display: flex; align-items: flex-start; justify-content: center; gap: clamp(6px, 2vw, 14px); }
         .ds-cd-unit { display: flex; flex-direction: column; align-items: center; gap: 8px; }
@@ -2555,7 +2549,6 @@
             font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif; font-weight: 700;
             font-size: clamp(2rem, 8vw, 3.4rem); line-height: 1;
         }
-        .ds-cd-when { margin-top: 16px; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.02em; color: #0c2340; }
         .ds-cd-quip {
             min-height: 1.4em; margin-top: 10px; font-size: 0.9rem; font-style: italic; font-weight: 600;
             color: rgba(12, 35, 64, 0.75); opacity: 0; transition: opacity 0.6s ease;
@@ -5418,8 +5411,6 @@
         (function () {
             if (!/^\/discover(\/|$)/.test(location.pathname)) return;
             const COUNTDOWN_TARGET = new Date('2026-09-21T12:00:00+03:00').getTime();
-            const COUNTDOWN_LABEL = 'Începe în';
-            const COUNTDOWN_WHEN = '21 septembrie · ora 12:00';
             const QUIPS = [
                 'Mai e ceva de așteptat…',
                 'Nu te-ai plictisit?',
@@ -5440,7 +5431,6 @@
             box.setAttribute('role', 'timer');
             box.setAttribute('aria-label', 'Numărătoare inversă');
             box.innerHTML =
-                '<div class="ds-cd-label">' + COUNTDOWN_LABEL + '</div>' +
                 '<div class="ds-cd-row" aria-hidden="true">' +
                     '<div class="ds-cd-unit" data-u="h"><div class="ds-cd-num">00</div><div class="ds-cd-name">ore</div></div>' +
                     '<div class="ds-cd-sep">:</div>' +
@@ -5448,10 +5438,24 @@
                     '<div class="ds-cd-sep">:</div>' +
                     '<div class="ds-cd-unit" data-u="s"><div class="ds-cd-num">00</div><div class="ds-cd-name">secunde</div></div>' +
                 '</div>' +
-                '<div class="ds-cd-when">' + COUNTDOWN_WHEN + '</div>' +
                 '<div class="ds-cd-quip" aria-hidden="true"></div>' +
                 '<span class="sr-only" id="dsCdSr"></span>';
-            host.insertBefore(box, host.firstChild);
+            /* Poziție: DEDESUBT tuturor evenimentelor din săptămână. Caută lista de evenimente (primul selector
+               care se potrivește) și pune ceasul după blocul de nivel superior care o conține — deci sub
+               secțiunea full-screen, nu în interiorul ei. Dacă nu găsește nimic, ceasul merge la finalul paginii.
+               Ca să-l fixezi exact: pune data-countdown-after pe secțiunea cu evenimente din pagina Discover. */
+            const AFTER_SELECTORS = ['[data-countdown-after]', '.discover-events', '.events-week', '.calendar-section', '.calendar-list'];
+            let anchor = null;
+            for (const sel of AFTER_SELECTORS) {
+                const found = host.querySelectorAll(sel);
+                if (found.length) { anchor = found[found.length - 1]; break; }
+            }
+            if (anchor) {
+                while (anchor.parentElement && anchor.parentElement !== host) anchor = anchor.parentElement;
+                host.insertBefore(box, anchor.nextSibling);
+            } else {
+                host.appendChild(box);
+            }
 
             const num = (u) => box.querySelector('[data-u="' + u + '"] .ds-cd-num');
             const two = (n) => String(n).padStart(2, '0');
