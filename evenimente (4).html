@@ -1,0 +1,129 @@
+---
+layout: default
+view: evenimente
+permalink: /evenimente/
+title: Evenimente | SSIC
+description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocilor, seri sociale, traininguri și oportunități de dezvoltare pentru studenți."
+---
+        <section class="view active" id="view-evenimente">
+            <div class="page-content">
+                <h1 class="title-huge"><i>Evenimente</i></h1>
+
+                <!-- Un singur rând de tab-uri: Calendar primul, apoi cele 3 evenimente — cerut
+                     explicit ca Calendar să apară înaintea tuturor evenimentelor, nu la final.
+                     switchEventItem (mai jos) tratează ambele cazuri și ține panourile
+                     sincronizate; ordinea butoanelor nu afectează logica, doar poziția vizuală. -->
+                <div class="horizontal-nav" id="nav-evenimente">
+                    <div class="horizontal-tab active hover-target" onclick="switchEventItem('calendar', null, this)">Calendar</div>
+                    <div class="horizontal-tab hover-target" onclick="switchEventItem('event', 0, this)">ChemistryFest</div>
+                    <div class="horizontal-tab hover-target" onclick="switchEventItem('event', 1, this)">PoliFest</div>
+                    <div class="horizontal-tab hover-target" onclick="switchEventItem('event', 2, this)">ChemEx</div>
+                </div>
+
+                <div class="evsub active" id="evsub-calendar">
+                    <div class="calendar-section reveal">
+                        <h2><i data-lucide="calendar-days" style="color:var(--c-accent); margin-right:10px;"></i>Calendar</h2>
+                        <div class="calendar-list">
+                            <div class="calendar-item hover-target" onclick="goToUrl('/discover/')">
+                                <div class="calendar-date"><span class="cal-day">28</span><span class="cal-month">Sep</span></div>
+                                <div class="calendar-info">
+                                    <h3 style="display:flex; align-items:center; gap:8px;"><img src="/assets/events/discover/daisy.png" width="24" style="animation: swayRot 3s infinite alternate ease-in-out;">DiscoverSSIC</h3>
+                                    <p>Detalii în curând</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- /evsub-calendar -->
+
+                <!-- Poze evenimente: creează folderul assets/events/ lângă acest index.html și
+                     pune acolo poza pentru fiecare eveniment, denumită exact ca în src="..." de mai
+                     jos (ex. poli-chemistry-fest-1.jpg). Dacă un fișier lipsește, acel slide dispare
+                     automat din carusel (fără poză spartă vizibilă). -->
+                <div class="event-content-wrapper" id="ev-0">
+                    <div class="event-desc reveal">
+                        <p>ChemistryFest reprezintă cel mai important eveniment anual al Facultății de Inginerie Chimică și Biotehnologii și al Societății Studenților în Inginerie Chimică și Biotehnologii. An de an, aducem știința direct în fața publicului larg printr-un maraton de experimente inedite, care reprezintă doar o mică parte din ceea ce un student învață la FICBi.</p><br>
+                        <p>Evenimentul se adresează tuturor, de la cei mai mici elevi până la studenți, deoarece ChemistryFest reunește o varietate de firme, companii și antreprenori gata să investească în viitorul ingineriei chimice și pregătiți să recruteze studenți încă de pe băncile facultății.</p><br>
+                        <p>Participarea la ChemistryFest înseamnă, pentru orice voluntar SSIC, recunoașterea efortului depus, prietenii valoroase și un loc pe cea mai dinamică scenă din întreaga Politehnică!</p>
+                    </div>
+                    <div class="carousel-container hover-target reveal">
+                        <div class="carousel-track" id="carousel-ev0">
+                            <div class="carousel-slide"><img src="/assets/events/chemistry-fest-1.jpg" alt="ChemistryFest 1" loading="lazy" decoding="async" onerror="handleEventImgError(this)" oncontextmenu="return false;" style="pointer-events: none; user-select: none;"></div>
+                            <div class="carousel-slide"><img src="/assets/events/chemistry-fest-2.jpg" alt="ChemistryFest 2" loading="lazy" decoding="async" onerror="handleEventImgError(this)" oncontextmenu="return false;" style="pointer-events: none; user-select: none;"></div>
+                            <div class="carousel-slide"><img src="/assets/events/chemistry-fest-3.jpg" alt="ChemistryFest 3" loading="lazy" decoding="async" onerror="handleEventImgError(this)" oncontextmenu="return false;" style="pointer-events: none; user-select: none;"></div>
+                            <div class="carousel-slide"><img src="/assets/events/chemistry-fest-4.jpg" alt="ChemistryFest 4" loading="lazy" decoding="async" onerror="handleEventImgError(this)" oncontextmenu="return false;" style="pointer-events: none; user-select: none;"></div>
+                            <div class="carousel-slide"><img src="/assets/events/chemistry-fest-5.jpg" alt="ChemistryFest 5" loading="lazy" decoding="async" onerror="handleEventImgError(this)" oncontextmenu="return false;" style="pointer-events: none; user-select: none;"></div>
+                        </div>
+                        <div class="carousel-dots" id="dots-ev0">
+                            <div class="carousel-dot active"></div>
+                            <div class="carousel-dot"></div>
+                            <div class="carousel-dot"></div>
+                            <div class="carousel-dot"></div>
+                            <div class="carousel-dot"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="event-content-wrapper" id="ev-1">
+                    <div class="event-desc reveal">
+                        <p>PoliFest invită participarea tuturor facultăților și asociațiilor studențești la cel mai mare festival organizat de Politehnică. Implicarea SSIC în PoliFest subliniază dedicarea noastră de a reprezenta și de a promova ingineria la nivel universitar. Efortul combinat al voluntarilor noștri creează standuri vizitate de mii de elevi și studenți, solidificând poziția noastră ca asociație pilon în cadrul universității.</p><br>
+                        <p>Mai mult, fiecare zi de PoliFest este marcată de demonstrațiile de experimente, dinamice și inedite ca întotdeauna!</p>
+                    </div>
+                    <div class="carousel-container hover-target reveal">
+                        <div class="carousel-track" id="carousel-ev1">
+                            <div class="carousel-slide"><img src="/assets/events/poli-fest-1.jpg" alt="PoliFest 1" loading="lazy" decoding="async" onerror="handleEventImgError(this)" oncontextmenu="return false;" style="pointer-events: none; user-select: none;"></div>
+                            <div class="carousel-slide"><img src="/assets/events/poli-fest-2.jpg" alt="PoliFest 2" loading="lazy" decoding="async" onerror="handleEventImgError(this)" oncontextmenu="return false;" style="pointer-events: none; user-select: none;"></div>
+                            <div class="carousel-slide"><img src="/assets/events/poli-fest-4.jpg" alt="PoliFest 4" loading="lazy" decoding="async" onerror="handleEventImgError(this)" oncontextmenu="return false;" style="pointer-events: none; user-select: none;"></div>
+                            <div class="carousel-slide"><img src="/assets/events/poli-fest-5.jpg" alt="PoliFest 5" loading="lazy" decoding="async" onerror="handleEventImgError(this)" oncontextmenu="return false;" style="pointer-events: none; user-select: none;"></div>
+                        </div>
+                        <div class="carousel-dots" id="dots-ev1">
+                            <div class="carousel-dot active"></div>
+                            <div class="carousel-dot"></div>
+                            <div class="carousel-dot"></div>
+                            <div class="carousel-dot"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="event-content-wrapper" id="ev-2">
+                    <div class="event-desc reveal">
+                        <p>SSIC promovează networking-ul și ieșirea din zona de confort prin organizarea anuală a ChemEx, programul de schimb de experiență realizat în strâns parteneriat cu colegii noștri de la <a href="https://osccluj.ro/" target="_blank" class="hover-target" style="color:var(--c-accent); text-decoration:underline; display:inline-block;">OSC Cluj</a>, <a href="https://www.instagram.com/_ascis_/" target="_blank" class="hover-target" style="color:var(--c-accent); text-decoration:underline; display:inline-block;">ASCIS Iași</a> și <a href="https://lsct.ro/" target="_blank" class="hover-target" style="color:var(--c-accent); text-decoration:underline; display:inline-block;">LSCT Timișoara</a>.</p><br>
+                        <p>An de an, voluntarii noștri pleacă în mobilități în cele trei orașe și se întorc atât cu experiența de student în băncile unei alte facultăți, cât și cu noi conexiuni, prietenii și amintiri care durează o viață întreagă.</p><br>
+                        <p>Mulți consideră ChemEx cel mai frumos eveniment organizat de SSIC, iar noi suntem de acord!</p>
+                    </div>
+                    <div class="carousel-container hover-target reveal">
+                        <div class="carousel-track" id="carousel-ev2">
+                            <div class="carousel-slide"><img src="/assets/events/chemex-1.jpg" alt="ChemEx 1" loading="lazy" decoding="async" onerror="handleEventImgError(this)" oncontextmenu="return false;" style="pointer-events: none; user-select: none;"></div>
+                            <div class="carousel-slide"><img src="/assets/events/chemex-2.jpg" alt="ChemEx 2" loading="lazy" decoding="async" onerror="handleEventImgError(this)" oncontextmenu="return false;" style="pointer-events: none; user-select: none;"></div>
+                            <div class="carousel-slide"><img src="/assets/events/chemex-3.jpg" alt="ChemEx 3" loading="lazy" decoding="async" onerror="handleEventImgError(this)" oncontextmenu="return false;" style="pointer-events: none; user-select: none;"></div>
+                        </div>
+                        <div class="carousel-dots" id="dots-ev2">
+                            <div class="carousel-dot active"></div>
+                            <div class="carousel-dot"></div>
+                            <div class="carousel-dot"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <footer class="global-footer"></footer>
+        </section>
+
+        <script>
+            // Înlocuiește vechea pereche switchEvent / switchEventSub (cele două rânduri de
+            // tab-uri separate: "Evenimente vs. Calendar" deasupra, "Poli Chemistry Fest /
+            // Poli Fest / ChemEx" dedesubt) cu UN singur rând, patru butoane, un singur
+            // sistem de comutare. Reutilizează swapTabPanel/haptic din layout (default.html),
+            // care rulează deja pe pagină — nu redefinim acea logică aici.
+            function switchEventItem(kind, index, el) {
+                if (el && el.classList.contains('active')) return;
+                if (typeof haptic === 'function') haptic(8);
+                document.querySelectorAll('#nav-evenimente .horizontal-tab').forEach(t => t.classList.remove('active'));
+                if (el) el.classList.add('active');
+
+                const panels = document.querySelectorAll('#view-evenimente .event-content-wrapper, #view-evenimente .evsub');
+                const nextId = kind === 'calendar' ? 'evsub-calendar' : `ev-${index}`;
+                const next = document.getElementById(nextId);
+                if (typeof swapTabPanel === 'function') swapTabPanel(panels, next);
+
+                }
+          </script>
