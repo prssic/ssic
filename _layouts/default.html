@@ -1950,7 +1950,7 @@
                     /* Ascunde cursorul galben custom, butonul de accesibilitate si notice-ul de cookie */
                     #cursor, #a11yTriggerBtn, .cookie-notice, .scroll-progress { display: none !important; opacity: 0 !important; visibility: hidden !important; }
                     /* Inghesuie navbar-ul pentru a reduce spatiul mort in mockup */
-                    nav { position: absolute !important; height: 90px !important; display: flex !important; align-items: center !important; transform: none !important; transition: none !important; }
+                    nav { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; height: 90px !important; padding: 0 4vw !important; display: flex !important; justify-content: space-between !important; align-items: center !important; transform: none !important; transition: none !important; }
                 </style>
             `);
         }
@@ -3225,16 +3225,32 @@
             const dir = navOrder.indexOf(view) > navOrder.indexOf(currentViewId) ? 'ltr' : 'rtl';
             try { sessionStorage.setItem('ssicSwipeDir', dir); } catch (e) { /* ignorăm */ }
 
-            swiper.className = 'swipe-container swipe-' + dir;
+            swiper.className = 'swipe-container';
+            swiper.style.visibility = 'visible';
             
-            // Metoda supremă pentru Safari iOS: dublu requestAnimationFrame garantează un frame de render 
-            // în care containerul e vizibil, urmat de clasa de animație în frame-ul următor.
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    swiper.classList.add('covering');
-                    setTimeout(() => { location.href = url; }, 360);
+            const bars = swiper.querySelectorAll('.swipe-bar');
+            if (bars.length > 0 && typeof bars[0].animate === 'function') {
+                const fromX = dir === 'ltr' ? '-100%' : '100%';
+                bars.forEach((bar, index) => {
+                    const anim = bar.animate([
+                        { transform: `translateX(${fromX})` },
+                        { transform: 'translateX(0%)' }
+                    ], {
+                        duration: 360,
+                        delay: index * 50,
+                        easing: 'cubic-bezier(0.8, 0, 0.2, 1)',
+                        fill: 'forwards'
+                    });
+                    // Navigăm EFECTIV abia după ce animația a terminat de rulat fizic pe ecran
+                    if (index === 1) {
+                        anim.onfinish = () => { location.href = url; };
+                    }
                 });
-            });
+            } else {
+                // Fallback de siguranță
+                swiper.classList.add('swipe-' + dir, 'covering');
+                setTimeout(() => { location.href = url; }, 420);
+            }
         }
 
         // navigate() rămâne ca funcție (nu doar location.href direct), ca restul codului
@@ -3268,13 +3284,41 @@
             const dir = window.__ssicUncoverDir;
             const swiper = document.getElementById('swiper');
             if (!dir || !swiper) return;
-            requestAnimationFrame(() => {
+            
+            const bars = swiper.querySelectorAll('.swipe-bar');
+            if (bars.length > 0 && typeof bars[0].animate === 'function') {
+                swiper.style.visibility = 'visible';
+                bars.forEach(b => b.style.transform = 'translateX(0%)');
+                
                 setTimeout(() => {
-                    swiper.classList.remove('covered');
-                    swiper.classList.add('uncovering');
-                    setTimeout(() => { swiper.className = 'swipe-container'; }, 420);
+                    const toX = dir === 'ltr' ? '100%' : '-100%';
+                    bars.forEach((bar, index) => {
+                        const anim = bar.animate([
+                            { transform: 'translateX(0%)' },
+                            { transform: `translateX(${toX})` }
+                        ], {
+                            duration: 400,
+                            delay: index * 50,
+                            easing: 'cubic-bezier(0.8, 0, 0.2, 1)',
+                            fill: 'forwards'
+                        });
+                        if (index === 1) {
+                            anim.onfinish = () => { 
+                                swiper.style.visibility = 'hidden';
+                                bars.forEach(b => b.style.transform = '');
+                            };
+                        }
+                    });
                 }, 40);
-            });
+            } else {
+                requestAnimationFrame(() => {
+                    setTimeout(() => {
+                        swiper.classList.remove('covered');
+                        swiper.classList.add('uncovering');
+                        setTimeout(() => { swiper.className = 'swipe-container'; }, 420);
+                    }, 40);
+                });
+            }
         })();
 
         // Plasă de siguranță pt. bfcache: dacă utilizatorul dă "înapoi"/"înainte" din browser,
