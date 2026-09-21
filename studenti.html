@@ -145,7 +145,7 @@ description: "Informații utile pentru studenții de la Chimie: repartizări că
                     </div>
 
                     <div class="cereri-intro-card reveal">
-                        <form id="cereriForm">
+                        <form id="cereriForm" novalidate>
                             <div class="cereri-row2">
                                 <div class="cereri-field">
                                     <label for="cfNume">Nume</label>
@@ -172,9 +172,28 @@ description: "Informații utile pentru studenții de la Chimie: repartizări că
                                 </div>
                             </div>
 
-                            <div class="cereri-field">
-                                <label for="cfDomeniu">Domeniul / Specializarea</label>
-                                <input type="text" id="cfDomeniu" placeholder="ex. Inginerie Chimică" required>
+                            <!-- Domeniul de studiu — An I, II -->
+                            <div class="cereri-field cereri-an-group" id="cfGroupDomeniuBasic">
+                                <label for="cfDomeniu">Domeniul de studiu</label>
+                                <input type="text" id="cfDomeniu" placeholder="ex. Inginerie Chimică">
+                            </div>
+
+                            <!-- Domeniul + Specializarea — An III, IV -->
+                            <div class="cereri-row2 cereri-an-group" id="cfGroupDomeniuSpec">
+                                <div class="cereri-field">
+                                    <label for="cfDomeniuSpec">Domeniul de studiu</label>
+                                    <input type="text" id="cfDomeniuSpec" placeholder="ex. Inginerie Chimică">
+                                </div>
+                                <div class="cereri-field">
+                                    <label for="cfSpecializare">Specializarea</label>
+                                    <input type="text" id="cfSpecializare" placeholder="ex. Chimie Analitică">
+                                </div>
+                            </div>
+
+                            <!-- Programul de master — Master I, II -->
+                            <div class="cereri-field cereri-an-group" id="cfGroupMaster">
+                                <label for="cfProgramMaster">Programul de master</label>
+                                <input type="text" id="cfProgramMaster" placeholder="ex. Chimia și Ingineria Materialelor Avansate">
                             </div>
 
                             <div class="cereri-field">
