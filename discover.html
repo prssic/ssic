@@ -441,53 +441,47 @@ html.ds-io .ds-row.in { animation-play-state: running; animation-delay: 0s; }
     <footer class="global-footer"></footer>
 </section>
 
-<!-- Titlurile sunt criptate (AES-256-GCM). Cheia NU e în pagină: apare într-un fișier separat, publicat la dezvăluire. -->
+<!-- Titlurile stau criptate (AES-256-GCM) și se decriptează automat când ceasul ajunge la 0. Cheia e în pagină, deci NU e protecție reală — doar nu se citesc cu Ctrl+F. -->
 <script>
 (function () {
-    const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-
-    // Forme de zgomot inventate (nu au legătură cu lungimea sau cuvintele reale ale titlurilor).
+    // Scramble COMPLET: fără cuvinte, fără punctuație fixă, fără nicio legătură cu titlurile reale.
+    // Fiecare poziție primește un caracter nou la fiecare cadru; doar spațiile (inventate) permit trecerea pe rândul următor.
+    const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&.-';
     const SHAPES = [
         'XXXXXXXXXXX XXXX XXXXXXXXXXXX',
         'XXXXX XXXXXXXXXX XXXX',
-        'XXXXXX XXXXX XXXX x XXXXX',
-        'XXXXX XXXXXXX & XXXXXXXX XXXXX',
-        'XXX XX XXXXX XXXXXXXXX XX. XXXX'
+        'XXXXXX XXXXX XXXX XXXXXXXX',
+        'XXXXX XXXXXXX XXXXXXXX',
+        'XXX XX XXXXX XXXXXXXXX XXXXXX'
     ];
 
-    // Titlurile evenimentelor (LUNI → VINERI), criptate. Fără cheie sunt inutile.
+    // Titlurile evenimentelor (LUNI → VINERI), criptate.
     const ENCRYPTED = [
-        "0vizrvzfiVS9XhgHRyhFhY9GjKg5gX6/IwLPPGpCOcsxbyKHudtz2H7/aqkS/TbTGHTMQO4iIKaZRwSVKchW",
-        "r3kX5eld3nUviCiPog4kX2nNzcC3C+l6QRbG91eDlzoozd38TNGNoauF+4MvMtWB",
-        "DHqZoUxpzCkY2UiROhcwHB2/282zzkQuUTnd2J11UjIjfO+yPm7fxBOOMLHJn7CnGvy5fKeY12yk02sosg==",
-        "Z9oBF0pXD3MAXi+HwXgxPBiO/rV2DFh1bMe5GUZH4iRMhetyERbt3AuASqziUuBZfAHE/A4RZ1HgfA==",
-        "sf8RaGYvivzOT1SkaMzN0Bi6/U4Bn0egVekNk5+8DZy/bC0jmR51Z3XWVrelYomOi9evtEbqcqkQiA=="
+        "gf7ngL2Kyw9HRMBlG+wpLHgYdp2cvyklc9uoh/+bKPXn87jHKW4UnZXwkCJlfmZP7IDetRLSvboSxSCQfGByTeiy",
+        "uOs2Y3VjGcU9NvDqQTf3itL/irbT7yd0fWl6xgeM0svZWnDOQtGPIT9P4CvdaNs+",
+        "rmmhNdpa4eVWuNo97wcXTPjSkaP24FVBdalUDwK1niXCsV1vE5EVrOZZvQbAI1FTqlSXpbGFYmhFAeERyQ==",
+        "9xDFZNxpfdqnotTKMG83QluHaNlGQKJkbYpaQA32FAlHFU5f1+K7zyjNWVkSskJAHA==",
+        "0wFRHRlwBbyA6SS/I7dktGEqglDxLCsZLYAu/vHfRaibAgN4r08q0+zDeUUa84bVw45/1gYSeEU7RQ=="
     ];
 
-    // Cheia se citește DOAR de aici, și doar după REVEAL_AT. Până când nu publici fișierul, fetch-ul dă 404 și pagina rămâne pe zgomot.
-    const KEY_URL = '/assets/discover-key.txt';
-    const REVEAL_AT = new Date('2026-09-21T12:00:00+03:00').getTime();
-    const RETRY_MS = 30000;
+    const KEY = 'wgdKCUhXaPZtF/rI4GzC7vuw0pBUAmp+eVvbICdLLzM=';
+    const REVEAL_AT = new Date('2026-09-21T12:00:00+03:00').getTime();   // trebuie să fie aceeași oră ca ținta ceasului din layout
 
     const els = Array.from(document.querySelectorAll('.ds-glitch'));
     const timers = [];
-
-    function randChar() {
-        return LETTERS[Math.floor(Math.random() * LETTERS.length)];
-    }
+    let started = false;
 
     els.forEach((el, i) => {
         const shape = SHAPES[i % SHAPES.length];
-        function randomizeText() {
+        function scramble() {
             let t = '';
             for (let c = 0; c < shape.length; c++) {
-                const ch = shape[c];
-                t += (ch === ' ' || ch === '-' || ch === '&' || ch === '.') ? ch : randChar();
+                t += shape[c] === ' ' ? ' ' : CHARS[Math.floor(Math.random() * CHARS.length)];
             }
             el.textContent = t;
         }
-        randomizeText();
-        timers[i] = setInterval(randomizeText, 45); // zgomot rapid, dar nu 1ms: nu blochează pagina și nu încurcă animațiile stickerelor
+        scramble();
+        timers[i] = setInterval(scramble, 45);
     });
 
     function b64bytes(b64) {
@@ -506,23 +500,25 @@ html.ds-io .ds-row.in { animation-play-state: running; animation-delay: 0s; }
         }));
     }
 
-    function tryReveal() {
-        if (!(window.crypto && crypto.subtle)) return;        // fără HTTPS/WebCrypto rămâne zgomotul
-        fetch(KEY_URL, { cache: 'no-store' })
-            .then((r) => { if (!r.ok) throw new Error('no key'); return r.text(); })
-            .then(decryptAll)
-            .then((names) => {
-                els.forEach((el, i) => {
-                    clearInterval(timers[i]);
-                    el.style.whiteSpace = 'normal';
-                    el.style.textOverflow = 'clip';
-                    el.textContent = names[i] || '';
-                });
-            })
-            .catch(() => { setTimeout(tryReveal, RETRY_MS); });
+    function showTitles(names) {
+        els.forEach((el, i) => {
+            clearInterval(timers[i]);
+            el.style.whiteSpace = 'normal';
+            el.style.textOverflow = 'clip';
+            el.textContent = names[i] || '';
+        });
     }
-    // Nu întrebăm de cheie înainte de ora dezvăluirii (mic jitter, ca să nu vină toți vizitatorii deodată).
-    setTimeout(tryReveal, Math.max(0, REVEAL_AT - Date.now()) + Math.random() * 5000);
+
+    function start() {           // pornit o singură dată: când ceasul atinge 0
+        if (started) return;
+        started = true;
+        if (!(window.crypto && crypto.subtle)) return;   // fără HTTPS/WebCrypto rămâne scramble-ul
+        decryptAll(KEY).then(showTitles).catch(() => {});
+    }
+
+    // Semnalul principal: ceasul din layout anunță când ajunge la 00:00:00. REVEAL_AT e plasa de siguranță.
+    document.addEventListener('ssic:countdown-end', start);
+    setTimeout(start, Math.max(0, REVEAL_AT - Date.now()));
 })();
 
 /* Zilele din stele (LUNI … MIERCURI) se micșorează automat dacă nu încap în steluță —
