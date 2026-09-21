@@ -1,5 +1,10 @@
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+vendor/
+node_modules/
 
+# Ignoră complet tool-urile locale de admin
 admin-local/
-
 SSIC-Admin.exe
-discover.html
