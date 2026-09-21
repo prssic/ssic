@@ -1876,6 +1876,39 @@
             border: none; padding: 0; margin: 4px 0 0; display: none;
         }
         .cereri-fieldset.active { display: block; animation: tabEnter 0.35s var(--ease-out) forwards; }
+
+        /* Grupuri Domeniu/Specializare/Program master, afișate în funcție de anul de studiu ales */
+        .cereri-an-group { display: none; }
+        .cereri-an-group.active { display: block; animation: tabEnter 0.35s var(--ease-out) forwards; }
+        .cereri-row2.cereri-an-group.active { display: grid; }
+
+        /* Popup custom de validare (înlocuiește balonul nativ al browserului) — aceeași
+           paletă ca restul site-ului, ancorat sub câmpul cu probleme. */
+        .cereri-field { position: relative; }
+        .cereri-field-invalid input, .cereri-field-invalid select, .cereri-field-invalid textarea {
+            border-color: #ff8a8a !important;
+        }
+        .cereri-field-tooltip {
+            position: absolute; top: 100%; left: 0; margin-top: 8px; z-index: 30;
+            display: flex; align-items: flex-start; gap: 10px;
+            max-width: 320px; width: max-content;
+            background: var(--c-surface-elevated); border: 1px solid var(--c-border-strong);
+            border-left: 3px solid #ff8a8a; border-radius: 10px;
+            padding: 11px 15px; box-shadow: 0 16px 40px var(--c-shadow-2);
+            font-family: var(--font-main); font-size: 0.85rem; font-weight: 600; line-height: 1.4;
+            color: var(--c-white-off);
+            animation: tabEnter 0.25s var(--ease-out) forwards;
+        }
+        .cereri-field-tooltip i, .cereri-field-tooltip .lucide {
+            color: #ff8a8a; flex-shrink: 0; margin-top: 2px; width: 16px; height: 16px;
+        }
+        /* Pe coloana din dreapta, ancorează popup-ul la dreapta ca să nu iasă din card */
+        .cereri-row2 .cereri-field:last-child .cereri-field-tooltip { left: auto; right: 0; }
+        @media (max-width: 600px) {
+            .cereri-row2 .cereri-field:last-child .cereri-field-tooltip { left: 0; right: auto; }
+            .cereri-field-tooltip { max-width: 100%; }
+        }
+        html.ds-theme .cereri-field-tooltip { background: var(--ds-cream, #fff); color: var(--ds-navy); }
         .cereri-generate-btn {
             width: 100%; display: block; text-align: center;
             font-family: var(--font-main); font-weight: 800; font-size: 1.02rem;
@@ -3199,6 +3232,7 @@
             function init() {
                 const form = document.getElementById('cereriForm');
                 if (!form) return;
+                const anSel = document.getElementById('cfAn');
                 const tipSel = document.getElementById('cfTip');
                 const statusEl = document.getElementById('cereriStatus');
                 const genBtn = document.getElementById('cereriGenerateBtn');
@@ -3216,6 +3250,30 @@
                     transfer: document.getElementById('cfGroupTransfer'),
                     altceva: document.getElementById('cfGroupAltceva')
                 };
+                /* An I/II -> doar domeniul; An III/IV -> domeniu + specializare; Master -> programul de master */
+                const anGroups = {
+                    basic: document.getElementById('cfGroupDomeniuBasic'),
+                    spec: document.getElementById('cfGroupDomeniuSpec'),
+                    master: document.getElementById('cfGroupMaster')
+                };
+                function anCategory(an) {
+                    if (an === 'I' || an === 'II') return 'basic';
+                    if (an === 'III' || an === 'IV') return 'spec';
+                    if (an === 'Master I' || an === 'Master II') return 'master';
+                    return null;
+                }
+                function domeniuText() {
+                    const cat = anCategory(val('cfAn'));
+                    if (cat === 'spec') {
+                        const d = val('cfDomeniuSpec') || '……………………';
+                        const s = val('cfSpecializare') || '……………………';
+                        return { cat, domeniu: d, specializare: s };
+                    }
+                    if (cat === 'master') {
+                        return { cat, program: val('cfProgramMaster') || '……………………' };
+                    }
+                    return { cat, domeniu: val('cfDomeniu') || '……………………' };
+                }
                 const TIP_LABEL = {
                     marire: 'Susținere examen de mărire',
                     reexaminare: 'Reexaminare',
@@ -3258,6 +3316,66 @@
                 }
                 form.addEventListener('focusin', () => { loadJsPDF(); loadFonts(); }, { once: true });
 
+                /* ---------- Popup custom de validare (înlocuiește balonul nativ) ---------- */
+                function clearFieldError() {
+                    const old = form.querySelector('.cereri-field-tooltip');
+                    if (old) old.remove();
+                    const bad = form.querySelector('.cereri-field-invalid');
+                    if (bad) bad.classList.remove('cereri-field-invalid');
+                }
+                function showFieldError(fieldEl, message) {
+                    if (!fieldEl) return;
+                    clearFieldError();
+                    const wrap = fieldEl.closest('.cereri-field') || fieldEl.parentElement;
+                    wrap.classList.add('cereri-field-invalid');
+                    const tip = document.createElement('div');
+                    tip.className = 'cereri-field-tooltip';
+                    tip.setAttribute('role', 'alert');
+                    const icon = document.createElement('i');
+                    icon.setAttribute('data-lucide', 'alert-circle');
+                    const span = document.createElement('span');
+                    span.textContent = message;
+                    tip.appendChild(icon); tip.appendChild(span);
+                    wrap.appendChild(tip);
+                    if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+                    fieldEl.focus({ preventScroll: true });
+                    fieldEl.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                    fieldEl.addEventListener('input', clearFieldError, { once: true });
+                    fieldEl.addEventListener('change', clearFieldError, { once: true });
+                }
+                /* Câmpurile care trebuie completate, în funcție de anul și tipul cererii alese acum */
+                function requiredFieldsNow() {
+                    const req = [
+                        document.getElementById('cfNume'),
+                        document.getElementById('cfPrenume'),
+                        anSel,
+                        document.getElementById('cfGrupa')
+                    ];
+                    const cat = anCategory(anSel.value);
+                    if (cat === 'basic') req.push(document.getElementById('cfDomeniu'));
+                    else if (cat === 'spec') req.push(document.getElementById('cfDomeniuSpec'), document.getElementById('cfSpecializare'));
+                    else if (cat === 'master') req.push(document.getElementById('cfProgramMaster'));
+                    else req.push(anSel); // an neales -> eroarea cade tot pe select
+                    req.push(tipSel);
+                    const tip = tipSel.value;
+                    if (tip === 'marire' || tip === 'reexaminare') req.push(document.getElementById('cfDisciplina'));
+                    if (tip === 'transfer') req.push(document.getElementById('cfGrupaNoua'));
+                    if (tip === 'altceva') req.push(document.getElementById('cfTextLiber'));
+                    return req;
+                }
+                function validateVisibleFields() {
+                    clearFieldError();
+                    const fields = requiredFieldsNow();
+                    for (const el of fields) {
+                        if (!el) continue;
+                        if (!el.value || !el.value.trim()) {
+                            showFieldError(el, 'Completează acest câmp.');
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+
                 /* ---------- Popup avertizare transfer (jos, stil narator) ---------- */
                 function syncToast() {
                     if (!toast) return;
@@ -3266,6 +3384,24 @@
                 }
                 if (toastClose) toastClose.addEventListener('click', () => { toastDismissed = true; syncToast(); });
                 if (panel) new MutationObserver(syncToast).observe(panel, { attributes: true, attributeFilter: ['class'] });
+
+                anSel.addEventListener('change', function () {
+                    Object.values(anGroups).forEach(g => { if (g) g.classList.remove('active'); });
+                    const cat = anCategory(this.value);
+                    const g = anGroups[cat];
+                    if (g) g.classList.add('active');
+                    document.getElementById('cfDomeniu').required = false;
+                    document.getElementById('cfDomeniuSpec').required = false;
+                    document.getElementById('cfSpecializare').required = false;
+                    document.getElementById('cfProgramMaster').required = false;
+                    if (cat === 'basic') document.getElementById('cfDomeniu').required = true;
+                    if (cat === 'spec') {
+                        document.getElementById('cfDomeniuSpec').required = true;
+                        document.getElementById('cfSpecializare').required = true;
+                    }
+                    if (cat === 'master') document.getElementById('cfProgramMaster').required = true;
+                    clearFieldError();
+                });
 
                 tipSel.addEventListener('change', function () {
                     Object.values(groups).forEach(g => { if (g) g.classList.remove('active'); });
@@ -3286,6 +3422,7 @@
                     }
                     toastDismissed = false;
                     syncToast();
+                    clearFieldError();
                 });
 
                 /* ---------- Limită: 3 cereri / IP / zi (numărate în browser) ---------- */
@@ -3343,10 +3480,18 @@
                     const rows = [
                         ['Nume Prenume', fullName('cfNume', 'cfPrenume')],
                         ['An de studiu', val('cfAn')],
-                        ['Grupa', val('cfGrupa')],
-                        ['Domeniul / Specializarea', val('cfDomeniu')],
-                        ['Tipul cererii', TIP_LABEL[tip]]
+                        ['Grupa', val('cfGrupa')]
                     ];
+                    const dt = domeniuText();
+                    if (dt.cat === 'spec') {
+                        rows.push(['Domeniul de studiu', dt.domeniu]);
+                        rows.push(['Specializarea', dt.specializare]);
+                    } else if (dt.cat === 'master') {
+                        rows.push(['Programul de master', dt.program]);
+                    } else {
+                        rows.push(['Domeniul de studiu', dt.domeniu]);
+                    }
+                    rows.push(['Tipul cererii', TIP_LABEL[tip]]);
                     if (tip === 'marire' || tip === 'reexaminare') {
                         rows.push(['Disciplina', val('cfDisciplina')]);
                         const prof = fullName('cfProfesorNume', 'cfProfesorPrenume');
@@ -3387,6 +3532,7 @@
 
                 async function onSubmit(e) {
                     e.preventDefault();
+                    if (!validateVisibleFields()) return;
                     if (!tipSel.value) { setStatus('Alege tipul cererii mai întâi.', 'is-error'); return; }
                     const pe = pairError();
                     if (pe) { setStatus(pe, 'is-error'); return; }
@@ -3458,7 +3604,7 @@
                     const nume = fullName('cfNume', 'cfPrenume') || '……………………';
                     const an = val('cfAn') || '…';
                     const grupa = val('cfGrupa') || '……………';
-                    const domeniu = val('cfDomeniu') || '……………………';
+                    const dt = domeniuText();
                     const tip = tipSel.value;
                     const segs = [
                         { text: 'Subsemnatul(a) ' },
@@ -3466,11 +3612,21 @@
                         { text: ', student(ă) în anul ' },
                         { text: an, bold: true },
                         { text: ', grupa ' },
-                        { text: grupa, bold: true },
-                        { text: ', domeniul ' },
-                        { text: domeniu, bold: true },
-                        { text: ', vă rog respectuos a-mi aproba cererea de ' }
+                        { text: grupa, bold: true }
                     ];
+                    if (dt.cat === 'spec') {
+                        segs.push({ text: ', domeniul ' });
+                        segs.push({ text: dt.domeniu, bold: true });
+                        segs.push({ text: ', specializarea ' });
+                        segs.push({ text: dt.specializare, bold: true });
+                    } else if (dt.cat === 'master') {
+                        segs.push({ text: ', programul de master ' });
+                        segs.push({ text: dt.program, bold: true });
+                    } else {
+                        segs.push({ text: ', domeniul ' });
+                        segs.push({ text: dt.domeniu, bold: true });
+                    }
+                    segs.push({ text: ', vă rog respectuos a-mi aproba cererea de ' });
                     let needsProfesor = false;
                     if (tip === 'marire' || tip === 'reexaminare') {
                         const disciplina = val('cfDisciplina') || '……………………';
@@ -3544,7 +3700,7 @@
                     y = drawRich(doc, segs, margin, y, maxWidth, lh, family, t, pageBottom, margin);
                     y += lh * 3;
 
-                    if (y + lh * 9 > pageBottom) { doc.addPage(); y = margin + lh; }
+                    if (y + lh * 12 > pageBottom) { doc.addPage(); y = margin + lh; }
                     doc.setFont(family, 'normal');
                     doc.setFontSize(12);
                     doc.text(t('Semnătură student: ______________________'), margin, y);
@@ -3552,6 +3708,12 @@
                         y += lh * 1.6;
                         doc.text(t('Semnătură profesor titular: ______________________'), margin, y);
                     }
+                    y += lh * 2.2;
+                    doc.setFont(family, 'bold');
+                    doc.text(t('Aprobat,'), margin, y);
+                    y += lh * 1.6;
+                    doc.setFont(family, 'normal');
+                    doc.text(t('Decan: ______________________'), margin, y);
                     y += lh * 3;
                     doc.text(t('Facultatea de Inginerie Chimică și Biotehnologii'), margin, y);
                     y += lh * 1.6;
@@ -3573,6 +3735,12 @@
                     genBtn.disabled = false;
                     return true;
                 }
+
+                /* Sincronizare la încărcare: dacă browserul restaurează selecțiile
+                   (refresh în Firefox, navigare înapoi din bfcache), grupurile
+                   condiționale trebuie afișate fără să mai fie nevoie de un „change". */
+                if (anSel.value) anSel.dispatchEvent(new Event('change'));
+                if (tipSel.value) tipSel.dispatchEvent(new Event('change'));
             }
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
             else init();
