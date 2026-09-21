@@ -5484,6 +5484,7 @@
                 clearTimeout(quipHide);
                 quipEl.classList.remove('show');
                 sr.textContent = 'Numărătoarea inversă s-a încheiat.';
+                document.dispatchEvent(new CustomEvent('ssic:countdown-end'));   // paginile pot reacționa (ex.: dezvăluirea titlurilor)
             }
 
             function scheduleQuip() {
