@@ -1948,6 +1948,46 @@
         html.ds-theme .cereri-field input, html.ds-theme .cereri-field select, html.ds-theme .cereri-field textarea {
             border-radius: 14px; border-width: 2.5px; border-color: var(--ds-navy); color: var(--ds-navy); background: #fff;
         }
+
+        /* Alte cereri — listă de formulare tip .docx, descărcate direct de pe site-ul facultății */
+        .cereri-other-card {
+            max-width: 620px; padding: 26px 28px 28px; margin-top: 8px;
+            background: rgba(34, 22, 49, 0.55); border: 1px solid var(--c-border-soft);
+            border-radius: 18px;
+        }
+        .cereri-other-card h3 {
+            font-size: 1.05rem; font-weight: 800; color: var(--c-white); margin: 0 0 4px;
+        }
+        .cereri-other-card > p {
+            font-size: 0.92rem; color: var(--c-gray); font-weight: 500; line-height: 1.5; margin: 0 0 18px;
+        }
+        .cereri-other-list { list-style: none; margin: 0 0 18px; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+        .cereri-other-list a {
+            display: flex; align-items: center; gap: 11px;
+            padding: 12px 10px; border-radius: 10px; text-decoration: none;
+            color: var(--c-white-off); font-size: 0.92rem; font-weight: 600; line-height: 1.4;
+            border-bottom: 1px solid var(--c-border-soft);
+            transition: background var(--transition-fast), color var(--transition-fast);
+        }
+        .cereri-other-list li:last-child a { border-bottom: none; }
+        .cereri-other-list a i, .cereri-other-list a .lucide { flex-shrink: 0; width: 17px; height: 17px; color: var(--c-accent); }
+        .cereri-other-list a .cereri-other-ext { margin-left: auto; flex-shrink: 0; color: var(--c-gray); }
+        @media (hover: hover) {
+            .cereri-other-list a:hover { background: var(--c-base); color: var(--c-white); }
+        }
+        .cereri-other-all {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 0.9rem; font-weight: 700; color: var(--c-accent); text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+        .cereri-other-all i, .cereri-other-all .lucide { width: 15px; height: 15px; }
+        @media (max-width: 600px) {
+            .cereri-other-card { padding: 22px 18px 24px; }
+        }
+        html.ds-theme .cereri-other-card {
+            background: var(--c-base); border: none; box-shadow: var(--ds-card-sm); border-radius: 20px;
+        }
+        html.ds-theme .cereri-other-list a { border-bottom-color: rgba(0,0,0,0.08); }
         html.ds-theme .cereri-field label { color: var(--ds-navy); opacity: 0.7; }
         html.ds-theme .cereri-field input:focus, html.ds-theme .cereri-field select:focus, html.ds-theme .cereri-field textarea:focus {
             border-color: var(--ds-pink);
