@@ -3314,7 +3314,6 @@
                 const confirmOk = document.getElementById('cereriConfirmOk');
                 const groups = {
                     marire: document.getElementById('cfGroupExamen'),
-                    reexaminare: document.getElementById('cfGroupExamen'),
                     transfer: document.getElementById('cfGroupTransfer'),
                     altceva: document.getElementById('cfGroupAltceva')
                 };
@@ -3344,7 +3343,6 @@
                 }
                 const TIP_LABEL = {
                     marire: 'Susținere examen de mărire',
-                    reexaminare: 'Reexaminare',
                     transfer: 'Transfer la altă grupă',
                     altceva: 'Altceva (liber)'
                 };
@@ -3426,7 +3424,7 @@
                     else req.push(anSel); // an neales -> eroarea cade tot pe select
                     req.push(tipSel);
                     const tip = tipSel.value;
-                    if (tip === 'marire' || tip === 'reexaminare') req.push(document.getElementById('cfDisciplina'));
+                    if (tip === 'marire') req.push(document.getElementById('cfDisciplina'), document.getElementById('cfNota'));
                     if (tip === 'transfer') req.push(document.getElementById('cfGrupaNoua'));
                     if (tip === 'altceva') req.push(document.getElementById('cfTextLiber'));
                     return req;
@@ -3479,8 +3477,9 @@
                     document.querySelectorAll('#cereriForm fieldset input, #cereriForm fieldset textarea').forEach(el => {
                         el.required = false;
                     });
-                    if (this.value === 'marire' || this.value === 'reexaminare') {
+                    if (this.value === 'marire') {
                         document.getElementById('cfDisciplina').required = true;
+                        document.getElementById('cfNota').required = true;
                     }
                     if (this.value === 'transfer') {
                         document.getElementById('cfGrupaNoua').required = true;
@@ -3560,8 +3559,9 @@
                         rows.push(['Domeniul de studiu', dt.domeniu]);
                     }
                     rows.push(['Tipul cererii', TIP_LABEL[tip]]);
-                    if (tip === 'marire' || tip === 'reexaminare') {
+                    if (tip === 'marire') {
                         rows.push(['Disciplina', val('cfDisciplina')]);
+                        rows.push(['Nota obținută', val('cfNota')]);
                         const prof = fullName('cfProfesorNume', 'cfProfesorPrenume');
                         if (prof) rows.push(['Profesor titular', prof]);
                     } else if (tip === 'transfer') {
@@ -3591,7 +3591,7 @@
                 function pairError() {
                     const tip = tipSel.value;
                     let pair = null, who = '';
-                    if (tip === 'marire' || tip === 'reexaminare') { pair = ['cfProfesorNume', 'cfProfesorPrenume']; who = 'profesorului'; }
+                    if (tip === 'marire') { pair = ['cfProfesorNume', 'cfProfesorPrenume']; who = 'profesorului'; }
                     if (tip === 'transfer') { pair = ['cfSchimbNume', 'cfSchimbPrenume']; who = 'studentului cu care faci schimb'; }
                     if (!pair) return '';
                     const a = !!val(pair[0]), b = !!val(pair[1]);
@@ -3696,10 +3696,11 @@
                     }
                     segs.push({ text: ', vă rog respectuos a-mi aproba cererea de ' });
                     let needsProfesor = false;
-                    if (tip === 'marire' || tip === 'reexaminare') {
+                    if (tip === 'marire') {
                         const disciplina = val('cfDisciplina') || '……………………';
+                        const nota = val('cfNota') || '……';
                         const profesor = fullName('cfProfesorNume', 'cfProfesorPrenume');
-                        segs.push({ text: (tip === 'marire' ? 'susținere a examenului de mărire' : 'reexaminare'), bold: true });
+                        segs.push({ text: 'susținere a examenului de mărire', bold: true });
                         segs.push({ text: ' la disciplina ' });
                         segs.push({ text: disciplina, bold: true });
                         if (profesor) {
@@ -3707,6 +3708,8 @@
                             segs.push({ text: profesor, bold: true });
                             needsProfesor = true;
                         }
+                        segs.push({ text: '. Menționez faptul că am obținut nota ' });
+                        segs.push({ text: nota, bold: true });
                         segs.push({ text: '.' });
                     } else if (tip === 'transfer') {
                         const grupaNoua = val('cfGrupaNoua') || '……………';
@@ -3785,7 +3788,7 @@
                     y += lh * 3;
                     doc.text(t('Facultatea de Inginerie Chimică și Biotehnologii'), margin, y);
                     y += lh * 1.6;
-                    if (tipSel.value === 'marire' || tipSel.value === 'reexaminare') {
+                    if (tipSel.value === 'marire') {
                         doc.text(t('Data susținerii: ______________________'), margin, y);
                         y += lh * 1.6;
                     }
