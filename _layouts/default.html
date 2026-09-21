@@ -3717,8 +3717,10 @@
                     y += lh * 3;
                     doc.text(t('Facultatea de Inginerie Chimică și Biotehnologii'), margin, y);
                     y += lh * 1.6;
-                    doc.text(t('Data susținerii / rezolvării: ______________________'), margin, y);
-                    y += lh * 1.6;
+                    if (tipSel.value === 'marire' || tipSel.value === 'reexaminare') {
+                        doc.text(t('Data susținerii: ______________________'), margin, y);
+                        y += lh * 1.6;
+                    }
                     const azi = new Date().toLocaleDateString('ro-RO');
                     const lbl = t('Data depunerii: ');
                     doc.setFont(family, 'normal');
