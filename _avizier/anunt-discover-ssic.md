@@ -5,7 +5,7 @@ description: |-
   Începem anul universitar cu multă energie și DISCOVER SSIC!
 
   DISCOVER SSIC invită fiecare boboc FICBi să facă primii pași în studenție alături de noi, pe parcursul unei săptămâni pline de activități și voie bună.
-image: /assets/avizier/1789984673610-discover-ssic-week--4-.png
+image: /assets/avizier/1789984836364-discover-ssic-cover.jpg
 draft: false
 archived: true
 layout: avizier-post-discover
@@ -20,7 +20,7 @@ Program oficial DISCOVER SSIC:
   * Oră - **TBA**
   * Dată - **TBA**
 
-* Miercuri, 30 septembrie - **Trivia Night SSIC x [LSFSA](https://https://www.instagram.com/lsfsa.bucuresti/) x [YAIMM](https://https://www.instagram.com/lsfsa.bucuresti/)**
+* Miercuri, 30 septembrie - **Trivia Night SSIC x [LSFSA](https://www.instagram.com/lsfsa.bucuresti/) x [YAIMM](https://www.instagram.com/youthinactionimm/)**
   * Oră - **TBA**
   * Dată - **TBA**
 
