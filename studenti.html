@@ -12,9 +12,9 @@ description: "Informații utile pentru studenții de la Chimie: repartizări că
                 <div class="horizontal-nav" id="nav-studenti">
                     <div class="horizontal-tab active hover-target" onclick="switchStudent('stu-camine', this)">Cămine</div>
                     <div class="horizontal-tab hover-target" onclick="switchStudent('stu-tips', this)">Tips &amp; Tricks</div>
+                    <div class="horizontal-tab hover-target" onclick="switchStudent('stu-cereri', this)">Cereri</div>
                     <div class="horizontal-tab hover-target" onclick="switchStudent('stu-ghid', this)">Ghidul Bobocului</div>
                     <div class="horizontal-tab hover-target" onclick="switchStudent('stu-harta', this)">Hartă</div>
-                    <div class="horizontal-tab hover-target" onclick="switchStudent('stu-cereri', this)">Cereri</div>
                 </div>
 
                 <!-- CĂMINE -->
@@ -137,18 +137,24 @@ description: "Informații utile pentru studenții de la Chimie: repartizări că
                 <!-- CERERI (generator) -->
                 <div class="board-dept stu-block" id="stu-cereri">
                     <div class="dept-intro reveal">
-                        <p>Generează rapid o cerere tip pentru Decanat — o completezi mai jos, descarci PDF-ul și îl duci la semnat, exact ca la o cerere scrisă de mână.</p>
+                        <p>Generează rapid o cerere tip pentru Decanat: o completezi mai jos, descarci PDF-ul și îl duci la semnat, exact ca la o cerere scrisă de mână.</p>
                     </div>
                     <div class="cereri-note reveal">
                         <i data-lucide="badge-check"></i>
-                        <span>Pentru <strong>adeverințe de student</strong> (calitate de student, situație de învățământ, etc.), cererile se depun online, direct pe <a href="https://studenti.pub.ro" target="_blank" rel="noopener">studenti.pub.ro</a> — nu prin acest formular.</span>
+                        <span>Pentru <strong>adeverințe de student</strong> (calitate de student, situație de învățământ, etc.), cererile se depun online, direct pe <a href="https://studenti.pub.ro" target="_blank" rel="noopener">studenti.pub.ro</a>, nu prin acest formular.</span>
                     </div>
 
                     <div class="cereri-intro-card reveal">
                         <form id="cereriForm">
-                            <div class="cereri-field">
-                                <label for="cfNume">Nume Prenume</label>
-                                <input type="text" id="cfNume" placeholder="ex. Manole Ionuț-Flavius" autocomplete="name" required>
+                            <div class="cereri-row2">
+                                <div class="cereri-field">
+                                    <label for="cfNume">Nume</label>
+                                    <input type="text" id="cfNume" placeholder="Nume" autocomplete="family-name" required>
+                                </div>
+                                <div class="cereri-field">
+                                    <label for="cfPrenume">Prenume</label>
+                                    <input type="text" id="cfPrenume" placeholder="Prenume" autocomplete="given-name" required>
+                                </div>
                             </div>
 
                             <div class="cereri-row2">
@@ -188,10 +194,16 @@ description: "Informații utile pentru studenții de la Chimie: repartizări că
                                     <label for="cfDisciplina">Disciplina</label>
                                     <input type="text" id="cfDisciplina" placeholder="ex. Economie Generală">
                                 </div>
+                                <div class="cereri-row2">
                                 <div class="cereri-field">
-                                    <label for="cfProfesor">Profesor titular (Nume Prenume)</label>
-                                    <input type="text" id="cfProfesor" placeholder="ex. Iacob Oana Camelia">
+                                    <label for="cfProfesorNume">Nume profesor titular</label>
+                                    <input type="text" id="cfProfesorNume" placeholder="Nume">
                                 </div>
+                                <div class="cereri-field">
+                                    <label for="cfProfesorPrenume">Prenume profesor titular</label>
+                                    <input type="text" id="cfProfesorPrenume" placeholder="Prenume">
+                                </div>
+                            </div>
                             </fieldset>
 
                             <!-- Câmpuri: transfer grupă (avertizarea apare ca popup, jos) -->
@@ -200,10 +212,16 @@ description: "Informații utile pentru studenții de la Chimie: repartizări că
                                     <label for="cfGrupaNoua">Grupa nouă</label>
                                     <input type="text" id="cfGrupaNoua" placeholder="ex. 1112A">
                                 </div>
+                                <div class="cereri-row2">
                                 <div class="cereri-field">
-                                    <label for="cfStudentSchimb">Fac schimb cu (Nume Prenume, opțional)</label>
-                                    <input type="text" id="cfStudentSchimb" placeholder="ex. Popescu Andrei">
+                                    <label for="cfSchimbNume">Nume student schimb</label>
+                                    <input type="text" id="cfSchimbNume" placeholder="Nume">
                                 </div>
+                                <div class="cereri-field">
+                                    <label for="cfSchimbPrenume">Prenume student schimb</label>
+                                    <input type="text" id="cfSchimbPrenume" placeholder="Prenume">
+                                </div>
+                            </div>
                             </fieldset>
 
                             <!-- Câmpuri: altceva -->
