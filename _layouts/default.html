@@ -1831,51 +1831,24 @@
         }
 
         /* ==========================================================================
-           8c. VIEW: FACULTATE — Generator de cereri (panou + modal formular)
+           8c. VIEW: STUDENȚI / CERERI — Generator de cereri (formular direct în pagină)
            Refolosește exact sistemul .contact-overlay/.contact-card (frosted glass,
            aceleași tranziții/focus-trap), doar cu un card mai lat, potrivit unui
            formular, nu unei fișe de contact.
            ========================================================================== */
         .cereri-intro-card {
-            position: relative; max-width: 780px; padding: 28px 30px; margin-bottom: 20px;
+            position: relative; max-width: 620px; padding: 30px 30px 32px; margin-bottom: 20px;
             background: rgba(34, 22, 49, 0.55); border: 1px solid var(--c-border-soft);
             border-radius: 18px;
         }
-        .cereri-intro-card p { margin: 0 0 18px; }
-        .cereri-intro-card p:last-child { margin-bottom: 0; }
         .cereri-note {
-            display: flex; align-items: flex-start; gap: 12px;
+            display: flex; align-items: flex-start; gap: 12px; max-width: 620px;
             font-size: 0.95rem; color: var(--c-white-off); font-weight: 500; line-height: 1.55;
             background: var(--c-base); border: 1px solid var(--c-border-soft); border-radius: 12px;
-            padding: 14px 16px; margin-bottom: 18px;
+            padding: 14px 16px; margin-bottom: 20px;
         }
-        .cereri-note:last-of-type { margin-bottom: 0; }
         .cereri-note i, .cereri-note .lucide { color: var(--c-accent); flex-shrink: 0; margin-top: 3px; }
         .cereri-note a { color: var(--c-accent); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
-        .cereri-open-btn {
-            display: inline-flex; align-items: center; gap: 10px;
-            font-family: var(--font-main); font-weight: 800; font-size: 1rem;
-            color: var(--c-base); background: var(--c-accent);
-            border: none; border-radius: 12px; padding: 15px 26px; cursor: pointer;
-            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-        }
-        .cereri-open-btn:hover { box-shadow: 0 10px 28px var(--c-accent-glow); }
-        .cereri-open-btn:active { transform: scale(0.97); }
-
-        .cereri-card {
-            max-width: 620px;
-            padding: 30px 30px 32px;
-        }
-        .cereri-card h3 { font-size: 1.45rem; margin-bottom: 4px; }
-        .cereri-card .cereri-sub { color: var(--c-gray); font-size: 0.95rem; font-weight: 500; margin-bottom: 26px; }
-        .cereri-close-btn {
-            position: absolute; top: 16px; right: 16px; z-index: 2;
-            width: 38px; height: 38px; border-radius: 10px;
-            background: var(--c-surface); border: none; color: var(--c-white-off);
-            display: flex; align-items: center; justify-content: center;
-            transition: background var(--transition-fast), color var(--transition-fast);
-        }
-        .cereri-close-btn:hover { background: var(--c-primary); color: var(--c-white); }
 
         .cereri-field { margin-bottom: 18px; }
         .cereri-field label {
@@ -1900,19 +1873,19 @@
             font-size: 0.92rem; color: var(--c-gray); font-weight: 500; padding: 10px 2px 0;
         }
         .cereri-fieldset {
-            border: none; padding: 0; margin: 4px 0 18px; display: none;
+            border: none; padding: 0; margin: 4px 0 0; display: none;
         }
         .cereri-fieldset.active { display: block; animation: tabEnter 0.35s var(--ease-out) forwards; }
         .cereri-generate-btn {
-            width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; display: block; text-align: center;
             font-family: var(--font-main); font-weight: 800; font-size: 1.02rem;
             color: var(--c-base); background: var(--c-accent);
             border: none; border-radius: 12px; padding: 16px; cursor: pointer; margin-top: 6px;
-            transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+            transition: transform var(--transition-fast), background 0.25s var(--ease-out), opacity var(--transition-fast);
         }
-        .cereri-generate-btn:hover { box-shadow: 0 10px 28px var(--c-accent-glow); }
         .cereri-generate-btn:active { transform: scale(0.98); }
         .cereri-generate-btn[disabled] { opacity: 0.55; pointer-events: none; }
+        @media (hover: hover) { .cereri-generate-btn:hover { background: var(--c-accent-2); } }
         .cereri-status {
             text-align: center; font-size: 0.88rem; font-weight: 700; color: var(--c-gray);
             margin-top: 12px; min-height: 1.2em;
@@ -1921,15 +1894,22 @@
         .cereri-status.is-ok { color: var(--c-accent); }
         @media (max-width: 600px) {
             .cereri-row2 { grid-template-columns: 1fr; }
-            .cereri-card { padding: 26px 20px 28px; }
-            .cereri-intro-card { padding: 22px 20px; }
+            .cereri-intro-card { padding: 24px 20px 26px; }
         }
 
-        /* Tema Discover — aceleași cutii „sticker" cu umbră dublă ca restul modalelor/cardurilor */
+        /* Popup-ul de avertizare la transfer de grupă: aceeași pastilă ca bara de narator
+           (clasa .a11y-narrator-bar îi dă sticla, umbra și tema Discover), doar cu text
+           care poate trece pe mai multe rânduri. Se ridică deasupra barei de narator dacă
+           aceasta e vizibilă în același timp. */
+        .cereri-toast { max-width: min(560px, calc(100vw - 32px)); }
+        .cereri-toast span { white-space: normal; line-height: 1.45; padding-left: 6px; }
+        .a11y-narrator-bar.is-visible ~ .cereri-toast.is-visible { bottom: 84px; }
+
+        /* Tema Discover — aceleași cutii „sticker" cu umbră dublă ca restul cardurilor */
         html.ds-theme .cereri-intro-card, html.ds-theme .cereri-note {
             background: var(--c-base); border: none; box-shadow: var(--ds-card-sm); border-radius: 20px;
         }
-        html.ds-theme .cereri-open-btn, html.ds-theme .cereri-generate-btn {
+        html.ds-theme .cereri-generate-btn {
             border-radius: 999px; box-shadow: 0 0 0 2.5px var(--ds-navy); color: var(--ds-navy);
         }
         html.ds-theme .cereri-field input, html.ds-theme .cereri-field select, html.ds-theme .cereri-field textarea {
@@ -1939,7 +1919,6 @@
         html.ds-theme .cereri-field input:focus, html.ds-theme .cereri-field select:focus, html.ds-theme .cereri-field textarea:focus {
             border-color: var(--ds-pink);
         }
-        html.ds-theme .cereri-close-btn { box-shadow: 0 0 0 2px var(--ds-navy); }
 
         /* Fără highlight vizual la rezultatul spre care s-a navigat — doar scroll până la el,
            fără chenar/glow/animație de niciun fel, cerut explicit. */
@@ -2805,101 +2784,6 @@
         </div>
     </div>
 
-    <!-- ================= MODAL: GENERATOR DE CERERI (Facultate) ================= -->
-    <div class="contact-overlay" id="cereriOverlay" role="dialog" aria-modal="true" aria-labelledby="cereriTitle">
-        <div class="contact-card cereri-card">
-            <button class="cereri-close-btn hover-target" id="cereriCloseBtn" aria-label="Închide">
-                <i data-lucide="x"></i>
-            </button>
-            <h3 id="cereriTitle">Generează o cerere</h3>
-            <div class="cereri-sub">Completează câmpurile — PDF-ul păstrează structura unei cereri clasice, cu ce completezi tu îngroșat.</div>
-
-            <form id="cereriForm">
-                <div class="cereri-field">
-                    <label for="cfNume">Nume și prenume</label>
-                    <input type="text" id="cfNume" placeholder="ex. Manole Ionuț-Flavius" required>
-                </div>
-
-                <div class="cereri-row2">
-                    <div class="cereri-field">
-                        <label for="cfAn">An de studiu</label>
-                        <select id="cfAn" required>
-                            <option value="">Alege...</option>
-                            <option>I</option><option>II</option><option>III</option><option>IV</option>
-                            <option>Master I</option><option>Master II</option>
-                        </select>
-                    </div>
-                    <div class="cereri-field">
-                        <label for="cfGrupa">Grupa</label>
-                        <input type="text" id="cfGrupa" placeholder="ex. 1113A" required>
-                    </div>
-                </div>
-
-                <div class="cereri-field">
-                    <label for="cfDomeniu">Domeniul / Specializarea</label>
-                    <input type="text" id="cfDomeniu" placeholder="ex. Inginerie Chimică" required>
-                </div>
-
-                <div class="cereri-field">
-                    <label for="cfTip">Tipul cererii</label>
-                    <select id="cfTip" required>
-                        <option value="">Alege...</option>
-                        <option value="marire">Susținere examen de mărire</option>
-                        <option value="reexaminare">Reexaminare</option>
-                        <option value="transfer">Transfer la altă grupă</option>
-                        <option value="altceva">Altceva (liber)</option>
-                    </select>
-                </div>
-
-                <!-- Câmpuri: mărire / reexaminare -->
-                <fieldset class="cereri-fieldset" id="cfGroupExamen">
-                    <div class="cereri-field">
-                        <label for="cfDisciplina">Disciplina</label>
-                        <input type="text" id="cfDisciplina" placeholder="ex. Economie Generală">
-                    </div>
-                    <div class="cereri-field">
-                        <label for="cfProfesor">Profesor titular (nume)</label>
-                        <input type="text" id="cfProfesor" placeholder="ex. Oana Camelia Iacob">
-                    </div>
-                </fieldset>
-
-                <!-- Câmpuri: transfer grupă -->
-                <fieldset class="cereri-fieldset" id="cfGroupTransfer">
-                    <div class="cereri-note">
-                        <i data-lucide="info"></i>
-                        <span>Transferul la altă grupă se aprobă doar <strong>înainte de începerea anului universitar</strong>.</span>
-                    </div>
-                    <div class="cereri-field">
-                        <label for="cfGrupaNoua">Grupa nouă</label>
-                        <input type="text" id="cfGrupaNoua" placeholder="ex. 1112A">
-                    </div>
-                    <div class="cereri-field">
-                        <label for="cfStudentSchimb">Fac schimb cu (nume student)</label>
-                        <input type="text" id="cfStudentSchimb" placeholder="ex. Popescu Andrei, dacă e cazul">
-                    </div>
-                </fieldset>
-
-                <!-- Câmpuri: altceva -->
-                <fieldset class="cereri-fieldset" id="cfGroupAltceva">
-                    <div class="cereri-field">
-                        <label for="cfTextLiber">Ce anume soliciți</label>
-                        <textarea id="cfTextLiber" placeholder="Scrie liber cererea ta..."></textarea>
-                    </div>
-                </fieldset>
-
-                <div class="cereri-field">
-                    <label>Facultatea</label>
-                    <div class="cereri-static-line">Facultatea de Inginerie Chimică și Biotehnologii</div>
-                </div>
-
-                <button type="submit" class="cereri-generate-btn hover-target" id="cereriGenerateBtn">
-                    <i data-lucide="file-down"></i> Generează PDF
-                </button>
-                <div class="cereri-status" id="cereriStatus" aria-live="polite"></div>
-            </form>
-        </div>
-    </div>
-
     <!-- ================= LIGHTBOX: poze (galerie / evenimente / oriunde) ================= -->
     <div class="lb-overlay" id="lbOverlay" role="dialog" aria-modal="true" aria-label="Vizualizare poze">
         <button class="lb-close hover-target" id="lbClose" type="button" aria-label="Închide">
@@ -3274,26 +3158,28 @@
             });
         })();
 
-        // ================= GENERATOR DE CERERI (Facultate) =================
-        // Folosește același tipar de overlay/card ca modalul de contact (frosted glass,
-        // focus/Escape/click-în-afară), plus jsPDF încărcat leneș (ca Leaflet la Studenți/
-        // Hartă) — vizitatorii care nu deschid niciodată formularul nu plătesc costul lui.
+        // ================= GENERATOR DE CERERI (Studenți / Cereri) =================
+        // Formularul e chiar în pagină (tab-ul Cereri), nu într-un modal. jsPDF se încarcă
+        // leneș, la prima interacțiune cu formularul. Avertizarea de la transfer de grupă
+        // e un popup jos, în stilul barei de narator.
         (function () {
-            const overlay = document.getElementById('cereriOverlay');
-            if (!overlay) return;
-            const closeBtn = document.getElementById('cereriCloseBtn');
+            function init() {
             const form = document.getElementById('cereriForm');
+            if (!form) return;
             const tipSel = document.getElementById('cfTip');
             const statusEl = document.getElementById('cereriStatus');
             const genBtn = document.getElementById('cereriGenerateBtn');
+            const panel = document.getElementById('stu-cereri');
+            const toast = document.getElementById('cereriTransferToast');
+            const toastClose = document.getElementById('cereriTransferToastClose');
             const groups = {
                 marire: document.getElementById('cfGroupExamen'),
                 reexaminare: document.getElementById('cfGroupExamen'),
                 transfer: document.getElementById('cfGroupTransfer'),
                 altceva: document.getElementById('cfGroupAltceva')
             };
-            let lastFocused = null;
             let jspdfLoadPromise = null;
+            let toastDismissed = false;
 
             function loadJsPDF() {
                 if (jspdfLoadPromise) return jspdfLoadPromise;
@@ -3307,26 +3193,16 @@
                 });
                 return jspdfLoadPromise;
             }
+            form.addEventListener('focusin', loadJsPDF, { once: true });
 
-            window.openCereri = function () {
-                if (typeof haptic === 'function') haptic(10);
-                lastFocused = document.activeElement;
-                overlay.classList.add('open');
-                overlay.setAttribute('aria-hidden', 'false');
-                setTimeout(() => closeBtn.focus(), 50);
-                loadJsPDF();
-            };
-            function closeCereri() {
-                overlay.classList.remove('open');
-                overlay.setAttribute('aria-hidden', 'true');
-                if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+            // Popup-ul apare doar cât timp tab-ul Cereri e activ ȘI tipul ales e transfer
+            function syncToast() {
+                if (!toast) return;
+                const show = !toastDismissed && tipSel.value === 'transfer' && panel && panel.classList.contains('active');
+                toast.classList.toggle('is-visible', show);
             }
-            window.closeCereri = closeCereri;
-            closeBtn.addEventListener('click', closeCereri);
-            overlay.addEventListener('click', (e) => { if (e.target === overlay) closeCereri(); });
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && overlay.classList.contains('open')) closeCereri();
-            });
+            if (toastClose) toastClose.addEventListener('click', () => { toastDismissed = true; syncToast(); });
+            if (panel) new MutationObserver(syncToast).observe(panel, { attributes: true, attributeFilter: ['class'] });
 
             tipSel.addEventListener('change', function () {
                 Object.values(groups).forEach(g => { if (g) g.classList.remove('active'); });
@@ -3345,6 +3221,8 @@
                 if (this.value === 'altceva') {
                     document.getElementById('cfTextLiber').required = true;
                 }
+                toastDismissed = false;
+                syncToast();
             });
 
             // ---- Layout PDF: text cu segmente normale/bold care se încadrează automat
@@ -3474,6 +3352,9 @@
                 genBtn.disabled = false;
             }
             form.addEventListener('submit', generatePDF);
+            }
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+            else init();
         })();
     </script>
 
@@ -5367,6 +5248,12 @@
         <button type="button" id="a11yNarratorPlayPause" aria-label="Redă / pauză"><i data-lucide="pause"></i></button>
         <span id="a11yNarratorLabel">Se citește...</span>
         <button type="button" class="a11y-narrator-stop" id="a11yNarratorStop" aria-label="Oprește citirea"><i data-lucide="x"></i></button>
+    </div>
+
+    <!-- Popup avertizare: apare doar la „Transfer la altă grupă" (același stil ca bara de narator) -->
+    <div class="a11y-narrator-bar cereri-toast" id="cereriTransferToast" role="status" aria-live="polite">
+        <span>Transferul la altă grupă se aprobă doar înainte de începerea anului universitar.</span>
+        <button type="button" id="cereriTransferToastClose" aria-label="Închide"><i data-lucide="x"></i></button>
     </div>
 
     <script>
