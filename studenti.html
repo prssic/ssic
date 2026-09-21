@@ -14,6 +14,7 @@ description: "Informații utile pentru studenții de la Chimie: repartizări că
                     <div class="horizontal-tab hover-target" onclick="switchStudent('stu-tips', this)">Tips &amp; Tricks</div>
                     <div class="horizontal-tab hover-target" onclick="switchStudent('stu-ghid', this)">Ghidul Bobocului</div>
                     <div class="horizontal-tab hover-target" onclick="switchStudent('stu-harta', this)">Hartă</div>
+                    <div class="horizontal-tab hover-target" onclick="switchStudent('stu-cereri', this)">Cereri</div>
                 </div>
 
                 <!-- CĂMINE -->
@@ -132,9 +133,27 @@ description: "Informații utile pentru studenții de la Chimie: repartizări că
                     </div>
                     <p class="stu-map-note reveal">Hartă © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" style="color:inherit;">OpenStreetMap contributors</a>. Poziția reperelor e orientativă, verifică programul exact înainte de drum.</p>
                 </div>
+
+                <!-- CERERI (generator) -->
+                <div class="board-dept stu-block" id="stu-cereri">
+                    <div class="dept-intro reveal">
+                        <p>Generează rapid o cerere tip pentru Decanat — o completezi mai jos, descarci PDF-ul și îl duci la semnat, exact ca la o cerere scrisă de mână.</p>
+                    </div>
+                    <div class="cereri-intro-card reveal">
+                        <div class="cereri-note">
+                            <i data-lucide="badge-check"></i>
+                            <span>Pentru <strong>adeverințe de student</strong> (studii, bursă, etc.), cererile se depun online, direct pe <a href="https://studenti.pub.ro" target="_blank" rel="noopener">studenti.pub.ro</a> — nu prin acest formular.</span>
+                        </div>
+                        <div class="cereri-note">
+                            <i data-lucide="repeat"></i>
+                            <span>Transferul la altă grupă (cu sau fără schimb) se aprobă doar <strong>înainte de începerea anului universitar</strong>.</span>
+                        </div>
+                        <button type="button" class="cereri-open-btn hover-target" onclick="openCereri()">
+                            <i data-lucide="file-plus-2"></i> Generează o cerere
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <footer class="global-footer"></footer>
         </section>
-
-
