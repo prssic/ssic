@@ -5,7 +5,7 @@ description: |-
   Începem anul universitar cu multă energie și DISCOVER SSIC!
 
   DISCOVER SSIC invită fiecare boboc FICBi să facă primii pași în studenție alături de noi, pe parcursul unei săptămâni pline de activități și voie bună.
-image: ''
+image: /assets/avizier/1789984673610-discover-ssic-week--4-.png
 draft: false
 archived: true
 layout: avizier-post-discover
