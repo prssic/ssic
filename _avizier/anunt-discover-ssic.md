@@ -7,7 +7,7 @@ description: |-
   DISCOVER SSIC invită fiecare boboc FICBi să facă primii pași în studenție alături de noi, pe parcursul unei săptămâni pline de activități și voie bună.
 image: /assets/avizier/1789984836364-discover-ssic-cover.jpg
 draft: false
-archived: true
+archived: false
 layout: avizier-post-discover
 ---
 Program oficial DISCOVER SSIC:
