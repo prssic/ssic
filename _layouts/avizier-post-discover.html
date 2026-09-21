@@ -110,16 +110,21 @@ html.ds-forced body { background: transparent; }
                     display: flex; flex-direction: column; align-items: center;
                     width: 100%; margin: 0 auto 56px; padding: 0 10px;
                     overflow-x: clip;   /* „ștampila" pornește mare: n-are voie să facă scroll orizontal */
+                    container-type: inline-size;   /* mărimea literelor se ia din lățimea acestei căsuțe (cqw), nu din ecran */
                     animation: dp-glow 3.4s ease-in-out 1.3s infinite;
                 }
                 .dp-t-discover, .dp-t-ssic {
                     display: block; font-family: var(--dp-display); font-weight: 700;
-                    font-size: clamp(3.2rem, 13vw, 7.5rem); line-height: 0.92; letter-spacing: 0.02em;
+                    font-size: clamp(2.4rem, 12vw, 6rem);              /* fallback pt. browsere fără cqw */
+                    font-size: clamp(2.4rem, 14cqw, 6rem);
+                    line-height: 0.92; letter-spacing: 0.02em; white-space: nowrap;
                     color: var(--dp-navy); -webkit-text-stroke: 1.5px var(--dp-navy); font-synthesis: weight;
                 }
                 .dp-t-row2 { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: nowrap; width: 100%; }
                 .dp-t-dates {
-                    font-family: var(--dp-display); font-weight: 700; font-size: clamp(1rem, 3.2vw, 2.1rem);
+                    font-family: var(--dp-display); font-weight: 700;
+                    font-size: clamp(0.8rem, 3.6vw, 1.8rem);           /* fallback */
+                    font-size: clamp(0.8rem, 4.2cqw, 1.8rem);
                     letter-spacing: 0.05em; white-space: nowrap; color: var(--dp-navy);
                     -webkit-text-stroke: 0.6px var(--dp-navy); font-synthesis: weight;
                 }
@@ -169,7 +174,7 @@ html.ds-forced body { background: transparent; }
                 }
                 .dp-title-card h1 {
                     margin: 0; color: var(--dp-navy); font-family: var(--dp-display); font-weight: 700;
-                    font-size: clamp(1.7rem, 4.6vw, 2.9rem); line-height: 1.1; letter-spacing: -0.01em;
+                    font-size: clamp(1.45rem, 4.2vw, 2.5rem); line-height: 1.12; letter-spacing: -0.01em;
                     text-wrap: balance; overflow-wrap: anywhere;
                 }
 
@@ -177,7 +182,7 @@ html.ds-forced body { background: transparent; }
                 .dp-body {
                     padding: 38px 42px 30px; border-radius: 26px;
                     background: var(--dp-cream); box-shadow: var(--dp-ring);
-                    color: var(--dp-navy); font-size: 1.1rem; line-height: 1.75;
+                    color: var(--dp-navy); font-size: 1.04rem; line-height: 1.7;
                     overflow-wrap: anywhere;
                 }
                 .dp-body > :first-child { margin-top: 0; }
@@ -202,6 +207,8 @@ html.ds-forced body { background: transparent; }
                 .dp-body a:hover { background: var(--dp-pink); text-decoration-color: transparent; }
                 .dp-body ul, .dp-body ol { margin: 0 0 1.6em 1.5em; padding: 0; }
                 .dp-body li { margin-bottom: 0.5em; }
+                .dp-body li > p { margin: 0 0 0.35em; }          /* liste „largi" (rânduri goale în markdown): fără spațiu dublu */
+                .dp-body li > ul, .dp-body li > ol { margin: 0.35em 0 0.35em 1.3em; }
                 .dp-body li::marker { color: var(--dp-orchid); font-weight: 800; }
                 .dp-body img {
                     display: block; max-width: 100%; height: auto; margin: 1.8em 0;
@@ -230,12 +237,9 @@ html.ds-forced body { background: transparent; }
                     .dp-day-sub { font-size: 0.5rem; }
                     .dp-star-shadow { transform: translate(4px, 4px); }
                     .dp-title-card { padding: 20px 20px 22px 32px; border-radius: 22px; }
-                    .dp-body { padding: 26px 22px 20px; font-size: 1.04rem; }
-                    .dp-body h2 { font-size: 1.5rem; }
-                }
-                @media (max-width: 480px) {
-                    .dp-t-discover, .dp-t-ssic { font-size: clamp(3rem, 18vw, 6rem); }
-                    .dp-t-dates { font-size: clamp(0.9rem, 5vw, 1.4rem); }
+                    .dp-body { padding: 24px 20px 18px; font-size: 0.97rem; line-height: 1.65; }
+                    .dp-body ul, .dp-body ol { margin-left: 1.15em; }
+                    .dp-body h2 { font-size: 1.35rem; }
                 }
                 @media (prefers-reduced-motion: reduce) {
                     .dp-back { transition: none; }
