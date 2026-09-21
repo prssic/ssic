@@ -139,18 +139,89 @@ description: "Informații utile pentru studenții de la Chimie: repartizări că
                     <div class="dept-intro reveal">
                         <p>Generează rapid o cerere tip pentru Decanat — o completezi mai jos, descarci PDF-ul și îl duci la semnat, exact ca la o cerere scrisă de mână.</p>
                     </div>
+                    <div class="cereri-note reveal">
+                        <i data-lucide="badge-check"></i>
+                        <span>Pentru <strong>adeverințe de student</strong> (calitate de student, situație de învățământ, etc.), cererile se depun online, direct pe <a href="https://studenti.pub.ro" target="_blank" rel="noopener">studenti.pub.ro</a> — nu prin acest formular.</span>
+                    </div>
+
                     <div class="cereri-intro-card reveal">
-                        <div class="cereri-note">
-                            <i data-lucide="badge-check"></i>
-                            <span>Pentru <strong>adeverințe de student</strong> (studii, bursă, etc.), cererile se depun online, direct pe <a href="https://studenti.pub.ro" target="_blank" rel="noopener">studenti.pub.ro</a> — nu prin acest formular.</span>
-                        </div>
-                        <div class="cereri-note">
-                            <i data-lucide="repeat"></i>
-                            <span>Transferul la altă grupă (cu sau fără schimb) se aprobă doar <strong>înainte de începerea anului universitar</strong>.</span>
-                        </div>
-                        <button type="button" class="cereri-open-btn hover-target" onclick="openCereri()">
-                            <i data-lucide="file-plus-2"></i> Generează o cerere
-                        </button>
+                        <form id="cereriForm">
+                            <div class="cereri-field">
+                                <label for="cfNume">Nume Prenume</label>
+                                <input type="text" id="cfNume" placeholder="ex. Manole Ionuț-Flavius" autocomplete="name" required>
+                            </div>
+
+                            <div class="cereri-row2">
+                                <div class="cereri-field">
+                                    <label for="cfAn">An de studiu</label>
+                                    <select id="cfAn" required>
+                                        <option value="">Alege...</option>
+                                        <option>I</option><option>II</option><option>III</option><option>IV</option>
+                                        <option>Master I</option><option>Master II</option>
+                                    </select>
+                                </div>
+                                <div class="cereri-field">
+                                    <label for="cfGrupa">Grupa</label>
+                                    <input type="text" id="cfGrupa" placeholder="ex. 1113A" required>
+                                </div>
+                            </div>
+
+                            <div class="cereri-field">
+                                <label for="cfDomeniu">Domeniul / Specializarea</label>
+                                <input type="text" id="cfDomeniu" placeholder="ex. Inginerie Chimică" required>
+                            </div>
+
+                            <div class="cereri-field">
+                                <label for="cfTip">Tipul cererii</label>
+                                <select id="cfTip" required>
+                                    <option value="">Alege...</option>
+                                    <option value="marire">Susținere examen de mărire</option>
+                                    <option value="reexaminare">Reexaminare</option>
+                                    <option value="transfer">Transfer la altă grupă</option>
+                                    <option value="altceva">Altceva (liber)</option>
+                                </select>
+                            </div>
+
+                            <!-- Câmpuri: mărire / reexaminare -->
+                            <fieldset class="cereri-fieldset" id="cfGroupExamen">
+                                <div class="cereri-field">
+                                    <label for="cfDisciplina">Disciplina</label>
+                                    <input type="text" id="cfDisciplina" placeholder="ex. Economie Generală">
+                                </div>
+                                <div class="cereri-field">
+                                    <label for="cfProfesor">Profesor titular (Nume Prenume)</label>
+                                    <input type="text" id="cfProfesor" placeholder="ex. Iacob Oana Camelia">
+                                </div>
+                            </fieldset>
+
+                            <!-- Câmpuri: transfer grupă (avertizarea apare ca popup, jos) -->
+                            <fieldset class="cereri-fieldset" id="cfGroupTransfer">
+                                <div class="cereri-field">
+                                    <label for="cfGrupaNoua">Grupa nouă</label>
+                                    <input type="text" id="cfGrupaNoua" placeholder="ex. 1112A">
+                                </div>
+                                <div class="cereri-field">
+                                    <label for="cfStudentSchimb">Fac schimb cu (Nume Prenume, opțional)</label>
+                                    <input type="text" id="cfStudentSchimb" placeholder="ex. Popescu Andrei">
+                                </div>
+                            </fieldset>
+
+                            <!-- Câmpuri: altceva -->
+                            <fieldset class="cereri-fieldset" id="cfGroupAltceva">
+                                <div class="cereri-field">
+                                    <label for="cfTextLiber">Ce anume soliciți</label>
+                                    <textarea id="cfTextLiber" placeholder="Scrie liber cererea ta..."></textarea>
+                                </div>
+                            </fieldset>
+
+                            <div class="cereri-field">
+                                <label>Facultatea</label>
+                                <div class="cereri-static-line">Facultatea de Inginerie Chimică și Biotehnologii</div>
+                            </div>
+
+                            <button type="submit" class="cereri-generate-btn hover-target" id="cereriGenerateBtn">Descarcă PDF</button>
+                            <div class="cereri-status" id="cereriStatus" aria-live="polite"></div>
+                        </form>
                     </div>
                 </div>
             </div>
