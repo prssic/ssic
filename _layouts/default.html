@@ -1963,11 +1963,24 @@
         }
         .cereri-other-toggle {
             display: flex; align-items: center; justify-content: space-between; gap: 16px;
-            width: 100%; background: none; border: none; padding: 0; margin: 0 0 4px;
-            text-align: left; cursor: pointer; font: inherit;
+            width: 100%; text-align: left; cursor: pointer; font: inherit;
+            font-family: var(--font-main); color: var(--c-base); background: var(--c-accent);
+            border: none; border-radius: 12px; padding: 14px 18px; margin: 0;
+            transition: transform var(--transition-fast), background 0.25s var(--ease-out);
         }
-        .cereri-other-chevron { flex-shrink: 0; width: 20px; height: 20px; color: var(--c-accent); transition: transform var(--transition-fast); }
+        .cereri-other-toggle:active { transform: scale(0.98); }
+        @media (hover: hover) { .cereri-other-toggle:hover { background: var(--c-accent-2); } }
+        .cereri-other-toggle-title { display: block; font-weight: 800; font-size: 1.02rem; color: var(--c-base); }
+        .cereri-other-toggle-sub { display: block; font-weight: 600; font-size: 0.85rem; color: var(--c-base); opacity: 0.75; margin-top: 2px; }
+        .cereri-other-chevron { flex-shrink: 0; width: 20px; height: 20px; color: var(--c-base); transition: transform var(--transition-fast); }
         .cereri-other-toggle[aria-expanded="true"] .cereri-other-chevron { transform: rotate(180deg); }
+        html.ds-theme .cereri-other-toggle {
+            border-radius: 999px; box-shadow: 0 0 0 2.5px var(--ds-navy); background: transparent;
+        }
+        html.ds-theme .cereri-other-toggle-title,
+        html.ds-theme .cereri-other-toggle-sub,
+        html.ds-theme .cereri-other-chevron { color: var(--ds-navy); }
+        html.ds-theme .cereri-other-toggle-sub { opacity: 0.7; }
         .cereri-other-body {
             display: grid; grid-template-rows: 0fr; opacity: 0;
             transition: grid-template-rows var(--transition-fast, .25s) ease, opacity var(--transition-fast, .25s) ease;
