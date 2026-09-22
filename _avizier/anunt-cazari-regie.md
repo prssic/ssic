@@ -9,6 +9,7 @@ layout: avizier-post
 ---
 # Ultima actualizare - 22.09.2026, ora 15:00
 
+
 Plata se poate realiza prin accesarea secțiunii **"Cerere de cazare"** din platforma [studenti.pub.ro](https://studenti.pub.ro).
 
 Plata se realizează **doar** prin platformă, **doar** de către studenții care au primit repartizare până la momentul prezent.
@@ -21,7 +22,7 @@ Pentru o repartizare corectă și eficientă, prin care toate locurile disponibi
 
 **Plata regiei de cămin pentru luna octombrie se face până joi, 24.09.2026, ora 10:00**, exclusiv din platforma studenti.pub.ro, secțiunea „Plăți”.
 
-**Studenților care nu achită tariful până la acest termen li se retrage repartiția.**
+**Studențiilor care nu achită tariful până la acest termen li se retrage repartiția.**
 
 Locurile rămase libere se vor realoca studenților de pe lista de rezervă.
 
@@ -33,9 +34,9 @@ Locurile rămase libere se vor realoca studenților de pe lista de rezervă.
 
 **Dacă nu mai dorești locul,** anunță-ne imediat la secretariat@chimie.upb.ro, cu numele, prenumele, căminul și camera. Astfel, locul poate fi dat unui coleg de pe lista de rezervă.
 
-**Studenți cu gratuitate sau reducere de tarif** vor încărca documentele justificative până la același termen, joi, 24.09.2026, ora 10:00.
+**Studenții cu gratuitate sau reducere de tarif** vor încărca documentele justificative până la același termen, joi, 24.09.2026, ora 10:00.
 
-**STUDENȚI DIN LISTA DE REZERVĂ:** locurile eliberate se vor realoca în ordinea listei de rezervă, stabilită conform criteriilor de repartizare, astfel:
+**STUDENȚII DIN LISTA DE REZERVĂ:** locurile eliberate se vor realoca în ordinea listei de rezervă, stabilită conform criteriilor de repartizare, astfel:
 
 **Prima realocare – joi, 24.09.2026, după ora 12:00.** Termen de plată: **vineri, 25.09.2026, ora 10:00.** Studenților care nu au achitat tariful până la acest termen li se retrage repartiția.
 
@@ -44,4 +45,3 @@ Locurile rămase libere se vor realoca studenților de pe lista de rezervă.
 În această perioadă, urmărește constant platforma studenti.pub.ro și website-ul facultății, pentru a vedea eventualele modificări ale repartiției și termenele de plată.
 
 Comisia de Cazare a Facultății de Inginerie Chimică și Biotehnologii
-

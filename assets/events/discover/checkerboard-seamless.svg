@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72">
+  <!-- Fundal Galben Neon -->
+  <rect width="72" height="72" fill="#e8f05e"/>
+  <!-- Pătrat Mov Stânga Sus -->
+  <rect width="36" height="36" fill="#c060b8"/>
+  <!-- Pătrat Mov Dreapta Jos -->
+  <rect x="36" y="36" width="36" height="36" fill="#c060b8"/>
+</svg>
