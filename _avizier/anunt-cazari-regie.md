@@ -38,9 +38,13 @@ Locurile rămase libere se vor realoca studenților de pe lista de rezervă.
 
 **STUDENȚII DIN LISTA DE REZERVĂ:** locurile eliberate se vor realoca în ordinea listei de rezervă, stabilită conform criteriilor de repartizare, astfel:
 
-**Prima realocare – joi, 24.09.2026, după ora 12:00.** Termen de plată: **vineri, 25.09.2026, ora 10:00.** Studenților care nu au achitat tariful până la acest termen li se retrage repartiția.
+**Prima realocare – joi, 24.09.2026, după ora 12:00.** 
 
-**A doua realocare – vineri, 25.09.2026, după ora 12:00.** Termen de plată: **sâmbătă, 26.09.2026, ora 10:00.** Studenților care nu au achitat tariful până la acest termen li se retrage repartiția.
+Termen de plată: **vineri, 25.09.2026, ora 10:00.** Studențiilor care nu au achitat tariful până la acest termen li se retrage repartiția.
+
+**A doua realocare – vineri, 25.09.2026, după ora 12:00.** 
+
+Termen de plată: **sâmbătă, 26.09.2026, ora 10:00.** Studențiilor care nu au achitat tariful până la acest termen li se retrage repartiția.
 
 În această perioadă, urmărește constant platforma studenti.pub.ro și website-ul facultății, pentru a vedea eventualele modificări ale repartiției și termenele de plată.
 
