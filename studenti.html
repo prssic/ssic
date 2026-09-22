@@ -201,17 +201,20 @@ description: "Informații utile pentru studenții de la Chimie: repartizări că
                                 <select id="cfTip" required>
                                     <option value="">Alege...</option>
                                     <option value="marire">Susținere examen de mărire</option>
-                                    <option value="reexaminare">Reexaminare</option>
                                     <option value="transfer">Transfer la altă grupă</option>
                                     <option value="altceva">Altceva (liber)</option>
                                 </select>
                             </div>
 
-                            <!-- Câmpuri: mărire / reexaminare -->
+                            <!-- Câmpuri: mărire -->
                             <fieldset class="cereri-fieldset" id="cfGroupExamen">
                                 <div class="cereri-field">
                                     <label for="cfDisciplina">Disciplina</label>
                                     <input type="text" id="cfDisciplina" placeholder="ex. Economie Generală">
+                                </div>
+                                <div class="cereri-field">
+                                    <label for="cfNota">Nota obținută</label>
+                                    <input type="text" id="cfNota" placeholder="ex. 5">
                                 </div>
                                 <div class="cereri-row2">
                                 <div class="cereri-field">
@@ -259,6 +262,35 @@ description: "Informații utile pentru studenții de la Chimie: repartizări că
                             <button type="submit" class="cereri-generate-btn hover-target" id="cereriGenerateBtn">Descarcă PDF</button>
                             <div class="cereri-status" id="cereriStatus" aria-live="polite"></div>
                         </form>
+                    </div>
+
+                    <div class="cereri-other-card reveal" id="cereriOtherCard">
+                        <button type="button" class="cereri-other-toggle hover-target" id="cereriOtherToggle" aria-expanded="false" aria-controls="cereriOtherBody">
+                            <span class="cereri-other-toggle-text">
+                                <span class="cereri-other-toggle-title">Alte cereri</span>
+                                <span class="cereri-other-toggle-sub">Descarcă formularul tip și completează-l manual</span>
+                            </span>
+                            <i data-lucide="chevron-down" class="cereri-other-chevron"></i>
+                        </button>
+                        <div class="cereri-other-body" id="cereriOtherBody">
+                            <div class="cereri-other-body-inner">
+                                <ul class="cereri-other-list">
+                                    <li><a href="https://chimie.upb.ro/administrare/content/doc/avizier/formulare/cerere-de-eliberare-a-foii-matricole/doc.docx" target="_blank" rel="noopener"><i data-lucide="file-text"></i>Eliberare foaie matricolă<span class="cereri-other-ext">.docx</span></a></li>
+                                    <li><a href="https://chimie.upb.ro/administrare/content/doc/avizier/formulare/cerere-de-eliberare-a-unei-adeverinte-privind-absolvirea-fara-examen-de-finalizare-a%20studiilor/doc.docx" target="_blank" rel="noopener"><i data-lucide="file-text"></i>Adeverință absolvire fără examen de finalizare a studiilor<span class="cereri-other-ext">.docx</span></a></li>
+                                    <li><a href="https://chimie.upb.ro/administrare/content/doc/avizier/formulare/cerere-de-eliberare-a-unei-adeverinte-privind-scolarizarea/doc.docx" target="_blank" rel="noopener"><i data-lucide="file-text"></i>Adeverință privind școlarizarea<span class="cereri-other-ext">.docx</span></a></li>
+                                    <li><a href="https://chimie.upb.ro/administrare/content/doc/avizier/formulare/cerere-de-eliberare-a-unei-noi-adeverinte-privind-finalizarea-studiilor/doc.docx" target="_blank" rel="noopener"><i data-lucide="file-text"></i>Nouă adeverință privind finalizarea studiilor<span class="cereri-other-ext">.docx</span></a></li>
+                                    <li><a href="https://chimie.upb.ro/administrare/content/doc/avizier/formulare/cerere-de-eliberare-a-unui-duplicat-al-diplomei-certificatului-atestatului/doc.docx" target="_blank" rel="noopener"><i data-lucide="file-text"></i>Duplicat diplomă / certificat / atestat<span class="cereri-other-ext">.docx</span></a></li>
+                                    <li><a href="https://chimie.upb.ro/administrare/content/doc/avizier/formulare/cerere-de-eliberare-a-unui-nou-act-de-studii-universitar-anexa-de-studii/doc.docx" target="_blank" rel="noopener"><i data-lucide="file-text"></i>Nou act de studii universitar — anexă de studii<span class="cereri-other-ext">.docx</span></a></li>
+                                    <li><a href="https://chimie.upb.ro/administrare/content/doc/avizier/formulare/cerere-de-eliberare-documente-din-arhiva-facultatii/doc.docx" target="_blank" rel="noopener"><i data-lucide="file-text"></i>Eliberare documente din arhiva facultății<span class="cereri-other-ext">.docx</span></a></li>
+                                    <li><a href="https://chimie.upb.ro/administrare/content/doc/avizier/formulare/cerere-de-reinmatriculare/doc.docx" target="_blank" rel="noopener"><i data-lucide="file-text"></i>Reînmatriculare<span class="cereri-other-ext">.docx</span></a></li>
+                                    <li><a href="https://chimie.upb.ro/administrare/content/doc/avizier/formulare/cerere-de-retragere-de-la-studii-si-eliberarea-dosarului-de-student/doc.docx" target="_blank" rel="noopener"><i data-lucide="file-text"></i>Retragere de la studii și eliberarea dosarului de student<span class="cereri-other-ext">.docx</span></a></li>
+                                    <li><a href="https://chimie.upb.ro/administrare/content/doc/avizier/formulare/cerere-pentru-repetarea-anului-universitar/doc.docx" target="_blank" rel="noopener"><i data-lucide="file-text"></i>Repetarea anului universitar<span class="cereri-other-ext">.docx</span></a></li>
+                                    <li><a href="https://chimie.upb.ro/administrare/content/doc/avizier/formulare/cerere-pentru-intreruperea-studiilor/doc.docx" target="_blank" rel="noopener"><i data-lucide="file-text"></i>Întreruperea studiilor<span class="cereri-other-ext">.docx</span></a></li>
+                                    <li><a href="https://chimie.upb.ro/administrare/content/doc/avizier/formulare/cerere-pentru-reluarea-studiilor/doc.docx" target="_blank" rel="noopener"><i data-lucide="file-text"></i>Reluarea studiilor<span class="cereri-other-ext">.docx</span></a></li>
+                                </ul>
+                                <a class="cereri-other-all hover-target" href="https://chimie.upb.ro/avizier/formulare" target="_blank" rel="noopener"><i data-lucide="external-link"></i>Toate formularele pe chimie.upb.ro</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

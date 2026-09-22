@@ -1837,9 +1837,29 @@
            formular, nu unei fișe de contact.
            ========================================================================== */
         .cereri-intro-card {
-            position: relative; max-width: 620px; padding: 30px 30px 32px; margin-bottom: 20px;
-            background: rgba(34, 22, 49, 0.55); border: 1px solid var(--c-border-soft);
+            position: relative; isolation: isolate; max-width: 620px; padding: 30px 30px 32px; margin-bottom: 20px;
+            background: rgba(34, 22, 49, 0.70); /* fallback */
+            border: 1px solid var(--c-border-soft);
             border-radius: 18px;
+        }
+        .cereri-intro-card::before {
+            content: ""; position: absolute; z-index: -1; pointer-events: none;
+            inset: 0; border-radius: inherit;
+            background: rgba(34, 22, 49, 0.70);
+        }
+        @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+            .cereri-intro-card::before {
+                background: var(--c-nav-bg);
+                backdrop-filter: blur(18px) saturate(var(--glass-saturation));
+                -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturation));
+            }
+        }
+        @supports (clip-path: inset(0)) or (-webkit-clip-path: inset(0)) {
+            .cereri-intro-card::before {
+                inset: 0;
+                clip-path: none;
+                -webkit-clip-path: none;
+            }
         }
         .cereri-note {
             display: flex; align-items: flex-start; gap: 12px; max-width: 620px;
@@ -1942,12 +1962,102 @@
         html.ds-theme .cereri-intro-card, html.ds-theme .cereri-note {
             background: var(--c-base); border: none; box-shadow: var(--ds-card-sm); border-radius: 20px;
         }
+        html.ds-theme .cereri-intro-card::before { display: none; }
         html.ds-theme .cereri-generate-btn {
             border-radius: 999px; box-shadow: 0 0 0 2.5px var(--ds-navy); color: var(--ds-navy);
         }
         html.ds-theme .cereri-field input, html.ds-theme .cereri-field select, html.ds-theme .cereri-field textarea {
             border-radius: 14px; border-width: 2.5px; border-color: var(--ds-navy); color: var(--ds-navy); background: #fff;
         }
+
+        /* Alte cereri — listă de formulare tip .docx, descărcate direct de pe site-ul facultății */
+        .cereri-other-card {
+            position: relative; isolation: isolate; max-width: 620px; padding: 26px 28px 28px; margin-top: 8px;
+            background: rgba(34, 22, 49, 0.70); /* fallback */
+            border: 1px solid var(--c-border-soft);
+            border-radius: 18px;
+        }
+        .cereri-other-card::before {
+            content: ""; position: absolute; z-index: -1; pointer-events: none;
+            inset: 0; border-radius: inherit;
+            background: rgba(34, 22, 49, 0.70);
+        }
+        @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+            .cereri-other-card::before {
+                background: var(--c-nav-bg);
+                backdrop-filter: blur(18px) saturate(var(--glass-saturation));
+                -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturation));
+            }
+        }
+        @supports (clip-path: inset(0)) or (-webkit-clip-path: inset(0)) {
+            .cereri-other-card::before {
+                inset: 0;
+                clip-path: none;
+                -webkit-clip-path: none;
+            }
+        }
+        .cereri-other-card h3 {
+            font-size: 1.05rem; font-weight: 800; color: var(--c-white); margin: 0 0 4px;
+        }
+        .cereri-other-card > p {
+            font-size: 0.92rem; color: var(--c-gray); font-weight: 500; line-height: 1.5; margin: 0 0 18px;
+        }
+        .cereri-other-toggle {
+            display: flex; align-items: center; justify-content: space-between; gap: 16px;
+            width: 100%; text-align: left; cursor: pointer; font: inherit;
+            font-family: var(--font-main); color: var(--c-base); background: var(--c-accent);
+            border: none; border-radius: 12px; padding: 14px 18px; margin: 0;
+            transition: transform var(--transition-fast), background 0.25s var(--ease-out);
+        }
+        .cereri-other-toggle:active { transform: scale(0.98); }
+        @media (hover: hover) { .cereri-other-toggle:hover { background: var(--c-accent-2); } }
+        .cereri-other-toggle-title { display: block; font-weight: 800; font-size: 1.02rem; color: var(--c-base); }
+        .cereri-other-toggle-sub { display: block; font-weight: 600; font-size: 0.85rem; color: var(--c-base); opacity: 0.75; margin-top: 2px; }
+        .cereri-other-chevron { flex-shrink: 0; width: 20px; height: 20px; color: var(--c-base); transition: transform var(--transition-fast); }
+        .cereri-other-toggle[aria-expanded="true"] .cereri-other-chevron { transform: rotate(180deg); }
+        html.ds-theme .cereri-other-toggle {
+            border-radius: 999px; box-shadow: 0 0 0 2.5px var(--ds-navy); background: transparent;
+        }
+        html.ds-theme .cereri-other-toggle-title,
+        html.ds-theme .cereri-other-toggle-sub,
+        html.ds-theme .cereri-other-chevron { color: var(--ds-navy); }
+        html.ds-theme .cereri-other-toggle-sub { opacity: 0.7; }
+        .cereri-other-body {
+            display: grid; grid-template-rows: 0fr; opacity: 0;
+            transition: grid-template-rows var(--transition-fast, .25s) ease, opacity var(--transition-fast, .25s) ease;
+        }
+        .cereri-other-toggle[aria-expanded="true"] + .cereri-other-body { grid-template-rows: 1fr; opacity: 1; }
+        .cereri-other-body-inner { overflow: hidden; min-height: 0; }
+        .cereri-other-body .cereri-other-list,
+        .cereri-other-body .cereri-other-all { margin-top: 18px; }
+        .cereri-other-list { list-style: none; margin: 0 0 18px; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+        .cereri-other-list a {
+            display: flex; align-items: center; gap: 11px;
+            padding: 12px 10px; border-radius: 10px; text-decoration: none;
+            color: var(--c-white-off); font-size: 0.92rem; font-weight: 600; line-height: 1.4;
+            border-bottom: 1px solid var(--c-border-soft);
+            transition: background var(--transition-fast), color var(--transition-fast);
+        }
+        .cereri-other-list li:last-child a { border-bottom: none; }
+        .cereri-other-list a i, .cereri-other-list a .lucide { flex-shrink: 0; width: 17px; height: 17px; color: var(--c-accent); }
+        .cereri-other-list a .cereri-other-ext { margin-left: auto; flex-shrink: 0; color: var(--c-gray); }
+        @media (hover: hover) {
+            .cereri-other-list a:hover { background: var(--c-base); color: var(--c-white); }
+        }
+        .cereri-other-all {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 0.9rem; font-weight: 700; color: var(--c-accent); text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+        .cereri-other-all i, .cereri-other-all .lucide { width: 15px; height: 15px; }
+        @media (max-width: 600px) {
+            .cereri-other-card { padding: 22px 18px 24px; }
+        }
+        html.ds-theme .cereri-other-card {
+            background: var(--c-base); border: none; box-shadow: var(--ds-card-sm); border-radius: 20px;
+        }
+        html.ds-theme .cereri-other-card::before { display: none; }
+        html.ds-theme .cereri-other-list a { border-bottom-color: rgba(0,0,0,0.08); }
         html.ds-theme .cereri-field label { color: var(--ds-navy); opacity: 0.7; }
         html.ds-theme .cereri-field input:focus, html.ds-theme .cereri-field select:focus, html.ds-theme .cereri-field textarea:focus {
             border-color: var(--ds-pink);
@@ -2234,7 +2344,7 @@
            pointer:fine) nimic nu se schimbă — regulile din @supports rămân neatinse. */
         @media (hover: none), (pointer: coarse) {
             .nav-glass-blur, .cookie-notice::before, .search-overlay, .contact-overlay, .a11y-narrator-bar::before,
-            .calendar-item::before, .nav-links::before {
+            .calendar-item::before, .nav-links::before, .cereri-intro-card::before, .cereri-other-card::before {
                 backdrop-filter: blur(10px) saturate(var(--glass-saturation));
                 -webkit-backdrop-filter: blur(10px) saturate(var(--glass-saturation));
             }
@@ -3246,7 +3356,6 @@
                 const confirmOk = document.getElementById('cereriConfirmOk');
                 const groups = {
                     marire: document.getElementById('cfGroupExamen'),
-                    reexaminare: document.getElementById('cfGroupExamen'),
                     transfer: document.getElementById('cfGroupTransfer'),
                     altceva: document.getElementById('cfGroupAltceva')
                 };
@@ -3276,7 +3385,6 @@
                 }
                 const TIP_LABEL = {
                     marire: 'Susținere examen de mărire',
-                    reexaminare: 'Reexaminare',
                     transfer: 'Transfer la altă grupă',
                     altceva: 'Altceva (liber)'
                 };
@@ -3358,7 +3466,7 @@
                     else req.push(anSel); // an neales -> eroarea cade tot pe select
                     req.push(tipSel);
                     const tip = tipSel.value;
-                    if (tip === 'marire' || tip === 'reexaminare') req.push(document.getElementById('cfDisciplina'));
+                    if (tip === 'marire') req.push(document.getElementById('cfDisciplina'), document.getElementById('cfNota'));
                     if (tip === 'transfer') req.push(document.getElementById('cfGrupaNoua'));
                     if (tip === 'altceva') req.push(document.getElementById('cfTextLiber'));
                     return req;
@@ -3411,8 +3519,9 @@
                     document.querySelectorAll('#cereriForm fieldset input, #cereriForm fieldset textarea').forEach(el => {
                         el.required = false;
                     });
-                    if (this.value === 'marire' || this.value === 'reexaminare') {
+                    if (this.value === 'marire') {
                         document.getElementById('cfDisciplina').required = true;
+                        document.getElementById('cfNota').required = true;
                     }
                     if (this.value === 'transfer') {
                         document.getElementById('cfGrupaNoua').required = true;
@@ -3492,8 +3601,9 @@
                         rows.push(['Domeniul de studiu', dt.domeniu]);
                     }
                     rows.push(['Tipul cererii', TIP_LABEL[tip]]);
-                    if (tip === 'marire' || tip === 'reexaminare') {
+                    if (tip === 'marire') {
                         rows.push(['Disciplina', val('cfDisciplina')]);
+                        rows.push(['Nota obținută', val('cfNota')]);
                         const prof = fullName('cfProfesorNume', 'cfProfesorPrenume');
                         if (prof) rows.push(['Profesor titular', prof]);
                     } else if (tip === 'transfer') {
@@ -3523,7 +3633,7 @@
                 function pairError() {
                     const tip = tipSel.value;
                     let pair = null, who = '';
-                    if (tip === 'marire' || tip === 'reexaminare') { pair = ['cfProfesorNume', 'cfProfesorPrenume']; who = 'profesorului'; }
+                    if (tip === 'marire') { pair = ['cfProfesorNume', 'cfProfesorPrenume']; who = 'profesorului'; }
                     if (tip === 'transfer') { pair = ['cfSchimbNume', 'cfSchimbPrenume']; who = 'studentului cu care faci schimb'; }
                     if (!pair) return '';
                     const a = !!val(pair[0]), b = !!val(pair[1]);
@@ -3628,10 +3738,11 @@
                     }
                     segs.push({ text: ', vă rog respectuos a-mi aproba cererea de ' });
                     let needsProfesor = false;
-                    if (tip === 'marire' || tip === 'reexaminare') {
+                    if (tip === 'marire') {
                         const disciplina = val('cfDisciplina') || '……………………';
+                        const nota = val('cfNota') || '……';
                         const profesor = fullName('cfProfesorNume', 'cfProfesorPrenume');
-                        segs.push({ text: (tip === 'marire' ? 'susținere a examenului de mărire' : 'reexaminare'), bold: true });
+                        segs.push({ text: 'susținere a examenului de mărire', bold: true });
                         segs.push({ text: ' la disciplina ' });
                         segs.push({ text: disciplina, bold: true });
                         if (profesor) {
@@ -3639,6 +3750,8 @@
                             segs.push({ text: profesor, bold: true });
                             needsProfesor = true;
                         }
+                        segs.push({ text: '. Menționez faptul că am obținut nota ' });
+                        segs.push({ text: nota, bold: true });
                         segs.push({ text: '.' });
                     } else if (tip === 'transfer') {
                         const grupaNoua = val('cfGrupaNoua') || '……………';
@@ -3717,8 +3830,10 @@
                     y += lh * 3;
                     doc.text(t('Facultatea de Inginerie Chimică și Biotehnologii'), margin, y);
                     y += lh * 1.6;
-                    doc.text(t('Data susținerii / rezolvării: ______________________'), margin, y);
-                    y += lh * 1.6;
+                    if (tipSel.value === 'marire') {
+                        doc.text(t('Data susținerii: ______________________'), margin, y);
+                        y += lh * 1.6;
+                    }
                     const azi = new Date().toLocaleDateString('ro-RO');
                     const lbl = t('Data depunerii: ');
                     doc.setFont(family, 'normal');
@@ -3741,6 +3856,21 @@
                    condiționale trebuie afișate fără să mai fie nevoie de un „change". */
                 if (anSel.value) anSel.dispatchEvent(new Event('change'));
                 if (tipSel.value) tipSel.dispatchEvent(new Event('change'));
+            }
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+            else init();
+        })();
+
+        // ================= ACCORDION „Alte cereri” (Studenți / Cereri) =================
+        (function () {
+            function init() {
+                const toggle = document.getElementById('cereriOtherToggle');
+                const body = document.getElementById('cereriOtherBody');
+                if (!toggle || !body) return;
+                toggle.addEventListener('click', () => {
+                    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+                    toggle.setAttribute('aria-expanded', String(!expanded));
+                });
             }
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
             else init();
