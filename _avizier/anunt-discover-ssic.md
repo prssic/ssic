@@ -18,15 +18,16 @@ Program oficial DISCOVER SSIC:
 
 * Marți, 29 septembrie - **Photo Scavenger Hunt**
   * Oră - **TBA**
-  * Dată - **TBA**
+  * Dată - **Campus Polizu**
 
 * Miercuri, 30 septembrie - **Trivia Night SSIC x [LSFSA](https://www.instagram.com/lsfsa.bucuresti/) x [YAIMM](https://www.instagram.com/youthinactionimm/)**
-  * Oră - **TBA**
+  * Oră - **20:00**
   * Dată - **TBA**
+  * **[Formular înscrieri aici!](https://docs.google.com/forms/d/e/1FAIpQLSdzqtD7E1TSbexXeLJ8lh_Zte9-5Jk5dHWm1_94yVSK8EGkQA/viewform)**
 
 * Joi, 1 octombrie - **Bingo Muzical & Party**
   * Oră - **TBA**
-  * Dată - **TBA**
+  * Dată - **Club Mechano, Campus Regie**
 
 * Vineri, 2 octombrie - **Get to know Bucharest ft. SSIC**
   * Oră - **TBA**
