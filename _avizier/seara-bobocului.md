@@ -11,7 +11,7 @@ layout: avizier-post
 ---
 Emoții înainte de prima zi de facultate? Noi propunem să le lăsăm deoparte și să începem anul studențesc cu o ieșire, în stilul clasic SSIC!
 
-Vă invităm la **Seara Bobocului** - o întâlnire super relaxată, unde scopul principal este să ne cunoaștem, să râdem și să spargem gheața înainte de deschiderea oficială de luni. Vom avea pregătite jocuri, discuții libere și o mulțime de activități, oportune pentru a-ți face primii prieteni din facultate.
+Vă invităm la **Seara Bobocului**, o întâlnire relaxată, unde scopul principal este să ne cunoaștem, să râdem și să spargem gheața înainte de deschiderea oficială de luni. Vom avea pregătite jocuri, discuții libere și activități, oportune pentru a-ți face primii prieteni din facultate.
 
 - **Unde ne vedem?** Pe Platou, în Campusul Studențesc Regie;
 - **Când?** Duminică seara, începând cu ora 21:00
