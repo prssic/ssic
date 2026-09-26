@@ -8,7 +8,7 @@ description: |-
 image: /assets/avizier/1789984836364-discover-ssic-cover.jpg
 draft: false
 archived: false
-layout: avizier-post-discover
+layout: avizier-post
 ---
 Program oficial DISCOVER SSIC:
 
