@@ -9,21 +9,40 @@ layout: default
     Comutarea e 100% CSS (ambele variante sunt randate, una e ascunsă), deci reacționează
     instant dacă utilizatorul schimbă tema din navbar, fără reîncărcarea paginii.
 
-    Opțional, pentru varianta Discover (ignorate quand tema clasică e activă):
+    Opțional:
+        force_discover: true                dacă vrei ca ACEST articol să fie mereu în tema
+                                             Discover, indiferent de tema aleasă de vizitator
+                                             (nu schimbă tema pe restul site-ului, doar pe pagina asta)
         discover_dates: "28 SEPT – 2 OCT"   rândul cu datele din titlu (implicit cel de mai sus; `false` = fără rând)
         star_color: "#35c8f2"               culoarea steluței cu data postării (implicit roz #ff70b6)
                                              paletă: #ff70b6 roz · #35c8f2 cyan · #f2f56a lămâie · #b8f0a4 mint · #fa7a24 portocaliu
 {% endcomment %}
 
-<!-- Fallback pentru randare IZOLATĂ (preview, fără default.html): fonturile temei Discover.
-     Pe site, aceleași reguli vin din default.html; duplicatele sunt inofensive. -->
+<!-- Fallback pentru randare IZOLATĂ (preview, fără default.html): fonturile temei Discover. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&display=swap" rel="stylesheet">
 <style>
 @font-face { font-family: 'Stinger Fit'; src: url('/assets/fonts/StingerFit-Bold.ttf') format('truetype'); font-weight: bold; font-style: normal; font-display: swap; }
 @font-face { font-family: 'Stinger Fit'; src: url('/assets/fonts/StingerFit-Regular.otf') format('opentype'); font-weight: normal; font-style: normal; font-display: swap; }
+{% if page.force_discover %}
+html.ds-forced {
+    background-color: #e8f05e;
+    background-image: repeating-conic-gradient(#c060b8 0% 25%, #e8f05e 0% 50%);
+    background-size: 72px 72px;
+    background-attachment: fixed;
+}
+html.ds-forced body { background: transparent; }
+{% endif %}
 </style>
+
+{% if page.force_discover %}
+<script>
+    /* Această postare își impune tema Discover SSIC indiferent de preferința salvată de
+       vizitator, fără s-o modifice: pe celelalte pagini rămâne tema aleasă din navbar. */
+    document.documentElement.classList.add('ds-theme', 'ds-forced');
+</script>
+{% endif %}
 
 {% assign dp_months = "IAN,FEB,MAR,APR,MAI,IUN,IUL,AUG,SEP,OCT,NOI,DEC" | split: "," %}
 {% assign dp_mi = page.date | date: "%-m" | minus: 1 %}
