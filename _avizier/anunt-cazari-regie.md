@@ -4,7 +4,7 @@ date: '2026-09-22T00:00:00.000Z'
 description: 'Informații și anunțuri privind cazarea studenților în căminele Facultății de Inginerie Chimică și Biotehnologii: repartizări, plăți, contracte și termene aferente.'
 image: https://cdn.edupedu.ro/wp-content/uploads/2024/10/Politehnica-UPB-UNSTPB-International-Relations-Department-regie-0-e1729151355582.jpg
 draft: false
-archived: false
+archived: true
 layout: avizier-post
 ---
 # Ultima actualizare - 22.09.2026, ora 15:00
