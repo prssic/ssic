@@ -13,8 +13,6 @@ Cu ocazia începerii noului an universitar, Uniunea Națională a Studenților d
 
 Așteptăm cu nerăbdare să ne vedem mâine dimineață!
 
----
-
 ### Te așteptăm la standul SSIC
 
 Aleea Asociațiilor este locul ideal pentru a lua un prim contact cu viața de student implicat. La standul nostru, echipa **SSIC** este pregătită să vă răspundă la toate curiozitățile legate de facultate, cursuri, laboratoare sau viața de campus. 
