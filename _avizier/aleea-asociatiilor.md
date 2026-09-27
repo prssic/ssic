@@ -9,7 +9,7 @@ layout: avizier-post
 ---
 Cu ocazia începerii noului an universitar, Uniunea Națională a Studenților din România (UNSR) și SSIC vă invită **mâine, 28 septembrie**, începând cu **ora 10:00**, în **Campus Noul Local (Rectorat)**, la **Aleea Asociațiilor**!
 
-În cadrul evenimentului, puteți cunoaște fiecare asociație din Politehnică, alături de voluntarii săi, reuniți sub umbrela UNSR. În plus, vă așteptăm la **standul SSIC** pentru un bun-venit așa cum trebuie în noul an universitar. 💜
+În cadrul evenimentului, puteți cunoaște fiecare asociație din Politehnică, alături de voluntarii săi, reuniți sub umbrela UNSR. În plus, vă așteptăm la **standul SSIC** pentru un bun-venit așa cum trebuie în noul an universitar!
 
 Așteptăm cu nerăbdare să ne vedem mâine dimineață!
 
