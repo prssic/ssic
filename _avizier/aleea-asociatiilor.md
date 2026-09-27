@@ -23,5 +23,4 @@ Toată această energie de pe Alee și a tuturor asociațiilor prezente sunt reu
 
 UNSR este una dintre cele mai mari și active federații studențești din țară, având rolul fundamental de a reprezenta și apăra drepturile tinerilor studenți. Pe lângă susținerea inițiativelor studențești, UNSR asigură o comunicare constantă între asociațiile studențești, studenți și decidenții din sistemul de învățământ superior, organizând anual proiecte de amploare și tabere naționale.
 
-Vrei să afli mai multe despre proiectele și impactul lor? 
-🔗 **[Vizitează site-ul oficial UNSR](https://unsr.ro/)**
+Vrei să afli mai multe despre proiectele și impactul lor? **[Vizitează site-ul oficial UNSR](https://unsr.ro/)**
