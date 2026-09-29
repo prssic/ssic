@@ -18,7 +18,7 @@ Program oficial DISCOVER SSIC:
   * Locație - **TBA**
 
 * Marți, 29 septembrie - **Photo Scavenger Hunt**
-  * Oră - **TBA**
+  * Oră - **18:00**
   * Locație - **Campus Polizu**
 
 * Miercuri, 30 septembrie - **Trivia Night SSIC x [LSFSA](https://www.instagram.com/lsfsa.bucuresti/) x [YAIMM](https://www.instagram.com/youthinactionimm/)**
