@@ -3,7 +3,7 @@ layout: default
 ---
 {% comment %}
   Galerie foto permanentă (o pagină = o galerie). Datele vin din _data/galerii/<slug>.json,
-  scris de tool-ul local (galerii-tool/galerii.py). Pozele stau în Cloudflare R2 (g.base):
+  scris de tool-ul local (SSIC-Galerii-Tool/galerii.py). Pozele stau în repo-ul ssic-arhiva (GitHub Pages, g.base):
   t/ = miniaturi, m/ = pentru lightbox, f/ = originale full-res, descărcate doar din butoanele acestei pagini.
 {% endcomment %}
 {% assign g = site.data.galerii[page.slug] %}
