@@ -1,14 +1,18 @@
 {% comment %}
   Popup Discover SSIC, afișat o singură dată (prima vizită după update). Se include în _layouts/default.html, înainte de </body>.
   Apare doar cât timp comutatorul de teme e activ (window.SSIC_THEME_SWITCH, oprit automat duminică 4 oct. 2026) și doar dacă
-  vizitatorul nu are deja Discover activ. Stilul „frosted glass" e cel de la .cookie-notice (același ::before + tokeni).
+  vizitatorul nu are deja Discover activ. Cardul are stilul „frosted glass" de la .cookie-notice, iar fundalul din spate e blurat.
 {% endcomment %}
 <style>
-.dsp-back { position: fixed; inset: 0; z-index: 9600; display: none; align-items: center; justify-content: center; padding: 18px; background: rgba(0,0,0,.55); overflow: hidden; }
+/* Fundal: întunecat + blur (opac ca fallback, sticlă unde există backdrop-filter) */
+.dsp-back { position: fixed; inset: 0; z-index: 9600; display: none; align-items: center; justify-content: center; padding: 18px; background: rgba(0,0,0,.7); overflow: hidden; }
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .dsp-back { background: rgba(0,0,0,.4); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+}
 .dsp-back.open { display: flex; }
-.dsp-card { position: relative; z-index: 0; width: min(440px, 100%); box-sizing: border-box; padding: 36px 26px 26px; text-align: center; border-radius: 20px;
-    color: var(--c-white-off); box-shadow: 0 20px 50px var(--c-shadow-2); font-family: var(--font-main); animation: dsp-pop .5s var(--ease-out, ease-out); }
-/* Fundal + blur pe pseudo-element, exact ca la .cookie-notice (opac ca fallback, sticlă unde există backdrop-filter) */
+.dsp-card { position: relative; z-index: 0; width: min(400px, 100%); box-sizing: border-box; padding: 28px 24px 24px; text-align: center; border-radius: 20px;
+    color: var(--c-white-off); box-shadow: 0 20px 50px var(--c-shadow-2); font-family: var(--font-main); animation: dsp-pop .3s var(--ease-out, ease-out); }
+/* Fundal + blur pe pseudo-element, exact ca la .cookie-notice */
 .dsp-card::before { content: ""; position: absolute; z-index: -1; pointer-events: none; inset: 0; border-radius: inherit; background: var(--c-surface-elevated); }
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
     .dsp-card::before { background: var(--c-nav-bg); backdrop-filter: blur(18px) saturate(var(--glass-saturation)); -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturation)); }
@@ -16,24 +20,18 @@
 @supports (clip-path: inset(0)) or (-webkit-clip-path: inset(0)) {
     .dsp-card::before { inset: -24px; clip-path: inset(24px round 20px); -webkit-clip-path: inset(24px round 20px); }
 }
-.dsp-star { width: 84px; height: 84px; margin: -78px auto 12px; background: #ff3399; transform: rotate(-6deg); display: flex; align-items: center; justify-content: center; font-size: 2.2rem;
-    clip-path: polygon(50% 0%,57.7% 8.7%,68.1% 3.4%,72.1% 14.3%,83.7% 13%,83.5% 24.7%,94.8% 27.7%,90.4% 38.5%,99.8% 45.4%,91.8% 53.9%,98.1% 63.7%,87.6% 68.7%,89.9% 80.1%,78.3% 81%,76.3% 92.5%,65.2% 89.2%,59.2% 99.1%,50% 92%,40.8% 99.1%,34.8% 89.2%,23.7% 92.5%,21.7% 81%,10.1% 80.1%,12.4% 68.7%,1.9% 63.7%,8.2% 53.9%,.2% 45.4%,9.6% 38.5%,5.2% 27.7%,16.5% 24.7%,16.3% 13%,27.9% 14.3%,31.9% 3.4%,42.3% 8.7%); }
-.dsp-kicker { margin: 0 0 4px; font-weight: 800; font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; color: var(--c-white-off); }
-.dsp-title { margin: 0 0 8px; font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif; font-weight: 700; font-synthesis: weight; font-size: clamp(2.4rem, 11vw, 3.4rem); line-height: .95; letter-spacing: .02em; color: var(--c-white); }
+.dsp-title { margin: 0 0 8px; font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif; font-weight: 700; font-synthesis: weight; font-size: clamp(2.2rem, 10vw, 3rem); line-height: .95; letter-spacing: .02em; color: var(--c-white); }
 .dsp-dates { display: inline-block; margin: 0 0 14px; padding: 4px 14px; background: #ccff33; color: #0c2340; border-radius: 999px; font-weight: 800; }
 .dsp-text { margin: 0 0 20px; line-height: 1.5; font-size: 1rem; }
+.dsp-text strong { color: var(--c-white); }
 .dsp-actions { display: flex; flex-direction: column; gap: 10px; }
 /* Butoane: plate, fără animații/tranziții/hover */
 .dsp-btn { padding: 13px 18px; border: 0; border-radius: 12px; cursor: pointer; font: 800 1rem var(--font-main); transition: none; animation: none; transform: none; }
 .dsp-btn.primary { background: var(--c-accent); color: var(--c-base); }
 .dsp-btn.secondary { background: rgba(255,255,255,.1); color: var(--c-white-off); }
 .dsp-btn:focus-visible { outline: 3px solid var(--c-accent-2, #33ccff); outline-offset: 3px; }
-.dsp-fine { margin: 14px 0 0; font-size: .8rem; opacity: .75; }
-.dsp-confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-.dsp-confetti i { position: absolute; top: -14px; width: 9px; height: 14px; border-radius: 2px; opacity: 0; animation: dsp-fall linear forwards; }
-@keyframes dsp-pop { 0% { opacity: 0; transform: scale(.7) rotate(-4deg); } 100% { opacity: 1; transform: none; } }
-@keyframes dsp-fall { 0% { opacity: 1; transform: translateY(0) rotate(0); } 100% { opacity: 1; transform: translateY(110vh) rotate(720deg); } }
-@media (prefers-reduced-motion: reduce) { .dsp-card { animation: none; } .dsp-confetti { display: none; } }
+@keyframes dsp-pop { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .dsp-card { animation: none; } }
 </style>
 <script>
 (function () {
@@ -47,29 +45,15 @@
     wrap.className = 'dsp-back';
     wrap.innerHTML =
       '<div class="dsp-card" role="dialog" aria-modal="true" aria-labelledby="dspTitle">' +
-      '<div class="dsp-star" aria-hidden="true">🎉</div>' +
-      '<p class="dsp-kicker">A început</p>' +
       '<h2 class="dsp-title" id="dspTitle">Discover SSIC</h2>' +
       '<span class="dsp-dates">28 sept – 2 oct</span>' +
-      '<p class="dsp-text">Am pregătit o temă specială pentru săptămâna Discover: culori, stele și multă energie. Vrei s-o încerci?</p>' +
+      '<p class="dsp-text">Am pregătit o temă specială pentru săptămâna Discover. O poți activa acum sau oricând din <strong>footer</strong>, la „Temă Discover”, lângă Accesibilitate.</p>' +
       '<div class="dsp-actions">' +
       '<button type="button" class="dsp-btn primary" data-act="yes">Activează tema Discover</button>' +
       '<button type="button" class="dsp-btn secondary" data-act="no">Rămân pe tema clasică</button>' +
       '</div>' +
-      '<p class="dsp-fine">E opțional. O poți schimba oricând din footer, lângă Accesibilitate. Duminică tema Discover dispare.</p>' +
       '</div>';
     document.body.appendChild(wrap);
-
-    var card = wrap.querySelector('.dsp-card'), box = document.createElement('div'), colors = ['#ff3399', '#33ccff', '#ccff33', '#99ffcc', '#ff6600'];
-    box.className = 'dsp-confetti'; box.setAttribute('aria-hidden', 'true'); wrap.insertBefore(box, card);
-    for (var i = 0; i < 36; i++) {
-      var c = document.createElement('i');
-      c.style.left = Math.random() * 100 + '%';
-      c.style.background = colors[i % colors.length];
-      c.style.animationDuration = (2.2 + Math.random() * 2.2) + 's';
-      c.style.animationDelay = (Math.random() * 1.2) + 's';
-      box.appendChild(c);
-    }
 
     var last = document.activeElement, yes = wrap.querySelector('[data-act=yes]'), no = wrap.querySelector('[data-act=no]');
     function close() { document.removeEventListener('keydown', onKey); wrap.remove(); if (last && last.focus) last.focus(); }
