@@ -26,5 +26,9 @@ collections:
     output: true
     permalink: /avizier/:slug/
 
+# Repo separat de poze (GitHub Pages): https://github.com/prssic/ssic-arhiva
+# Adresa publica poze: https://prssic.github.io/ssic-arhiva
+# Tool local: SSIC-Galerii-Tool/galerii.py
+
 plugins:
   - jekyll-sitemap
