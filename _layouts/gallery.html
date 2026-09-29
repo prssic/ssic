@@ -1,0 +1,245 @@
+---
+layout: default
+---
+{% comment %}
+  Galerie foto permanentă (o pagină = o galerie). Datele vin din _data/galerii/<slug>.json,
+  scris de tool-ul local (galerii-tool/galerii.py). Pozele stau în Cloudflare R2 (g.base):
+  t/ = miniaturi, m/ = pentru lightbox, f/ = originale full-res, descărcate doar din butoanele acestei pagini.
+{% endcomment %}
+{% assign g = site.data.galerii[page.slug] %}
+{% assign base = g.base %}{% unless base %}{% assign base = '/assets/galerii/' | append: page.slug %}{% endunless %}
+<style>
+/* Galeria folosește mereu tema CLASICĂ. Culorile se iau din pagină (currentColor / --accent), deci merg și pe fundal deschis, și pe unul închis. */
+#view-gx { --gx-line: color-mix(in srgb, currentColor 16%, transparent); --gx-soft: color-mix(in srgb, currentColor 7%, transparent); --gx-accent: var(--accent, #2563eb);
+    font-family: var(--font-main, 'DM Sans', 'Helvetica Neue', Arial, sans-serif); }
+#view-gx .gx-wrap { max-width: 1400px; margin: 0 auto; padding: 130px 5vw 80px; min-height: 100vh; box-sizing: border-box; }
+.gx-back { display: inline-flex; align-items: center; gap: 8px; padding: 8px 15px 8px 11px; margin: 0 0 24px; background: var(--gx-soft); color: inherit; text-decoration: none;
+    font: 600 .95rem var(--font-main, sans-serif); border-radius: 999px; box-shadow: 0 0 0 1px var(--gx-line); transition: background .15s, box-shadow .15s; }
+.gx-back:hover { box-shadow: 0 0 0 1px currentColor; }
+.gx-title { font-family: inherit; font-weight: 800; font-size: clamp(2rem, 6vw, 4rem); line-height: 1.05; letter-spacing: -.02em; margin: 0 0 18px; color: inherit; overflow-wrap: anywhere; }
+.gx-meta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 0 0 32px; }
+.gx-chip { padding: 8px 15px; background: var(--gx-soft); border-radius: 999px; font-weight: 600; font-size: .92rem; box-shadow: 0 0 0 1px var(--gx-line); }
+.gx-btn { display: inline-flex; align-items: center; gap: 9px; padding: 10px 18px; background: var(--gx-accent); color: #fff; border: 0; cursor: pointer; font: 700 .95rem var(--font-main, sans-serif);
+    border-radius: 10px; text-decoration: none; }
+.gx-btn:hover { filter: brightness(1.1); }
+.gx-btn[disabled] { opacity: .7; cursor: progress; }
+.gx-parts { display: flex; flex-wrap: wrap; gap: 12px; margin: -12px 0 28px; }
+.gx-parts[hidden] { display: none; }
+.gx-desc { max-width: 60ch; margin: -10px 0 30px; font-size: 1.05rem; line-height: 1.55; }
+.gx-grid { columns: 4 250px; column-gap: 18px; }
+.gx-item { position: relative; break-inside: avoid; margin: 0 0 18px; background: var(--gx-soft); border-radius: 12px; overflow: hidden; box-shadow: 0 0 0 1px var(--gx-line); transition: transform .2s, box-shadow .2s; }
+.gx-item:hover { transform: translateY(-3px); box-shadow: 0 0 0 1px var(--gx-line), 0 10px 26px rgba(0,0,0,.2); }
+.gx-open { display: block; width: 100%; padding: 0; margin: 0; background: transparent; border: 0; cursor: zoom-in; aspect-ratio: var(--w) / var(--h); }
+.gx-open img { display: block; width: 100%; height: 100%; object-fit: cover; background: var(--gx-soft); }
+.gx-dl { position: absolute; right: 10px; bottom: 10px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.62); color: #fff; border-radius: 10px;
+    transition: background .15s, transform .15s; }
+.gx-dl:hover, .gx-dl:focus-visible { background: var(--gx-accent); transform: scale(1.06); }
+.gx-dl svg, .gx-btn svg, .gx-back svg, .gx-lb button svg, .gx-lb a svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.gx-empty { padding: 40px 24px; background: var(--gx-soft); border-radius: 16px; text-align: center; font-weight: 600; box-shadow: 0 0 0 1px var(--gx-line); }
+.gx-note { margin: 36px 0 0; font-size: .9rem; opacity: .75; }
+@media (max-width: 600px) { .gx-grid { columns: 2 140px; column-gap: 12px; } .gx-item { margin-bottom: 12px; } .gx-dl { width: 38px; height: 38px; right: 7px; bottom: 7px; } #view-gx .gx-wrap { padding-top: 110px; } }
+
+/* Lightbox propriu (cu descărcare) */
+.gx-lb { position: fixed; inset: 0; z-index: 9300; display: none; background: rgba(8,10,14,.96); touch-action: pan-y; }
+.gx-lb.open { display: block; }
+.gx-lb-stage { position: absolute; inset: 64px 12px 12px; display: flex; align-items: center; justify-content: center; }
+.gx-lb-stage img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; }
+.gx-lb-bar { position: absolute; top: 0; left: 0; right: 0; height: 64px; display: flex; align-items: center; gap: 10px; padding: 0 12px; color: #fff; font-weight: 700; }
+.gx-lb-bar .sp { flex: 1; }
+.gx-lb button, .gx-lb a.gx-lb-dl { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 44px; height: 44px; padding: 0 12px; background: rgba(255,255,255,.14); color: #fff; border: 0; border-radius: 10px; cursor: pointer;
+    font: 700 .9rem var(--font-main, sans-serif); text-decoration: none; transition: background .15s; }
+.gx-lb button:hover, .gx-lb a.gx-lb-dl:hover { background: rgba(255,255,255,.26); }
+.gx-lb a.gx-lb-dl { background: var(--gx-accent, #2563eb); }
+.gx-lb a.gx-lb-dl:hover { filter: brightness(1.1); background: var(--gx-accent, #2563eb); }
+.gx-lb .gx-nav { position: absolute; top: 50%; margin-top: -22px; z-index: 2; }
+.gx-lb .gx-prev { left: 12px; } .gx-lb .gx-next { right: 12px; }
+.gx-lb button:focus-visible, .gx-lb a:focus-visible, .gx-btn:focus-visible, .gx-open:focus-visible, .gx-dl:focus-visible, .gx-back:focus-visible { outline: 3px solid var(--gx-accent, #2563eb); outline-offset: 3px; }
+@media (max-width: 600px) { .gx-lb .gx-dl-label { display: none; } }
+@media (prefers-reduced-motion: reduce) { .gx-item, .gx-back, .gx-dl { transition: none; } }
+</style>
+
+<script>
+/* Galeria e mereu pe tema CLASICĂ, indiferent de ce a ales vizitatorul (preferința salvată nu se modifică).
+   Scoatem clasele Discover acum și după ce default.html își aplică tema la încărcare. */
+(function () {
+  function classic() { document.documentElement.classList.remove('ds-theme', 'ds-forced'); }
+  classic();
+  document.addEventListener('DOMContentLoaded', classic);
+  window.addEventListener('load', classic);
+  window.addEventListener('pageshow', classic);
+})();
+</script>
+
+<section class="view active" id="view-gx">
+  <div class="gx-wrap">
+    <a class="gx-back" href="/discover/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Discover</a>
+    {% if g %}
+    <h1 class="gx-title">{{ g.title | escape }}</h1>
+    <div class="gx-meta">
+      {% if g.date %}<span class="gx-chip">{{ g.date | escape }}</span>{% endif %}
+      <span class="gx-chip">{{ g.photos.size }} poze</span>
+      {% if g.photos.size > 0 %}
+      <button class="gx-btn" id="gxAll" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg><span>Descarcă toate (.zip)</span></button>
+      {% endif %}
+    </div>
+    <div class="gx-parts" id="gxParts" hidden></div>
+    {% if g.description and g.description != '' %}<p class="gx-desc">{{ g.description | escape }}</p>{% endif %}
+
+    {% if g.photos.size > 0 %}
+    <div class="gx-grid" id="gxGrid" data-no-lightbox>
+      {% for p in g.photos %}
+      <figure class="gx-item" style="--w:{{ p.w }};--h:{{ p.h }}">
+        <button class="gx-open" type="button" data-i="{{ forloop.index0 }}" aria-label="Deschide poza {{ forloop.index }} din {{ g.photos.size }}"
+                data-view="{{ base }}/m/{{ p.thumb }}" data-full="{{ base }}/f/{{ p.file }}" data-name="{{ p.file }}" data-size="{{ p.size | default: 0 }}">
+          <img src="{{ base }}/t/{{ p.thumb }}" width="{{ p.w }}" height="{{ p.h }}" loading="lazy" decoding="async" alt="Poză {{ forloop.index }} din {{ g.title | escape }}">
+        </button>
+        <a class="gx-dl" href="{{ base }}/f/{{ p.file }}" download="{{ p.file }}" aria-label="Descarcă poza {{ forloop.index }} în rezoluție completă" title="Descarcă (rezoluție completă)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg>
+        </a>
+      </figure>
+      {% endfor %}
+    </div>
+    <p class="gx-note">Pozele se descarcă în rezoluție completă, exact cum au fost făcute.</p>
+    {% else %}
+    <div class="gx-empty">Pozele vor apărea aici în curând.</div>
+    {% endif %}
+    {% else %}
+    <h1 class="gx-title">Galerie indisponibilă</h1>
+    <div class="gx-empty">Nu am găsit datele acestei galerii (<code>_data/galerii/{{ page.slug }}.json</code>).</div>
+    {% endif %}
+  </div>
+  <footer class="global-footer"></footer>
+</section>
+
+<div class="gx-lb" id="gxLb" role="dialog" aria-modal="true" aria-label="Vizualizare poză" hidden>
+  <div class="gx-lb-bar">
+    <span id="gxCount"></span><span class="sp"></span>
+    <a class="gx-lb-dl" id="gxLbDl" href="#" download><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg><span class="gx-dl-label">Descarcă</span></a>
+    <button type="button" id="gxClose" aria-label="Închide"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <button type="button" class="gx-nav gx-prev" id="gxPrev" aria-label="Poza anterioară"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <button type="button" class="gx-nav gx-next" id="gxNext" aria-label="Poza următoare"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+  <div class="gx-lb-stage"><img id="gxImg" alt=""></div>
+</div>
+
+<script>
+(function () {
+  var items = Array.prototype.slice.call(document.querySelectorAll('.gx-open'));
+  var lb = document.getElementById('gxLb');
+  if (!lb) return;
+  document.body.appendChild(lb); lb.hidden = false;   // în afara .view (transform) ca să fie cu adevărat fixed
+  var img = document.getElementById('gxImg'), dl = document.getElementById('gxLbDl'), cnt = document.getElementById('gxCount');
+  var view = document.getElementById('view-gx'), cur = 0, last = null;
+
+  function show(i) {
+    if (!items.length) return;
+    cur = (i + items.length) % items.length;
+    var b = items[cur];
+    img.src = b.dataset.view; img.alt = 'Poză ' + (cur + 1);
+    dl.href = b.dataset.full; dl.setAttribute('download', b.dataset.name);
+    cnt.textContent = (cur + 1) + ' / ' + items.length;
+    [cur + 1, cur - 1].forEach(function (k) { var n = items[(k + items.length) % items.length]; if (n) new Image().src = n.dataset.view; });
+  }
+  function open(i) { last = document.activeElement; show(i); lb.classList.add('open'); view.style.overflow = 'hidden'; document.getElementById('gxClose').focus(); }
+  function close() { lb.classList.remove('open'); view.style.overflow = ''; img.removeAttribute('src'); if (last) last.focus(); }
+
+  items.forEach(function (b, i) { b.addEventListener('click', function () { open(i); }); });
+  document.getElementById('gxClose').onclick = close;
+  document.getElementById('gxPrev').onclick = function () { show(cur - 1); };
+  document.getElementById('gxNext').onclick = function () { show(cur + 1); };
+  lb.addEventListener('click', function (e) { if (e.target === lb || e.target.classList.contains('gx-lb-stage')) close(); });
+  document.addEventListener('keydown', function (e) {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') close(); else if (e.key === 'ArrowLeft') show(cur - 1); else if (e.key === 'ArrowRight') show(cur + 1);
+  });
+  var sx = null;
+  lb.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; }, { passive: true });
+  lb.addEventListener('touchend', function (e) {
+    if (sx === null) return; var dx = e.changedTouches[0].clientX - sx; sx = null;
+    if (Math.abs(dx) > 50) show(cur + (dx < 0 ? 1 : -1));
+  });
+
+  /* ── Descărcare: `download` e ignorat pe alt domeniu (R2), deci luăm fișierul cu fetch și îl salvăm ca blob ── */
+  function saveBlob(blob, name) {
+    var url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+  }
+  async function saveUrl(url, name, el) {
+    if (el) { el.style.opacity = '.5'; el.setAttribute('aria-busy', 'true'); }
+    try { var r = await fetch(url); if (!r.ok) throw new Error(r.status); saveBlob(await r.blob(), name); }
+    catch (err) { window.open(url, '_blank', 'noopener'); }          // fallback: se deschide poza, o salvezi manual
+    if (el) { el.style.opacity = ''; el.removeAttribute('aria-busy'); }
+  }
+  function crossOrigin(href) { try { return new URL(href, location.href).origin !== location.origin; } catch (e) { return false; } }
+  function hookDl(a) {
+    a.addEventListener('click', function (e) {
+      if (!crossOrigin(a.href)) return;                              // același domeniu: `download` nativ
+      e.preventDefault(); saveUrl(a.href, a.getAttribute('download'), a);
+    });
+  }
+  document.querySelectorAll('.gx-dl').forEach(hookDl);
+  hookDl(dl);
+
+  /* ── „Descarcă toate": ZIP fără compresie, construit în browser. Împărțit în arhive de max ~300 MB,
+        ca telefonul/browserul să nu rămână fără memorie la galerii mari. ── */
+  var T = (function () { var t = [], c, n, k; for (n = 0; n < 256; n++) { c = n; for (k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  function crc32(u8) { var c = -1; for (var i = 0; i < u8.length; i++) c = (c >>> 8) ^ T[(c ^ u8[i]) & 255]; return (c ^ -1) >>> 0; }
+  function buildZip(files) {
+    var parts = [], central = [], offset = 0, enc = new TextEncoder(), d = new Date();
+    var time = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1), date = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+    files.forEach(function (f) {
+      var name = enc.encode(f.name), crc = crc32(f.data), h = new DataView(new ArrayBuffer(30));
+      h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true);
+      h.setUint16(10, time, true); h.setUint16(12, date, true); h.setUint32(14, crc, true);
+      h.setUint32(18, f.data.length, true); h.setUint32(22, f.data.length, true); h.setUint16(26, name.length, true); h.setUint16(28, 0, true);
+      parts.push(h.buffer, name, f.data);
+      var c = new DataView(new ArrayBuffer(46));
+      c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(10, 0, true);
+      c.setUint16(12, time, true); c.setUint16(14, date, true); c.setUint32(16, crc, true);
+      c.setUint32(20, f.data.length, true); c.setUint32(24, f.data.length, true); c.setUint16(28, name.length, true); c.setUint32(42, offset, true);
+      central.push(c.buffer, name);
+      offset += 30 + name.length + f.data.length;
+    });
+    var csize = 0; central.forEach(function (p) { csize += p.byteLength || p.length; });
+    var e = new DataView(new ArrayBuffer(22));
+    e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, csize, true); e.setUint32(16, offset, true);
+    return new Blob(parts.concat(central, [e.buffer]), { type: 'application/zip' });
+  }
+  var PART_MAX = 300 * 1048576, groups = [], curG = null;
+  items.forEach(function (b, i) {
+    var sz = parseInt(b.dataset.size, 10) || 5 * 1048576;
+    if (!curG || (curG.size + sz > PART_MAX && curG.idx.length)) { curG = { idx: [], size: 0 }; groups.push(curG); }
+    curG.idx.push(i); curG.size += sz;
+  });
+  function mb(n) { return Math.round(n / 1048576) + ' MB'; }
+  async function downloadGroup(gi, btn) {
+    var g = groups[gi], label = btn.querySelector('span'), orig = label.textContent; btn.disabled = true;
+    try {
+      var files = [];
+      for (var k = 0; k < g.idx.length; k++) {
+        label.textContent = 'Se pregătește… ' + (k + 1) + '/' + g.idx.length;
+        var it = items[g.idx[k]], r = await fetch(it.dataset.full); if (!r.ok) throw new Error(r.status);
+        files.push({ name: it.dataset.name, data: new Uint8Array(await r.arrayBuffer()) });
+      }
+      saveBlob(buildZip(files), '{{ page.slug }}' + (groups.length > 1 ? '-partea-' + (gi + 1) : '') + '.zip');
+    } catch (err) { alert('Nu am putut pregăti arhiva. Poți descărca pozele una câte una.'); }
+    label.textContent = orig; btn.disabled = false;
+  }
+  var all = document.getElementById('gxAll'), partsEl = document.getElementById('gxParts');
+  if (all) {
+    if (groups.length > 1) {
+      groups.forEach(function (g, gi) {
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'gx-btn';
+        b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg><span></span>';
+        b.querySelector('span').textContent = 'Partea ' + (gi + 1) + ' din ' + groups.length + ' · poze ' + (g.idx[0] + 1) + '–' + (g.idx[g.idx.length - 1] + 1) + ' · ~' + mb(g.size);
+        b.addEventListener('click', function () { downloadGroup(gi, b); });
+        partsEl.appendChild(b);
+      });
+      all.addEventListener('click', function () { partsEl.hidden = !partsEl.hidden; all.setAttribute('aria-expanded', String(!partsEl.hidden)); });
+    } else {
+      all.addEventListener('click', function () { downloadGroup(0, all); });
+    }
+  }
+})();
+</script>

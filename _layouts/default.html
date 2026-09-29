@@ -4,10 +4,10 @@
     <script>
         /* Temă site-wide: "clasic" (implicit) sau "discover" (clasa ds-theme pe <html>).
            Aplicată aici, înainte de orice CSS/randare, ca să nu existe flash la încărcare. */
-        /* COMUTATOR TEMĂ: momentan DEZACTIVAT (butonul e ascuns, tema salvată e ignorată).
-           Ca să-l reactivezi: schimbă `false` în `true` de mai jos. Tema Discover rămâne
-           activă doar pe pagina /discover/, care și-o impune singură. */
-        window.SSIC_THEME_SWITCH = false;
+        /* COMUTATOR TEMĂ: activ DOAR până duminică, 4 oct. 2026, 00:00 (ora României). După aceea
+           butonul din footer dispare, popup-ul nu mai apare, iar tema Discover salvată e ignorată
+           (toți vizitatorii revin pe clasic). Ca să-l oprești/pornești manual: pune `false`/`true`. */
+        window.SSIC_THEME_SWITCH = Date.now() < Date.parse('2026-10-04T00:00:00+03:00');
         /* COMUTATOR SECRET: 13 click-uri rapide pe poza lui Constantin Alexandru (Board) schimbă tema
            (vezi JS-ul temei, mai jos) și „deblochează" persistența (ssicThemeUnlocked) doar pe
            browserul respectiv: butonul public rămâne ascuns, ceilalți vizitatori nu văd nicio schimbare. */
@@ -1306,6 +1306,19 @@
         .a11y-trigger:hover, .a11y-trigger.is-active {
             color: var(--c-base); border-color: var(--c-accent); background: var(--c-accent);
         }
+        /* Rând cu butoanele din footer: Accesibilitate + Temă (al doilea apare doar cât timp comutatorul e activ) */
+        .ft-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+        .ft-actions .a11y-trigger { margin-top: 0; }
+        .ft-theme-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            flex-shrink: 0; width: fit-content;
+            appearance: none; -webkit-appearance: none; border: 1px solid var(--c-border-strong);
+            background: rgba(255,255,255,0.04); color: var(--c-white-off);
+            padding: 13px 20px; border-radius: 13px; cursor: pointer;
+            font-family: var(--font-main); font-size: 0.92rem; font-weight: 700; white-space: nowrap;
+        }
+        .ft-theme-btn .lucide { width: 20px; height: 20px; flex-shrink: 0; }
+        .ft-theme-btn:hover, .ft-theme-btn[aria-pressed="true"] { color: var(--c-base); border-color: var(--c-accent); background: var(--c-accent); }
 
         .a11y-overlay {
             position: fixed; inset: 0; z-index: 9200;
@@ -2452,7 +2465,7 @@
         }
 
         /* Butonul de temă: ascuns pe /discover/ (acolo tema e impusă de pagină) */
-        html.ds-forced .nav-theme-btn, html.no-theme-switch .nav-theme-btn { display: none; }
+        .nav-theme-btn, html.ds-forced .ft-theme-btn, html.no-theme-switch .ft-theme-btn { display: none; }   /* comutatorul e acum în footer, lângă Accesibilitate */
         html.ds-theme .nav-theme-btn { color: var(--c-accent); }
 
         /* — Navbar — */
@@ -2499,8 +2512,8 @@
         html.ds-theme .a11y-switch.is-on { background: var(--c-accent); border-color: #0c2340; }
         html.ds-theme .a11y-switch.is-on::after { background: #f5f4e0; }
         html.ds-theme .a11y-step-dots i.is-filled { background: var(--c-accent); }
-        html.ds-theme .a11y-trigger { border: 2.5px solid #0c2340; background: rgba(12, 35, 64, 0.05); }
-        html.ds-theme .a11y-trigger:hover, html.ds-theme .a11y-trigger.is-active { background: var(--c-accent); border-color: #0c2340; color: #f5f4e0; }
+        html.ds-theme .a11y-trigger, html.ds-theme .ft-theme-btn { border: 2.5px solid #0c2340; background: rgba(12, 35, 64, 0.05); }
+        html.ds-theme .a11y-trigger:hover, html.ds-theme .a11y-trigger.is-active, html.ds-theme .ft-theme-btn:hover, html.ds-theme .ft-theme-btn[aria-pressed="true"] { background: var(--c-accent); border-color: #0c2340; color: #f5f4e0; }
         html.ds-theme .a11y-narrator-bar button { background: rgba(12, 35, 64, 0.08); }
         html.ds-theme .a11y-narrator-bar button:hover { background: rgba(178, 74, 168, 0.16); }
 
@@ -2535,7 +2548,7 @@
         :root.ds-theme footer { border-top-width: 3px !important; }
         :root.ds-theme .footer-bottom { border-top-width: 1.5px !important; }
         :root.ds-theme .search-panel, :root.ds-theme .a11y-panel, :root.ds-theme .contact-card { border-width: 3px !important; }
-        :root.ds-theme .soc-icon, :root.ds-theme .a11y-trigger { border-width: 2.5px !important; }
+        :root.ds-theme .soc-icon, :root.ds-theme .a11y-trigger, :root.ds-theme .ft-theme-btn { border-width: 2.5px !important; }
         :root.ds-theme .a11y-switch, :root.ds-theme .a11y-step-btn { border-width: 1px !important; }
         @media (max-width: 768px) {
             :root.ds-theme .nav-links .nav-link { border-width: 2.5px !important; }
@@ -3917,10 +3930,17 @@
                         <a href="#board" class="hover-target" onclick="event.preventDefault(); goToDept('dept-fr');">Fundraising</a><span>·</span>
                         <a href="#board" class="hover-target" onclick="event.preventDefault(); goToDept('dept-ev');">Evenimente</a>
                     </p>
-                    <button type="button" class="a11y-trigger hover-target" id="a11yTriggerBtn" title="Accesibilitate" aria-label="Deschide opțiunile de accesibilitate" aria-haspopup="dialog" aria-expanded="false" aria-controls="a11yOverlay">
+                    <div class="ft-actions">
+                        <button type="button" class="a11y-trigger hover-target" id="a11yTriggerBtn" title="Accesibilitate" aria-label="Deschide opțiunile de accesibilitate" aria-haspopup="dialog" aria-expanded="false" aria-controls="a11yOverlay">
                         <i data-lucide="accessibility"></i>
                         <span>Accesibilitate</span>
                     </button>
+                        ${window.SSIC_THEME_SWITCH ? `
+                        <button type="button" class="ft-theme-btn hover-target" aria-pressed="false" title="Treci la tema Discover SSIC" aria-label="Schimbă tema: clasic sau Discover SSIC">
+                            <i data-lucide="palette"></i>
+                            <span>Temă Discover</span>
+                        </button>` : ''}
+                    </div>
                 </div>
             </div>
             <div class="footer-bottom">
@@ -6163,10 +6183,10 @@
 
             function sync() {
                 const on = root.classList.contains('ds-theme');
-                if (btn) {
-                    btn.setAttribute('aria-pressed', String(on));
-                    btn.title = on ? 'Treci la tema clasică' : 'Treci la tema Discover SSIC';
-                }
+                document.querySelectorAll('#navThemeBtn, .ft-theme-btn').forEach((b) => {
+                    b.setAttribute('aria-pressed', String(on));
+                    b.title = on ? 'Treci la tema clasică' : 'Treci la tema Discover SSIC';
+                });
                 if (on) buildLayer(); else removeLayer();
             }
 
@@ -6180,6 +6200,13 @@
                 setTheme(root.classList.contains('ds-theme') ? 'classic' : 'discover');
                 if (typeof haptic === 'function') haptic(10);
             });
+            // Butonul din footer (poate exista în mai multe footere, deci delegare de eveniment)
+            document.addEventListener('click', (e) => {
+                if (!(e.target.closest && e.target.closest('.ft-theme-btn'))) return;
+                setTheme(root.classList.contains('ds-theme') ? 'classic' : 'discover');
+                if (typeof haptic === 'function') haptic(10);
+            });
+            window.ssicSetTheme = setTheme;   // folosit de popup-ul Discover (_includes/discover-popup.html)
 
             // bfcache: revenirea pe pagină trebuie să respecte tema salvată (mai puțin pe /discover/, unde e impusă)
             window.addEventListener('pageshow', (e) => {
@@ -6337,5 +6364,6 @@
             document.addEventListener('visibilitychange', () => { if (!document.hidden && !finished) tick(); });
         })();
     </script>
+    {% include discover-popup.html %}
 </body>
 </html>

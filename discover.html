@@ -216,6 +216,15 @@ html.ds-scrolled .ds-scroll-cue { opacity: 0; }
 /* Pilulele își păstrează conturul navy (default.html are un `* { border-width: 0 !important }` global) */
 :root.ds-theme .ds-pill { border-width: 3px !important; }
 
+
+/* Pilula din primul rând e link către galeria foto */
+.ds-pill-link { text-decoration: none; color: inherit; cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; }
+.ds-pill-link:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 #1a2a5e; }
+.ds-pill-link:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 #1a2a5e; }
+.ds-pill-link:focus-visible { outline: 3px solid #ff3399; outline-offset: 3px; }
+.ds-pill-link .ds-glitch { padding-right: 26px; box-sizing: border-box; }
+.ds-pill-cam { position: absolute; right: 12px; top: 50%; margin-top: -10px; }
+
 /* Ascunde umbra de sus din default.html */
 .page-content::before { display: none !important; }
 
@@ -288,7 +297,10 @@ html.ds-io .ds-row.in { animation-play-state: running; animation-delay: 0s; }
        fără să o modifice: pe celelalte pagini rămâne tema aleasă din butonul din navbar.
        Tema propriu-zisă (culori, fonturi, fundal, stickere, navbar, search, accesibilitate,
        footer) e definită site-wide în default.html. */
-    document.documentElement.classList.add('ds-theme', 'ds-forced');
+    /* După duminică (4 oct. 2026, 00:00, ora României) tema Discover dispare și pagina nu mai o impune. */
+    if (Date.now() < Date.parse('2026-10-04T00:00:00+03:00')) {
+        document.documentElement.classList.add('ds-theme', 'ds-forced');
+    }
 </script>
 
 <script>
@@ -380,9 +392,12 @@ html.ds-io .ds-row.in { animation-play-state: running; animation-delay: 0s; }
                     28<div class="ds-day">LUNI</div>
                 </div>
             </div>
-                <div class="ds-pill">
+                <!-- Prima activitate: tap → galeria foto permanentă (slug-ul = cel din tool-ul local) -->
+            <a class="ds-pill ds-pill-link" href="/galerii/discover-luni/">
+                <span class="sr-only">Galerie foto: </span>
                 <span class="ds-glitch"></span>
-            </div>
+                <svg class="ds-pill-cam" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0c2340" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+            </a>
         </div>
 
         <!-- Rândul 2 -->
