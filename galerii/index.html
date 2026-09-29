@@ -47,7 +47,7 @@ html.ds-theme .gi-card:hover { box-shadow: 0 8px 32px color-mix(in srgb, #f5f5f5
     <h1 class="gi-heading">Galerii foto</h1>
     <p class="gi-sub">Amintiri din evenimentele SSIC.</p>
 
-    {% assign galerii = site.data.galerii | sort %}
+    {% if site.data.galerii %}{% assign galerii = site.data.galerii | sort %}{% else %}{% assign galerii = "" | split: "" %}{% endif %}
     {% if galerii.size > 0 %}
     <div class="gi-grid">
       {% for entry in galerii reversed %}
