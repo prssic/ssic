@@ -2,15 +2,11 @@
 <html lang="ro">
 <head>
     <script>
-           Aplicată aici, înainte de orice CSS/randare, ca să nu existe flash la încărcare. */
-        /* COMUTATOR TEMĂ: activ DOAR până duminică, 4 oct. 2026, 00:00 (ora României). După aceea
-           butonul din footer dispare, popup-ul nu mai apare, iar tema Discover salvată e ignorată
-           (toți vizitatorii revin pe clasic). Ca să-l oprești/pornești manual: pune `false`/`true`. */
         (function () {
-            var root = document.documentElement;
-            var unlocked = false;
-            try { unlocked = localStorage.getItem('ssicThemeUnlocked') === '1'; } catch (e) { /* ignorăm */ }
-            catch (e) { /* ignorăm */ }
+            try {
+                localStorage.removeItem('ssicTheme');
+                localStorage.removeItem('ssicThemeUnlocked');
+            } catch (e) {}
         })();
     </script>
     <meta charset="UTF-8">
@@ -1305,20 +1301,7 @@
         .a11y-trigger:hover, .a11y-trigger.is-active {
             color: var(--c-base); border-color: var(--c-accent); background: var(--c-accent);
         }
-        /* Rând cu butoanele din footer: Accesibilitate + Temă (al doilea apare doar cât timp comutatorul e activ) */
-        .ft-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
-        .ft-actions .a11y-trigger { margin-top: 0; }
-        .ft-theme-btn {
-            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-            flex-shrink: 0; width: fit-content;
-            appearance: none; -webkit-appearance: none; border: 1px solid var(--c-border-strong);
-            background: rgba(255,255,255,0.04); color: var(--c-white-off);
-            padding: 13px 20px; border-radius: 13px; cursor: pointer;
-            font-family: var(--font-main); font-size: 0.92rem; font-weight: 700; white-space: nowrap;
-        }
-        .ft-theme-btn .lucide { width: 20px; height: 20px; flex-shrink: 0; }
-        .ft-theme-btn:hover, .ft-theme-btn[aria-pressed="true"] { color: var(--c-base); border-color: var(--c-accent); background: var(--c-accent); }
-
+        
         .a11y-overlay {
             position: fixed; inset: 0; z-index: 9200;
             display: flex; align-items: center; justify-content: center; padding: 6vh 5vw;
@@ -1940,8 +1923,7 @@
             .cereri-row2 .cereri-field:last-child .cereri-field-tooltip { left: 0; right: auto; }
             .cereri-field-tooltip { max-width: 100%; }
         }
-
-        .cereri-generate-btn {
+                .cereri-generate-btn {
             width: 100%; display: block; text-align: center;
             font-family: var(--font-main); font-weight: 800; font-size: 1.02rem;
             color: var(--c-base); background: var(--c-accent);
@@ -1970,12 +1952,11 @@
         .cereri-toast span { white-space: normal; line-height: 1.45; padding-left: 6px; }
         .a11y-narrator-bar.is-visible ~ .cereri-toast.is-visible { bottom: 84px; }
 
-        /* Tema Discover — aceleași cutii „sticker" cu umbră dublă ca restul cardurilor */
-            background: var(--c-base); border: none; box-shadow: var(--ds-card-sm); border-radius: 20px;
-        }
-
+                html.ds-theme .cereri-intro-card::before { display: none; }
+        html.ds-theme .cereri-generate-btn {
             border-radius: 999px; box-shadow: 0 0 0 2.5px var(--ds-navy); color: var(--ds-navy);
         }
+        html.ds-theme .cereri-field input, html.ds-theme .cereri-field select, html.ds-theme .cereri-field textarea {
             border-radius: 14px; border-width: 2.5px; border-color: var(--ds-navy); color: var(--ds-navy); background: #fff;
         }
 
@@ -2024,11 +2005,7 @@
         .cereri-other-toggle-sub { display: block; font-weight: 600; font-size: 0.85rem; color: var(--c-base); opacity: 0.75; margin-top: 2px; }
         .cereri-other-chevron { flex-shrink: 0; width: 20px; height: 20px; color: var(--c-base); transition: transform var(--transition-fast); }
         .cereri-other-toggle[aria-expanded="true"] .cereri-other-chevron { transform: rotate(180deg); }
-            border-radius: 999px; box-shadow: 0 0 0 2.5px var(--ds-navy); background: transparent;
-        }
-
-
-        .cereri-other-body {
+                .cereri-other-body {
             display: grid; grid-template-rows: 0fr; opacity: 0;
             transition: grid-template-rows var(--transition-fast, .25s) ease, opacity var(--transition-fast, .25s) ease;
         }
@@ -2059,14 +2036,7 @@
         @media (max-width: 600px) {
             .cereri-other-card { padding: 22px 18px 24px; }
         }
-            background: var(--c-base); border: none; box-shadow: var(--ds-card-sm); border-radius: 20px;
-        }
-
-
-
-            border-color: var(--ds-pink);
-        }
-
+        
         /* Popup de verificare a datelor (înainte de descărcarea PDF-ului) */
         .cereri-confirm-card { max-width: 460px; padding: 28px 28px 24px; }
         .cereri-confirm-card h3 { font-size: 1.35rem; margin: 0 0 4px; }
@@ -2092,12 +2062,7 @@
             .cereri-confirm-card { padding: 24px 20px 20px; }
             .cereri-confirm-actions { flex-direction: column-reverse; }
         }
-
-
-            background: var(--c-base); border: none; border-radius: 999px;
-            box-shadow: 0 0 0 2.5px var(--ds-navy); color: var(--ds-navy);
-        }
-
+        
         /* Fără highlight vizual la rezultatul spre care s-a navigat — doar scroll până la el,
            fără chenar/glow/animație de niciun fel, cerut explicit. */
 
@@ -2353,386 +2318,7 @@
             }
         }
 
-        /* ==========================================================================
-           TEMA „DISCOVER SSIC" — site-wide, comutabilă (clasic ⇄ discover)
-           localStorage.ssicTheme). Site-ul e construit pe tokeni (var), deci tema
-           = pagina /discover/, care își impune tema indiferent de preferință.
-           ========================================================================== */
-        @font-face {
-            font-family: 'Stinger Fit';
-            src: url('/assets/fonts/StingerFit-Bold.ttf') format('truetype');
-            font-weight: bold; font-style: normal; font-display: swap;
-        }
-        @font-face {
-            font-family: 'Stinger Fit';
-            src: url('/assets/fonts/StingerFit-Regular.otf') format('opentype');
-            font-weight: normal; font-style: normal; font-display: swap;
-        }
-
-            --c-base: #f5f4e0;
-            --c-surface: #fbfae8;
-            --c-surface-elevated: #f5f4e0;
-            --c-primary: #a3379a;
-            --c-primary-light: #bd5db4;
-            --c-accent: #a3379a;              /* orhidee închis: 5.3:1 pe crem (înainte #b24aa8 = 4.3:1) */
-            --c-accent-glow: rgba(163, 55, 154, 0.4);
-            --c-accent-2: #1387ad;
-            --c-accent-2-glow: rgba(19, 135, 173, 0.32);
-            --c-white: #0c2340;
-            --c-white-off: #0c2340;
-            --c-gray: rgba(12, 35, 64, 0.8);
-            --c-border-hairline: rgba(12, 35, 64, 0.1);
-            --c-border-soft: rgba(12, 35, 64, 0.14);
-            --c-border: rgba(12, 35, 64, 0.2);
-            --c-border-strong: rgba(12, 35, 64, 0.32);
-            --c-border-med: rgba(12, 35, 64, 0.4);
-            --c-overlay-hover: rgba(255, 112, 182, 0.22);
-            --c-shadow-1: rgba(12, 35, 64, 0.28);
-            --c-shadow-2: rgba(12, 35, 64, 0.36);
-            --c-nav-bg: rgba(245, 244, 224, 0.92);
-            --c-nav-bg-solid: rgba(245, 244, 224, 0.98);
-            --c-footer-bg: #f5f4e0;
-            --c-cursor-ring: rgba(12, 35, 64, 0.5);
-            --c-scheme: light;
-            color-scheme: light;
-
-            --font-main: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
-            --font-display: 'Stinger Fit', Impact, 'Arial Black', sans-serif;
-
-            /* ── Paleta afișului Discover SSIC ──
-               Fundal VIU (orhidee + lămâie), fără halftone, peste tot — nu mai există varianta pastel; lizibilitatea
-               vine din „stickere": textul mic stă pe cardurile crem cu contur navy + umbră dură,
-               exact ca pastilele din afiș. Doar titlurile mari stau direct pe carouri. */
-            --ds-navy: #0c2340;
-            --ds-orchid: #bd5db4;    /* navy pe orhidee = 4.05:1 */
-            --ds-lemon: #f2f56a;
-            --ds-pink: #ff70b6;      /* insigna „28 LUNI" */
-            --ds-cyan: #35c8f2;      /* „29 MARȚI" */
-            --ds-sun: #f8e83e;       /* „30 MIERCURI" */
-            --ds-mint: #b8f0a4;      /* „1 JOI" */
-            --ds-orange: #fa7a24;    /* „2 VINERI" */
-            --ds-card: 0 0 0 3px #0c2340, 6px 7px 0 3px #0c2340;
-            --ds-card-sm: 0 0 0 2.5px #0c2340, 4px 5px 0 2.5px #0c2340;
-            --ds-card-hover: 0 0 0 3px #0c2340, 9px 11px 0 3px #0c2340;
-            /* saturate(2) era pensat pt. fundal închis; peste carourile vii „ardea" culorile în noroi */
-            --glass-saturation: 1;
-        }
-
-        /* Fundal static, fix: pe <html> (canvas). Body/.app transparente, ca straturile din spate să se vadă. */
-            background-color: var(--ds-orchid) !important;
-            background-image: repeating-conic-gradient(var(--ds-orchid) 0% 25%, var(--ds-lemon) 0% 50%) !important;
-            background-size: 104px 104px !important;
-            background-attachment: fixed !important;
-        }
-
-
-        /* Stickere care cad lin, STRICT în fundal (sub navbar, conținut și footer) */
-        .ds-floaters {
-            position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
-            opacity: 1;
-        }
-        .ds-float { position: absolute; top: 0; will-change: transform; animation: dsFall var(--dur, 40s) linear var(--delay, 0s) infinite; }
-        .ds-float img {
-            display: block; width: 100%; height: 100%; object-fit: contain;
-            filter: drop-shadow(4px 5px 0 rgba(12, 35, 64, 0.9));
-            animation: dsSway var(--sway-dur, 6s) ease-in-out var(--sway-delay, 0s) infinite alternate;
-        }
-        @keyframes dsFall { from { transform: translateY(-20vh); } to { transform: translateY(120vh); } }
-        @keyframes dsSway {
-            from { transform: translateX(calc(var(--sway, 24px) * -1)) rotate(calc(var(--tilt, 12deg) * -1)); }
-            to   { transform: translateX(var(--sway, 24px)) rotate(var(--tilt, 12deg)); }
-        }
-        html.a11y-reduce-motion .ds-float, html.a11y-reduce-motion .ds-float img { animation: none !important; }
-        html.a11y-reduce-motion .ds-float { top: var(--static-top, 20vh); }
-        @media (prefers-reduced-motion: reduce) {
-            .ds-float, .ds-float img { animation: none !important; }
-            .ds-float { top: var(--static-top, 20vh); }
-        }
-
-        /* Butonul de temă: ascuns pe /discover/ (acolo tema e impusă de pagină) */
-
-        /* — Navbar — */
-
-
-
-
-
-        /* — Meniul mobil (drawer) în temă: butoane crem, contur navy, umbră dură; activ = accent — */
-        @media (max-width: 768px) {
-                font-size: 1.25rem; letter-spacing: 2px; color: #0c2340;
-                background: var(--c-surface-elevated);
-                border: 2.5px solid #0c2340;
-                box-shadow: 4px 4px 0 #0c2340;
-            }
-                background: var(--c-accent); color: #f5f4e0; border-color: #0c2340;
-            }
-
-        }
-
-        /* — Search / accesibilitate / contact: panouri cu contur navy — */
-            border: 3px solid #0c2340; box-shadow: 6px 6px 0 #0c2340;
-        }
-
-
-            font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif; font-weight: 700; letter-spacing: 0.04em;
-        }
-            font-family: 'Stinger Fit', Impact, 'Arial Black', sans-serif; font-weight: 400; letter-spacing: 0.04em;
-        }
-
-        /* — Accesibilitate: stări ACTIVE cu culoarea de accent — */
-
-
-
-
-
-
-
-
-
-
-
-
-        /* — Footer — */
-
-
-
-
-
-
-
-
-
-
-
-        /* — Valori hard-codate pe temă închisă, refăcute pentru tema Discover — */
-
-
-
-        /* Numele și funcția din capul cardului de contact stau pe gradientul închis peste poză —
-           în temă --c-white e navy, deci nu se vedeau; aici rămân crem (și peste contrast ridicat). */
-
-
-
-
-        /* — Bordurile: site-ul are un „experiment fără borduri" global (`* { border-width: 0 !important }`,
-             mai sus). Tema Discover folosește contururi navy ca element de design, deci le reactivăm
-
-
-
-
-
-
-        @media (max-width: 768px) {
-
-        }
-
-        /* — Meniul mobil în temă: sticlă translucidă cu blur (ca în tema clasică), nu fundal crem opac —
-             veșmântul crem e mai transparent, ca blur-ul să se vadă peste carourile din spate.
-             Contrastul ridicat rămâne pe alb opac. — */
-        @media (max-width: 768px) {
-                background: rgba(245, 244, 224, 0.5);
-                backdrop-filter: blur(18px) saturate(1.2);
-                -webkit-backdrop-filter: blur(18px) saturate(1.2);
-            }
-        }
-
-
-        /* ==========================================================================
-           DISCOVER v2 — „sticker pop": componente refăcute după afiș
-           --------------------------------------------------------------------------
-           Ce era greșit înainte:
-           · pastel spălat (#efd3ea/#f6f5c4) în loc de culorile vii ale afișului;
-           · zone „inversate": .horizontal-nav (tab-uri/filtre) și .calendar-item aveau fundal
-             ÎNTUNECAT hard-codat din tema dark, deci rămâneau bare negre în tema deschisă;
-           · text mic direct pe carouri, fără suport.
-           Acum: carduri crem + contur navy + umbră dură, pastile, insigne-stea colorate,
-           culori pop (roz / cyan / galben / mint / portocaliu) pentru stări active și etichete.
-           ========================================================================== */
-
-        /* — Titluri mari: direct pe carouri (ca „DISCOVER SSIC" din afiș), cu tăietură crem discretă — */
-
-            background: linear-gradient(transparent 58%, var(--ds-pink) 58% 93%, transparent 93%);
-            background-size: 100% 100%; -webkit-background-clip: border-box; background-clip: border-box;
-            -webkit-text-fill-color: var(--ds-navy); color: var(--ds-navy);
-            animation: none; padding: 0 0.08em; text-shadow: none;
-        }
-
-        /* — Hero: lăsăm afișul (carourile) să se vadă; videoul + gradientul cremos „spălau" culorile — */
-
-
-            display: inline-block; background: var(--c-base); color: var(--ds-navy);
-            padding: 14px 20px; border-radius: 20px; box-shadow: var(--ds-card-sm);
-        }
-
-        /* — Acasă: cifre + „Cine suntem / Misiunea noastră" pe carduri-sticker — */
-            background: var(--c-base); border-radius: 26px; padding: 22px 28px 24px;
-            box-shadow: var(--ds-card); rotate: -1.2deg;
-        }
-
-
-
-            background: var(--c-base); border-radius: 28px; padding: 30px 34px 26px; box-shadow: var(--ds-card);
-        }
-
-        /* — Blocuri de text (Evenimente / Board / Facultate / Studenți) — */
-            background: var(--c-base); border-radius: 24px; padding: 24px 30px; box-shadow: var(--ds-card);
-        }
-
-
-        /* Titluri de secțiune = etichete-sticker roz (nu mai stau „plutind" pe carouri) */
-            display: inline-block; background: var(--ds-pink); color: var(--ds-navy);
-            padding: 6px 20px 8px; border-radius: 16px; box-shadow: var(--ds-card-sm); rotate: -1deg;
-        }
-
-        /* — Tab-uri / filtre (.horizontal-nav): ERA o bară neagră hard-codată — acum pastilă crem — */
-            width: fit-content; max-width: 100%;
-            background: var(--c-base); border-radius: 999px; padding: 7px; gap: 6px;
-            box-shadow: var(--ds-card-sm);
-        }
-            border-radius: 999px; color: var(--ds-navy); font-family: var(--font-display);
-            font-weight: 700; letter-spacing: 0.05em; padding: 11px 24px;
-        }
-            background: var(--ds-pink); color: var(--ds-navy); box-shadow: 0 0 0 2.5px var(--ds-navy);
-        }
-        @media (hover: hover) and (pointer: fine) {
-
-        }
-
-        /* — Calendar: pastile crem + insigne-stea colorate (ca „28 LUNI" din afiș) — */
-
-            background: var(--c-base); border-radius: 34px; padding: 14px 30px 14px 22px; gap: 22px;
-            box-shadow: var(--ds-card);
-        }
-
-
-
-            width: 96px; height: 96px; border-radius: 0; margin: -20px 0 -20px -8px; position: relative; z-index: 1;
-            background-color: transparent; background-repeat: no-repeat; background-position: center; background-size: contain;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50.00,2.50 L58.68,11.98 L70.61,7.20 L74.32,19.51 L87.14,20.38 L85.14,33.08 L96.31,39.43 L89.00,50.00 L96.31,60.57 L85.14,66.92 L87.14,79.62 L74.32,80.49 L70.61,92.80 L58.68,88.02 L50.00,97.50 L41.32,88.02 L29.39,92.80 L25.68,80.49 L12.86,79.62 L14.86,66.92 L3.69,60.57 L11.00,50.00 L3.69,39.43 L14.86,33.08 L12.86,20.38 L25.68,19.51 L29.39,7.20 L41.32,11.98 Z' fill='%23ff70b6' stroke='%230c2340' stroke-width='3.6' stroke-linejoin='round'/%3E%3C/svg%3E");
-            filter: drop-shadow(3px 4px 0 var(--ds-navy));
-        }
-
-
-
-
-
-
-        @media (max-width: 600px) {
-
-
-
-        }
-
-        /* — Carusel evenimente: cadru navy + buline cu contur; activ = roz (pe carouri se vede oriunde) — */
-
-
-
-            width: 13px; height: 13px; background: var(--c-base); box-shadow: 0 0 0 2.5px var(--ds-navy);
-        }
-
-        /* — Echipă: poze cu fundal pop pe rând, etichete-sticker pentru nume/funcție — */
-
-
-
-
-
-
-
-            background: var(--c-base); color: var(--ds-navy); padding: 4px 14px 6px; border-radius: 14px;
-            box-shadow: var(--ds-card-sm); font-size: 1.3rem; width: fit-content; max-width: 100%;
-        }
-
-
-
-
-
-        /* — Galerie + Instagram: poze „lipite" cu contur și umbră dură — */
-
-
-
-
-        @media (hover: hover) and (pointer: fine) {
-
-
-
-
-
-        }
-
-        /* — Hartă (Studenți) — */
-
-            border-radius: 999px; background: var(--c-base); color: var(--ds-navy);
-            box-shadow: var(--ds-card-sm); font-family: var(--font-display); letter-spacing: 0.04em;
-        }
-
-
-        /* — Cookie, progres, footer — */
-
-
-
-            background: linear-gradient(90deg, var(--ds-pink), var(--ds-sun), var(--ds-cyan), var(--ds-orange), var(--ds-pink));
-            background-size: 300% 100%; box-shadow: none;
-        }
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 18px; pointer-events: none;
-            background: repeating-conic-gradient(var(--ds-orchid) 0% 25%, var(--ds-lemon) 0% 50%) 0 0 / 36px 36px;
-            border-bottom: 3px solid var(--ds-navy);
-        }
-
-
-        /* — Fundalul modalelor (căutare / accesibilitate / contact): în loc de negru 82% + blur 28px + saturate(2),
-             care transforma carourile într-un maro murdar, un văl navy transparent + blur mic → se văd în continuare
-             culorile afișului, doar mai calme și în plan secund — */
-            background: rgba(12, 35, 64, 0.5);
-            backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
-        }
-
-        /* — Bara de narator: avea sticlă închisă hard-codată (rgba(34,22,49,.75)) → „noroi" mov cu text navy.
-             Acum: pastilă crem cu contur + umbră dură (ca bannerul de cookie-uri), butoane cu contur, hover roz — */
-
-            background: var(--c-base); backdrop-filter: none; -webkit-backdrop-filter: none;
-        }
-
-            background: var(--c-base); color: var(--ds-navy); box-shadow: 0 0 0 2px var(--ds-navy);
-        }
-
-        /* — Lightbox în temă: fundal navy, butoane crem cu umbră navy, poză fără umbră, buline galbene — */
-
-        /* Toate butoanele de închidere / înainte-înapoi: crem, contur navy + umbră dură NAVY (fără roz), hover roz */
-            background: var(--c-base); color: var(--ds-navy); border-radius: 14px;
-            box-shadow: 0 0 0 2.5px var(--ds-navy), 3px 3px 0 2.5px var(--ds-navy);
-        }
-            background: var(--ds-pink); color: var(--ds-navy);
-        }
-        /* Poza din lightbox: fără umbră */
-
-
-
-        @media (max-width: 600px) {
-
-
-
-
-
-        }
-        @media (prefers-reduced-motion: reduce) {
-
-
-        }
-
-        /* — Contrast ridicat păstrează prioritate peste tema Discover — */
-            --c-base: #ffffff; --c-surface: #ffffff; --c-surface-elevated: #ffffff;
-            --c-primary: #7a1f73; --c-primary-light: #7a1f73;
-            --c-accent: #7a1f73; --c-accent-glow: rgba(122, 31, 115, 0.5);
-            --c-accent-2: #00506b; --c-accent-2-glow: rgba(0, 80, 107, 0.4);
-            --c-white: #000000; --c-white-off: #000000; --c-gray: #1a1a1a;
-            --c-border-hairline: rgba(0, 0, 0, 0.5); --c-border-soft: rgba(0, 0, 0, 0.55);
-            --c-border: rgba(0, 0, 0, 0.65); --c-border-strong: rgba(0, 0, 0, 0.75);
-            --c-border-med: rgba(0, 0, 0, 0.8); --c-overlay-hover: rgba(0, 0, 0, 0.12);
-            --c-footer-bg: #ffffff; --c-nav-bg: #ffffff; --c-nav-bg-solid: #ffffff;
-            --c-cursor-ring: rgba(0, 0, 0, 0.7);
-            background-image: none !important; background-color: #ffffff !important;
-        }
-
+        
         /* ==========================================================================
            COUNTDOWN — doar pe /discover/ (inserat din JS-ul de la finalul paginii)
            ========================================================================== */
@@ -3878,13 +3464,10 @@
                         <a href="#board" class="hover-target" onclick="event.preventDefault(); goToDept('dept-fr');">Fundraising</a><span>·</span>
                         <a href="#board" class="hover-target" onclick="event.preventDefault(); goToDept('dept-ev');">Evenimente</a>
                     </p>
-                    <div class="ft-actions">
-                        <button type="button" class="a11y-trigger hover-target" id="a11yTriggerBtn" title="Accesibilitate" aria-label="Deschide opțiunile de accesibilitate" aria-haspopup="dialog" aria-expanded="false" aria-controls="a11yOverlay">
+                    <button type="button" class="a11y-trigger hover-target" id="a11yTriggerBtn" title="Accesibilitate" aria-label="Deschide opțiunile de accesibilitate" aria-haspopup="dialog" aria-expanded="false" aria-controls="a11yOverlay">
                         <i data-lucide="accessibility"></i>
                         <span>Accesibilitate</span>
                     </button>
-                        ` : ''}
-                    </div>
                 </div>
             </div>
             <div class="footer-bottom">
@@ -6006,8 +5589,8 @@
                 if (el.matches('a[href], [role="link"]')) kind = 'link';
                 else if (el.matches('[role="tab"]')) kind = 'filă';
                 else if (el.matches('[role="switch"]')) kind = 'comutator, ' + (el.getAttribute('aria-checked') === 'true' ? 'activat' : 'dezactivat');
-                else if (el.matches('.team-member')) kind = '';
-                return kind ? (name ? name + ', ' : '') + kind : name;
+                else if (el.matches('.team-member, .team-member *')) kind = '';
+                return kind ? ((name ? name + ', ' : '') + kind) : name;
             }
 
             document.addEventListener('click', (e) => {
@@ -6074,86 +5657,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
         });
-    </script>
-
-    <script>
-        /* ==========================================================================
-           JS: Temă site-wide (clasic ⇄ discover) + stickere în fundal
-           ========================================================================== */
-        (function () {
-            const root = document.documentElement;
-            const KEY = 'ssicTheme';
-            const btn = document.getElementById('navThemeBtn');
-            const IMAGES = [
-                '/assets/events/discover/smiley.png',
-                '/assets/events/discover/flower.png',
-                '/assets/events/discover/heart.png'
-            ];
-            let layer = null;
-
-            function rnd(min, max) { return Math.random() * (max - min) + min; }
-
-            function buildLayer() {
-                if (layer) return;
-                layer = document.createElement('div');
-                layer.className = 'ds-floaters';
-                layer.setAttribute('aria-hidden', 'true');
-                const isMobile = window.matchMedia('(max-width: 480px)').matches;
-                const COUNT = isMobile ? 5 : 8;
-                for (let i = 0; i < COUNT; i++) {
-                    const size = isMobile ? rnd(38, 64) : rnd(50, 92);
-                    const dur = rnd(34, 54);
-                    const wrap = document.createElement('div');
-                    wrap.className = 'ds-float';
-                    wrap.style.width = wrap.style.height = size + 'px';
-                    wrap.style.left = ((i + rnd(0.05, 0.85)) / COUNT * 96).toFixed(1) + 'vw';
-                    wrap.style.setProperty('--dur', dur.toFixed(1) + 's');
-                    wrap.style.setProperty('--delay', (-rnd(0, dur)).toFixed(1) + 's');
-                    wrap.style.setProperty('--static-top', rnd(5, 85).toFixed(0) + 'vh');
-                    const img = document.createElement('img');
-                    img.src = IMAGES[i % IMAGES.length];
-                    img.alt = '';
-                    img.draggable = false;
-                    img.onerror = function () { wrap.remove(); };
-                    img.style.setProperty('--sway', rnd(14, 36).toFixed(0) + 'px');
-                    img.style.setProperty('--tilt', rnd(8, 18).toFixed(0) + 'deg');
-                    img.style.setProperty('--sway-dur', rnd(4.5, 8).toFixed(1) + 's');
-                    img.style.setProperty('--sway-delay', (-rnd(0, 6)).toFixed(1) + 's');
-                    wrap.appendChild(img);
-                    layer.appendChild(wrap);
-                }
-                // Primul copil al <body>, cu z-index negativ: sub navbar, conținut și footer.
-                document.body.insertBefore(layer, document.body.firstChild);
-            }
-            function removeLayer() { if (layer) { layer.remove(); layer = null; } }
-
-            function sync() {
-                
-                if (on) buildLayer(); else removeLayer();
-            }
-
-            function setTheme(name) {
-                try { localStorage.setItem(KEY, name); } catch (e) { /* ignorăm */ }
-                sync();
-            }
-
-            if (btn) btn.addEventListener('click', () => {
-                if (typeof haptic === 'function') haptic(10);
-            });
-            // Butonul din footer (poate exista în mai multe footere, deci delegare de eveniment)
-            
-            window.ssicSetTheme = setTheme;   // folosit de popup-ul Discover (_includes/discover-popup.html)
-
-            // bfcache: revenirea pe pagină trebuie să respecte tema salvată (mai puțin pe /discover/, unde e impusă)
-            window.addEventListener('pageshow', (e) => {
-                let unlocked = false;
-                try { unlocked = localStorage.getItem('ssicThemeUnlocked') === '1'; } catch (err) { /* ignorăm */ }
-                
-                sync();
-            });
-
-            sync();
-        })();
     </script>
 
     <script>
@@ -6264,6 +5767,5 @@
             document.addEventListener('visibilitychange', () => { if (!document.hidden && !finished) tick(); });
         })();
     </script>
-    {% include discover-popup.html %}
-</body>
+    </body>
 </html>
