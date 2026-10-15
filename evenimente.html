@@ -127,6 +127,13 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
             .idea-card .cereri-field textarea{min-height:130px}
             .idea-counter{margin-top:6px;text-align:right;font-size:0.78rem;font-weight:700;color:var(--c-gray)}
             .idea-card .cereri-generate-btn{margin-top:var(--sp-8)}
+            .idea-card .cereri-field input:-webkit-autofill,
+            .idea-card .cereri-field input:-webkit-autofill:hover,
+            .idea-card .cereri-field input:-webkit-autofill:focus {
+                -webkit-text-fill-color: var(--c-white);
+                -webkit-box-shadow: 0 0 0px 1000px var(--c-base) inset;
+                transition: background-color 5000s ease-in-out 0s;
+            }
             @media (max-width:480px){.idea-card{padding:var(--sp-24) var(--sp-20) var(--sp-20)}}
         </style>
 
@@ -182,8 +189,7 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
 
         <script>
             (function () {
-                // ── Când legăm Google Apps Script: pune aici URL-ul web app-ului (.../exec).
-                //    Cât timp e gol, formularul doar validează și afișează mesajul de succes.
+                // ── URL-ul de Web App din Google Apps Script (trebuie să se termine în /exec)
                 const IDEA_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyMA1RYHm5rWkzkWZJsrMlWa_-wRbX-sCcxCh4sl7w2RODjHykEXdpNUF9GeWIx1f2NQw/exec';
 
                 const overlay = document.getElementById('ideaOverlay');
@@ -267,16 +273,16 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
                     };
                 }
 
-                // Aici se va lega Google Apps Script. Returnează o promisiune; la eroare aruncă.
+                // Aici se leagă Google Apps Script cu no-cors pentru a evita blocajul de redirect.
                 async function sendIdea(data) {
                     if (!IDEA_ENDPOINT) {
                         console.log('[Propune o idee] (fără endpoint încă)', data);
                         await new Promise(r => setTimeout(r, 500));
                         return;
                     }
-                    // text/plain evită preflight-ul CORS, care Apps Script nu îl suportă
                     await fetch(IDEA_ENDPOINT, {
                         method: 'POST',
+                        mode: 'no-cors',
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: JSON.stringify(data)
                     });
