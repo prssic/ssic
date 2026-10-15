@@ -232,6 +232,20 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
                     if (e.key === 'Escape' && overlay.classList.contains('open')) closeIdea();
                 });
 
+                // Deschide automat formularul dacă URL-ul conține #idei sau ?idei
+                function checkAutoOpenIdea() {
+                    const hash = (location.hash || '').replace(/^#/, '').toLowerCase();
+                    const params = new URLSearchParams(location.search);
+                    if (hash === 'idei' || hash === 'propune-o-idee' || params.has('idei')) {
+                        setTimeout(openIdea, 120);
+                        if (history.replaceState) {
+                            history.replaceState(null, '', location.pathname);
+                        }
+                    }
+                }
+                checkAutoOpenIdea();
+                window.addEventListener('hashchange', checkAutoOpenIdea);
+
                 area.addEventListener('input', () => { counter.textContent = area.value.length + ' / ' + area.maxLength; });
 
                 // Tooltip de eroare — același stil ca la Cereri
