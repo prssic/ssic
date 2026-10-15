@@ -9,10 +9,6 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
             <div class="page-content">
                 <h1 class="title-huge"><i>Evenimente</i></h1>
 
-                <!-- Un singur rând de tab-uri: Calendar primul, apoi cele 3 evenimente — cerut
-                     explicit ca Calendar să apară înaintea tuturor evenimentelor, nu la final.
-                     switchEventItem (mai jos) tratează ambele cazuri și ține panourile
-                     sincronizate; ordinea butoanelor nu afectează logica, doar poziția vizuală. -->
                 <div class="horizontal-nav" id="nav-evenimente">
                     <div class="horizontal-tab active hover-target" onclick="switchEventItem('calendar', null, this)">Calendar</div>
                     <div class="horizontal-tab hover-target" onclick="switchEventItem('event', 0, this)">ChemistryFest</div>
@@ -20,8 +16,6 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
                     <div class="horizontal-tab hover-target" onclick="switchEventItem('event', 2, this)">ChemEx</div>
                 </div>
 
-                <!-- Buton "Propune o idee": e în afara panourilor, deci apare pe toate tab-urile
-                     (Calendar, ChemistryFest, PoliFest, ChemEx). -->
                 <button type="button" class="idea-open-btn hover-target" id="ideaOpenBtn" aria-haspopup="dialog" aria-controls="ideaOverlay">
                     <i data-lucide="lightbulb"></i>
                     <span>Propune o idee</span>
@@ -42,10 +36,6 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
                     </div>
                 </div><!-- /evsub-calendar -->
 
-                <!-- Poze evenimente: creează folderul assets/events/ lângă acest index.html și
-                     pune acolo poza pentru fiecare eveniment, denumită exact ca în src="..." de mai
-                     jos (ex. poli-chemistry-fest-1.jpg). Dacă un fișier lipsește, acel slide dispare
-                     automat din carusel (fără poză spartă vizibilă). -->
                 <div class="event-content-wrapper" id="ev-0">
                     <div class="event-desc reveal">
                         <p>ChemistryFest reprezintă cel mai important eveniment anual al Facultății de Inginerie Chimică și Biotehnologii și al Societății Studenților în Inginerie Chimică și Biotehnologii. An de an, aducem știința direct în fața publicului larg printr-un maraton de experimente inedite, care reprezintă doar o mică parte din ceea ce un student învață la FICBi.</p><br>
@@ -121,10 +111,12 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
             .idea-open-btn:active{transform:scale(0.96)}
             @media (hover:hover){.idea-open-btn:hover{background:var(--c-accent-2)}}
             @media (max-width:768px){.idea-open-btn{margin-bottom:var(--sp-32);padding:var(--sp-12) var(--sp-20);font-size:0.92rem}}
-            .idea-card{max-width:560px;padding:var(--sp-32) var(--sp-32) var(--sp-24)}
-            .idea-card h3{font-size:1.35rem;margin:0 var(--sp-48) 4px 0}
+            
+            #ideaOverlay{padding:max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));overflow-y:auto}
+            .idea-card{width:100%;max-width:540px;max-height:calc(100dvh - 32px);padding:var(--sp-32) var(--sp-32) var(--sp-24);margin:auto;border:1px solid var(--c-border-soft)}
+            .idea-card h3{font-size:1.35rem;margin:0 var(--sp-40) 6px 0}
             .idea-card .idea-sub{color:var(--c-gray);font-size:0.92rem;font-weight:500;margin:0 0 var(--sp-24);line-height:1.5}
-            .idea-card .cereri-field textarea{min-height:130px}
+            .idea-card .cereri-field textarea{min-height:120px}
             .idea-counter{margin-top:6px;text-align:right;font-size:0.78rem;font-weight:700;color:var(--c-gray)}
             .idea-card .cereri-generate-btn{margin-top:var(--sp-8)}
             .idea-card .cereri-field input:-webkit-autofill,
@@ -134,15 +126,30 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
                 -webkit-box-shadow: 0 0 0px 1000px var(--c-base) inset;
                 transition: background-color 5000s ease-in-out 0s;
             }
-            @media (max-width:480px){.idea-card{padding:var(--sp-24) var(--sp-20) var(--sp-20)}}
+            
+            /* Optimizare încadrare pe mobil */
+            @media (max-width:600px){
+                #ideaOverlay{padding:12px}
+                .idea-card{padding:22px 18px 18px;border-radius:var(--r-md);max-height:calc(100dvh - 24px)}
+                .idea-card .contact-close-btn{top:12px;right:12px;width:34px;height:34px}
+                .idea-card h3{font-size:1.2rem;margin-bottom:4px}
+                .idea-card .idea-sub{font-size:0.84rem;margin-bottom:16px;line-height:1.4}
+                .idea-card .cereri-row2{grid-template-columns:1fr 1fr;gap:0 10px}
+                .idea-card .cereri-field{margin-bottom:12px}
+                .idea-card .cereri-field label{font-size:0.7rem;margin-bottom:5px;letter-spacing:0.5px}
+                .idea-card .cereri-field input,
+                .idea-card .cereri-field select,
+                .idea-card .cereri-field textarea{font-size:16px;padding:10px 12px}
+                .idea-card .cereri-field select{padding-right:30px;background-position:right 10px center}
+                .idea-card .cereri-field textarea{min-height:88px}
+                .idea-card .cereri-generate-btn{padding:13px;font-size:0.96rem;margin-top:4px}
+            }
+            @media (max-width:360px){
+                .idea-card .cereri-row2{grid-template-columns:1fr}
+            }
         </style>
 
-        <!-- Modal formular idei. Reutilizează clasele din pagina Studenți > Cereri
-             (cereri-field, cereri-row2, cereri-generate-btn, tooltip-urile de eroare) și
-             overlay-ul din layout (contact-overlay / contact-card), deci arată identic.
-             Este mutat în <body> la încărcare (vezi script), altfel position:fixed ar fi
-             relativ la .view (care are transform) și nu ar acoperi tot ecranul. -->
-        <div class="contact-overlay" id="ideaOverlay" role="dialog" aria-modal="true" aria-labelledby="ideaTitle" aria-hidden="true">
+        <div class="contact-overlay{% if page.open_idea %} open{% endif %}" id="ideaOverlay" role="dialog" aria-modal="true" aria-labelledby="ideaTitle" aria-hidden="{% if page.open_idea %}false{% else %}true{% endif %}">
             <div class="contact-card idea-card">
                 <button type="button" class="contact-close-btn hover-target" id="ideaClose" aria-label="Închide"><i data-lucide="x"></i></button>
                 <h3 id="ideaTitle">Propune o idee</h3>
@@ -189,7 +196,6 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
 
         <script>
             (function () {
-                // ── URL-ul de Web App din Google Apps Script (trebuie să se termine în /exec)
                 const IDEA_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyMA1RYHm5rWkzkWZJsrMlWa_-wRbX-sCcxCh4sl7w2RODjHykEXdpNUF9GeWIx1f2NQw/exec';
 
                 const overlay = document.getElementById('ideaOverlay');
@@ -202,11 +208,10 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
                 const counter = document.getElementById('ideaCounter');
                 if (!overlay || !openBtn || !form) return;
 
-                // mută modalul la nivel de <body>, ca restul overlay-urilor din site
                 document.body.appendChild(overlay);
                 if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
 
-                let lastFocused = null;
+                let lastFocused = openBtn;
                 function setStatus(msg, cls) {
                     statusEl.textContent = msg || '';
                     statusEl.className = 'cereri-status' + (cls ? ' ' + cls : '');
@@ -223,6 +228,9 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
                     overlay.classList.remove('open');
                     overlay.setAttribute('aria-hidden', 'true');
                     clearFieldError();
+                    if (history.replaceState && location.pathname.indexOf('/idei') === 0) {
+                        history.replaceState(null, '', '/evenimente/');
+                    }
                     if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
                 }
                 openBtn.addEventListener('click', openIdea);
@@ -232,13 +240,12 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
                     if (e.key === 'Escape' && overlay.classList.contains('open')) closeIdea();
                 });
 
-                // Deschide automat formularul dacă URL-ul conține #idei sau ?idei
                 function checkAutoOpenIdea() {
                     const hash = (location.hash || '').replace(/^#/, '').toLowerCase();
                     const params = new URLSearchParams(location.search);
-                    if (hash === 'idei' || hash === 'propune-o-idee' || params.has('idei')) {
-                        setTimeout(openIdea, 120);
-                        if (history.replaceState) {
+                    if (location.pathname.indexOf('/idei') === 0 || hash === 'idei' || hash === 'propune-o-idee' || params.has('idei')) {
+                        if (!overlay.classList.contains('open')) openIdea();
+                        if (history.replaceState && hash) {
                             history.replaceState(null, '', location.pathname);
                         }
                     }
@@ -248,7 +255,6 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
 
                 area.addEventListener('input', () => { counter.textContent = area.value.length + ' / ' + area.maxLength; });
 
-                // Tooltip de eroare — același stil ca la Cereri
                 function clearFieldError() {
                     const old = form.querySelector('.cereri-field-tooltip');
                     if (old) old.remove();
@@ -287,10 +293,8 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
                     };
                 }
 
-                // Aici se leagă Google Apps Script cu no-cors pentru a evita blocajul de redirect.
                 async function sendIdea(data) {
                     if (!IDEA_ENDPOINT) {
-                        console.log('[Propune o idee] (fără endpoint încă)', data);
                         await new Promise(r => setTimeout(r, 500));
                         return;
                     }
@@ -335,11 +339,6 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
         </script>
 
         <script>
-            // Înlocuiește vechea pereche switchEvent / switchEventSub (cele două rânduri de
-            // tab-uri separate: "Evenimente vs. Calendar" deasupra, "Poli Chemistry Fest /
-            // Poli Fest / ChemEx" dedesubt) cu UN singur rând, patru butoane, un singur
-            // sistem de comutare. Reutilizează swapTabPanel/haptic din layout (default.html),
-            // care rulează deja pe pagină — nu redefinim acea logică aici.
             function switchEventItem(kind, index, el) {
                 if (el && el.classList.contains('active')) return;
                 if (typeof haptic === 'function') haptic(8);
@@ -350,6 +349,5 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
                 const nextId = kind === 'calendar' ? 'evsub-calendar' : `ev-${index}`;
                 const next = document.getElementById(nextId);
                 if (typeof swapTabPanel === 'function') swapTabPanel(panels, next);
-
-                }
-          </script>
+            }
+        </script>
