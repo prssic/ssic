@@ -20,6 +20,13 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
                     <div class="horizontal-tab hover-target" onclick="switchEventItem('event', 2, this)">ChemEx</div>
                 </div>
 
+                <!-- Buton "Propune o idee": e în afara panourilor, deci apare pe toate tab-urile
+                     (Calendar, ChemistryFest, PoliFest, ChemEx). -->
+                <button type="button" class="idea-open-btn hover-target" id="ideaOpenBtn" aria-haspopup="dialog" aria-controls="ideaOverlay">
+                    <i data-lucide="lightbulb"></i>
+                    <span>Propune o idee</span>
+                </button>
+
                 <div class="evsub active" id="evsub-calendar">
                     <div class="calendar-section reveal">
                         <h2><i data-lucide="calendar-days" style="color:var(--c-accent); margin-right:10px;"></i>Calendar</h2>
@@ -107,6 +114,205 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
             </div>
             <footer class="global-footer"></footer>
         </section>
+
+        <style>
+            .idea-open-btn{display:inline-flex;align-items:center;gap:var(--sp-12);margin:calc(var(--sp-8) * -1) 0 var(--sp-40);padding:var(--sp-12) var(--sp-24);font-family:var(--font-main);font-size:1rem;font-weight:700;color:var(--c-base);background:var(--c-accent);border:none;border-radius:var(--r-sm);cursor:pointer;transition:transform var(--transition-fast),background 0.25s var(--ease-out)}
+            .idea-open-btn .lucide{width:18px;height:18px}
+            .idea-open-btn:active{transform:scale(0.96)}
+            @media (hover:hover){.idea-open-btn:hover{background:var(--c-accent-2)}}
+            @media (max-width:768px){.idea-open-btn{margin-bottom:var(--sp-32);padding:var(--sp-12) var(--sp-20);font-size:0.92rem}}
+            .idea-card{max-width:560px;padding:var(--sp-32) var(--sp-32) var(--sp-24)}
+            .idea-card h3{font-size:1.35rem;margin:0 var(--sp-48) 4px 0}
+            .idea-card .idea-sub{color:var(--c-gray);font-size:0.92rem;font-weight:500;margin:0 0 var(--sp-24);line-height:1.5}
+            .idea-card .cereri-field textarea{min-height:130px}
+            .idea-counter{margin-top:6px;text-align:right;font-size:0.78rem;font-weight:700;color:var(--c-gray)}
+            .idea-card .cereri-generate-btn{margin-top:var(--sp-8)}
+            @media (max-width:480px){.idea-card{padding:var(--sp-24) var(--sp-20) var(--sp-20)}}
+        </style>
+
+        <!-- Modal formular idei. Reutilizează clasele din pagina Studenți > Cereri
+             (cereri-field, cereri-row2, cereri-generate-btn, tooltip-urile de eroare) și
+             overlay-ul din layout (contact-overlay / contact-card), deci arată identic.
+             Este mutat în <body> la încărcare (vezi script), altfel position:fixed ar fi
+             relativ la .view (care are transform) și nu ar acoperi tot ecranul. -->
+        <div class="contact-overlay" id="ideaOverlay" role="dialog" aria-modal="true" aria-labelledby="ideaTitle" aria-hidden="true">
+            <div class="contact-card idea-card">
+                <button type="button" class="contact-close-btn hover-target" id="ideaClose" aria-label="Închide"><i data-lucide="x"></i></button>
+                <h3 id="ideaTitle">Propune o idee</h3>
+                <p class="idea-sub">Ai o idee pentru un eveniment sau un proiect SSIC? Completează formularul și o vom citi.</p>
+
+                <form id="ideaForm" novalidate>
+                    <div class="cereri-row2">
+                        <div class="cereri-field">
+                            <label for="ideaNume">Nume</label>
+                            <input type="text" id="ideaNume" placeholder="Nume" autocomplete="family-name" required>
+                        </div>
+                        <div class="cereri-field">
+                            <label for="ideaPrenume">Prenume</label>
+                            <input type="text" id="ideaPrenume" placeholder="Prenume" autocomplete="given-name" required>
+                        </div>
+                    </div>
+
+                    <div class="cereri-row2">
+                        <div class="cereri-field">
+                            <label for="ideaAn">An de studiu</label>
+                            <select id="ideaAn" required>
+                                <option value="">Alege...</option>
+                                <option>I</option><option>II</option><option>III</option><option>IV</option>
+                                <option>Master I</option><option>Master II</option>
+                            </select>
+                        </div>
+                        <div class="cereri-field">
+                            <label for="ideaDepartament">Departament</label>
+                            <input type="text" id="ideaDepartament" placeholder="Departamentul tău" required>
+                        </div>
+                    </div>
+
+                    <div class="cereri-field">
+                        <label for="ideaDescriere">Descrierea ideii</label>
+                        <textarea id="ideaDescriere" maxlength="600" placeholder="Pe scurt, care e ideea ta?" required></textarea>
+                        <div class="idea-counter" id="ideaCounter">0 / 600</div>
+                    </div>
+
+                    <button type="submit" class="cereri-generate-btn hover-target" id="ideaSubmitBtn">Trimite ideea</button>
+                    <div class="cereri-status" id="ideaStatus" aria-live="polite"></div>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            (function () {
+                // ── Când legăm Google Apps Script: pune aici URL-ul web app-ului (.../exec).
+                //    Cât timp e gol, formularul doar validează și afișează mesajul de succes.
+                const IDEA_ENDPOINT = '';
+
+                const overlay = document.getElementById('ideaOverlay');
+                const openBtn = document.getElementById('ideaOpenBtn');
+                const closeBtn = document.getElementById('ideaClose');
+                const form = document.getElementById('ideaForm');
+                const submitBtn = document.getElementById('ideaSubmitBtn');
+                const statusEl = document.getElementById('ideaStatus');
+                const area = document.getElementById('ideaDescriere');
+                const counter = document.getElementById('ideaCounter');
+                if (!overlay || !openBtn || !form) return;
+
+                // mută modalul la nivel de <body>, ca restul overlay-urilor din site
+                document.body.appendChild(overlay);
+                if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+
+                let lastFocused = null;
+                function setStatus(msg, cls) {
+                    statusEl.textContent = msg || '';
+                    statusEl.className = 'cereri-status' + (cls ? ' ' + cls : '');
+                }
+                function openIdea() {
+                    if (typeof haptic === 'function') haptic(10);
+                    lastFocused = document.activeElement;
+                    overlay.classList.add('open');
+                    overlay.setAttribute('aria-hidden', 'false');
+                    overlay.querySelector('.contact-card').scrollTop = 0;
+                    setTimeout(() => document.getElementById('ideaNume').focus({ preventScroll: true }), 80);
+                }
+                function closeIdea() {
+                    overlay.classList.remove('open');
+                    overlay.setAttribute('aria-hidden', 'true');
+                    clearFieldError();
+                    if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+                }
+                openBtn.addEventListener('click', openIdea);
+                closeBtn.addEventListener('click', closeIdea);
+                overlay.addEventListener('click', (e) => { if (e.target === overlay) closeIdea(); });
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && overlay.classList.contains('open')) closeIdea();
+                });
+
+                area.addEventListener('input', () => { counter.textContent = area.value.length + ' / ' + area.maxLength; });
+
+                // Tooltip de eroare — același stil ca la Cereri
+                function clearFieldError() {
+                    const old = form.querySelector('.cereri-field-tooltip');
+                    if (old) old.remove();
+                    const bad = form.querySelector('.cereri-field-invalid');
+                    if (bad) bad.classList.remove('cereri-field-invalid');
+                }
+                function showFieldError(fieldEl, message) {
+                    clearFieldError();
+                    const wrap = fieldEl.closest('.cereri-field') || fieldEl.parentElement;
+                    wrap.classList.add('cereri-field-invalid');
+                    const tip = document.createElement('div');
+                    tip.className = 'cereri-field-tooltip';
+                    tip.setAttribute('role', 'alert');
+                    const icon = document.createElement('i');
+                    icon.setAttribute('data-lucide', 'alert-circle');
+                    const span = document.createElement('span');
+                    span.textContent = message;
+                    tip.appendChild(icon);
+                    tip.appendChild(span);
+                    wrap.appendChild(tip);
+                    if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+                    fieldEl.focus({ preventScroll: true });
+                    fieldEl.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                    fieldEl.addEventListener('input', clearFieldError, { once: true });
+                    fieldEl.addEventListener('change', clearFieldError, { once: true });
+                }
+
+                function collect() {
+                    const v = (id) => document.getElementById(id).value.trim();
+                    return {
+                        nume: v('ideaNume'),
+                        prenume: v('ideaPrenume'),
+                        an: v('ideaAn'),
+                        departament: v('ideaDepartament'),
+                        descriere: v('ideaDescriere')
+                    };
+                }
+
+                // Aici se va lega Google Apps Script. Returnează o promisiune; la eroare aruncă.
+                async function sendIdea(data) {
+                    if (!IDEA_ENDPOINT) {
+                        console.log('[Propune o idee] (fără endpoint încă)', data);
+                        await new Promise(r => setTimeout(r, 500));
+                        return;
+                    }
+                    // text/plain evită preflight-ul CORS, care Apps Script nu îl suportă
+                    await fetch(IDEA_ENDPOINT, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(data)
+                    });
+                }
+
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    setStatus('');
+                    const checks = [
+                        ['ideaNume', 'Completează numele.'],
+                        ['ideaPrenume', 'Completează prenumele.'],
+                        ['ideaAn', 'Alege anul de studiu.'],
+                        ['ideaDepartament', 'Completează departamentul.'],
+                        ['ideaDescriere', 'Descrie pe scurt ideea ta.']
+                    ];
+                    for (const [id, msg] of checks) {
+                        const el = document.getElementById(id);
+                        if (!el.value.trim()) { showFieldError(el, msg); return; }
+                    }
+                    clearFieldError();
+                    submitBtn.disabled = true;
+                    setStatus('Se trimite...');
+                    try {
+                        await sendIdea(collect());
+                        setStatus('Mulțumim! Ideea ta a fost trimisă.', 'is-ok');
+                        form.reset();
+                        counter.textContent = '0 / ' + area.maxLength;
+                        setTimeout(() => { if (overlay.classList.contains('open')) closeIdea(); setStatus(''); }, 1800);
+                    } catch (err) {
+                        setStatus('Nu am putut trimite ideea. Încearcă din nou.', 'is-error');
+                    } finally {
+                        submitBtn.disabled = false;
+                    }
+                });
+            })();
+        </script>
 
         <script>
             // Înlocuiește vechea pereche switchEvent / switchEventSub (cele două rânduri de
