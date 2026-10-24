@@ -25,6 +25,13 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
                     <div class="calendar-section reveal">
                         <h2><i data-lucide="calendar-days" style="color:var(--c-accent); margin-right:10px;"></i>Calendar</h2>
                         <div class="calendar-list">
+                            <div class="calendar-item murdery-item hover-target" role="link" tabindex="0" aria-label="Mister Murdery, 27 octombrie. Joacă pe ssic.ro/murdery" onclick="goToUrl('/murdery/')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goToUrl('/murdery/')}">
+                                <div class="calendar-date"><span class="cal-day mg" data-text="27">27</span><span class="cal-month">Oct</span></div>
+                                <div class="calendar-info">
+                                    <h3 class="mg" data-text="Mister Murdery">Mister Murdery</h3>
+                                    <p class="mg" data-text="Joacă pe ssic.ro/murdery">Joacă pe ssic.ro/murdery</p>
+                                </div>
+                            </div>
                             <div class="calendar-item hover-target" onclick="goToUrl('/discover/')">
                                 <div class="calendar-date"><span class="cal-day">28</span><span class="cal-month">Sep</span></div>
                                 <div class="calendar-info">
@@ -104,6 +111,68 @@ description: "Descoperă proiectele și evenimentele SSIC: ChemEx, Balul Bobocil
             </div>
             <footer class="global-footer"></footer>
         </section>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@600&display=swap" rel="stylesheet">
+<style>
+    /* ===== buton Mister Murdery (calendar) ===== */
+    .murdery-item{outline:1px solid rgba(212,242,60,.45);outline-offset:-1px;cursor:pointer}
+    .murdery-item .calendar-date{background:#06030b;outline:1px solid rgba(212,242,60,.35);outline-offset:-1px}
+    .murdery-item .calendar-date .cal-month{color:#d4f23c}
+    .murdery-item h3,.murdery-item p,.murdery-item .cal-day{font-family:'Pixelify Sans',var(--font-mono),monospace;font-weight:600}
+    .murdery-item h3{color:#d4f23c;letter-spacing:.02em}
+    .murdery-item p{color:var(--c-white-off)}
+    @media (hover:hover){.murdery-item:hover{outline-color:#d4f23c}}
+
+    /* ===== glitch random: stratul real rămâne neatins, efectul e doar în pseudo-elemente ===== */
+    .mg{position:relative}
+    .mg::before,.mg::after{content:attr(data-text);position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;pointer-events:none}
+    .mg::before{color:#ff2a6d}
+    .mg::after{color:#3cf0ff}
+    .mg.is-glitch{animation:mgJit .34s steps(2) 1}
+    .mg.is-glitch::before{opacity:1;animation:mgA .34s steps(1) 1}
+    .mg.is-glitch::after{opacity:1;animation:mgB .34s steps(1) 1}
+    @keyframes mgJit{0%{transform:translate(0)}25%{transform:translate(-2px,1px)}50%{transform:translate(2px,0)}75%{transform:translate(-1px,-1px)}100%{transform:none}}
+    @keyframes mgA{0%{clip-path:inset(0 0 65% 0);transform:translate(-3px,0)}20%{clip-path:inset(35% 0 35% 0);transform:translate(3px,0)}40%{clip-path:inset(70% 0 0 0);transform:translate(-2px,0)}60%{clip-path:inset(10% 0 55% 0);transform:translate(2px,0)}80%{clip-path:inset(50% 0 20% 0);transform:translate(-3px,0)}100%{clip-path:inset(0 0 100% 0);transform:none}}
+    @keyframes mgB{0%{clip-path:inset(60% 0 0 0);transform:translate(3px,0)}20%{clip-path:inset(15% 0 60% 0);transform:translate(-3px,0)}40%{clip-path:inset(0 0 80% 0);transform:translate(2px,0)}60%{clip-path:inset(45% 0 30% 0);transform:translate(-2px,0)}80%{clip-path:inset(75% 0 5% 0);transform:translate(3px,0)}100%{clip-path:inset(0 0 100% 0);transform:none}}
+    @media (prefers-reduced-motion:reduce){.mg.is-glitch,.mg.is-glitch::before,.mg.is-glitch::after{animation:none}}
+</style>
+<script>
+(function () {
+    var els = [].slice.call(document.querySelectorAll('.murdery-item .mg'));
+    if (!els.length) return;
+    var CH = '#@%&$01?/\\<>*+=~';
+    function reduced() {
+        try { return matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.classList.contains('a11y-reduce-motion'); }
+        catch (e) { return false; }
+    }
+    function scramble(s) {
+        var a = s.split(''), n = 1 + Math.floor(Math.random() * 3);
+        for (var k = 0; k < n; k++) {
+            var i = Math.floor(Math.random() * a.length);
+            if (a[i] !== ' ') a[i] = CH.charAt(Math.floor(Math.random() * CH.length));
+        }
+        return a.join('');
+    }
+    function burst(el) {
+        var real = el.textContent;
+        el.setAttribute('data-text', scramble(real));
+        el.classList.add('is-glitch');
+        setTimeout(function () { el.classList.remove('is-glitch'); el.setAttribute('data-text', real); }, 340);
+    }
+    function loop(el) {
+        setTimeout(function () {
+            if (!document.hidden && !reduced()) {
+                burst(el);
+                if (Math.random() < 0.3) setTimeout(function () { burst(el); }, 450);
+            }
+            loop(el);
+        }, 1200 + Math.random() * 4200);
+    }
+    els.forEach(loop);
+})();
+</script>
+
 
         <style>
             .idea-open-btn{display:inline-flex;align-items:center;gap:var(--sp-12);margin:calc(var(--sp-8) * -1) 0 var(--sp-40);padding:var(--sp-12) var(--sp-24);font-family:var(--font-main);font-size:1rem;font-weight:700;color:var(--c-base);background:var(--c-accent);border:none;border-radius:var(--r-sm);cursor:pointer;transition:transform var(--transition-fast),background 0.25s var(--ease-out)}
