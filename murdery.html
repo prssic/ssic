@@ -692,7 +692,7 @@ for(const p of E.pa)R(p.x,p.y,p.l>.5?2:1,p.l>.5?2:1,p.c);
 ctx.restore();
 hz(cx);if(hurtT>0){ctx.globalAlpha=hurtT/24*.3;R(0,0,W,H,'#f00');ctx.globalAlpha=1}
 if(c.boss&&boss&&!boss.cured&&Math.abs(P.x-boss.x)<260){R(69,19,182,8,OL);R(70,20,180,6,'#2a0810');R(70,20,180*Math.max(0,boss.hp/boss.max),6,boss.ph==3?'#ff3030':'#c0182c');R(70,20,180*Math.max(0,boss.hp/boss.max),1,'#ff8a8a');R(70+60,20,1,6,'#000');R(70+120,20,1,6,'#000');T('DIPLOMA',160,35,'#ffe070',6)}
-if(++hoT>30){hoT=0;updHO()}if(HO>0)hudM();else{R(0,0,W,16,'rgba(0,0,0,.6)');T('1UP '+pad(score),6,11,'#fff',8,'left');R(100,5,4,6,'#ffd23f');T('x'+coins+'/'+totalCoins,108,11,'#ffd23f',8,'left');T(LV[lvi].tut?'TUT':'LV'+(lvi+1),150,11,'#d4f23c',8,'left');
+if(++hoT>30){hoT=0;updHO()}if(HO>0)hudM();else{R(0,0,W,16,'rgba(0,0,0,.6)');R(6,5,4,6,'#ffd23f');T('x'+coins+'/'+totalCoins,14,11,'#ffd23f',8,'left');T(LV[lvi].tut?'TUT':'LV'+(lvi+1),150,11,'#d4f23c',8,'left');
 R(188,6,62,4,'#333');R(188,6,62*fl/100,4,emp>0?'#f44':'#b99aff');
 for(let k=0;k<3;k++){const c2=k<hearts?'#ff3b3b':'#444',hx=262+k*16;R(hx,4,3,3,c2);R(hx+4,4,3,3,c2);R(hx,6,7,2,c2);R(hx+2,8,3,2,c2);R(hx+3,10,1,1,c2)}}}
 function draw(){world()}
@@ -712,6 +712,7 @@ R(ox+31,oy+34,3,26,'#b6b094');R(ox+11,oy+36,2,22,'#f2eed6');R(ox+10,oy+58,24,2,'
 for(let px=9;px<35;px++){const yt=oy+41-Math.floor((px-9)*.2);R(ox+px,yt,1,1,'#7a4a82');R(ox+px,yt+10,1,7,'#7a4a82');R(ox+px,yt+10,1,1,'#a070a8');R(ox+px,yt+17,1,1,'#7a4a82')}
 const tx='SOLV';for(let gi=0;gi<4;gi++){const g=GL[tx[gi]],gx=11+gi*6,yy=oy+42-Math.floor((gx-9)*.2)+1;for(let r=0;r<7;r++)for(let c=0;c<5;c++)if(g[r][c]=='X')R(ox+gx+c,yy+r,1,1,'#7a4a82')}
 for(let gx=12;gx<32;gx+=4)R(ox+gx,oy+41-Math.floor((gx-9)*.2)+13,2,1,'#a070a8');R(ox+12,oy+37,1,5,'#fff')}
+function TF(s,x,y,c,sz){const av=W-2*(HO>0?HO:0)-12,f=z=>'600 '+Math.round(z*1.5)+'px "Pixelify Sans",monospace';ctx.font=f(sz);while(sz>4&&ctx.measureText(s).width>av){sz-=.5;ctx.font=f(sz)}T(s,x,y,c,sz)}
 function deathFrame(dt){const D=dth;D.t+=dt;const t=D.t;
 ctx.setTransform(1,0,0,1,0,0);
 if(t<600&&save.fx)ctx.translate(Math.round(rnd(-1,1)*6*(1-t/600)),Math.round(rnd(-1,1)*6*(1-t/600)));
@@ -732,8 +733,8 @@ bigSpray(ox,oy);
 if(t>5200&&t<6600){for(let i=0;i<5;i++)D.mist.push({x:ox+1,y:oy+7,vx:rnd(-3.4,-1.6),vy:rnd(.3,1.9),l:1,r:rnd(2,5)})}}
 for(const m of D.mist){m.x+=m.vx;m.y+=m.vy;m.vx*=.96;m.l-=.035;if(m.l>0){ctx.globalAlpha=m.l*.7;R(m.x,m.y,m.r+1,m.r+1,Math.random()<.5?'#e8d8ff':'#fff')}}ctx.globalAlpha=1;D.mist=D.mist.filter(m=>m.l>0);
 once(5200,()=>{noise(1.4,.1,1500);sfx(300,.9,'sawtooth',90,.05)});
-if(t>6100){const a=ph(t,6100,6500);ctx.globalAlpha=a;T('PUF! ȘI ORICE PROBLEMĂ DISPARE.',cx,H/2-6,'#d4f23c',8);ctx.globalAlpha=1}
-if(t>7700){if(Math.floor(t/260)%6!=5)T('PROBLEMA ERAI TU.',cx+(Math.random()<.08?2:0),H/2+22,'#e8262c',10);once(7700,()=>{sfx(55,1.4,'sawtooth',40,.12);noise(.4,.1,200)})}
+if(t>6100){const a=ph(t,6100,6500);ctx.globalAlpha=a;TF('PUF! ȘI ORICE',cx,H/2-13,'#d4f23c',8);TF('PROBLEMĂ DISPARE.',cx,H/2-1,'#d4f23c',8);ctx.globalAlpha=1}
+if(t>7700){if(Math.floor(t/260)%6!=5)TF('PROBLEMA ERAI TU.',cx+(Math.random()<.08?2:0),H/2+22,'#e8262c',10);once(7700,()=>{sfx(55,1.4,'sawtooth',40,.12);noise(.4,.1,200)})}
 /* scanlines + zgomot */
 if(save.fx||true){ctx.globalAlpha=.05+.05*Math.sin(t*.012)+(t<600?.1:0);for(let i=0;i<80;i++)R(Math.random()*W,Math.random()*H,2,2,Math.random()<.5?'#fff':'#000');ctx.globalAlpha=1}
 if(t>1200&&t<2500){drawSnow(ph(t,1200,2500)*.25)}
@@ -898,7 +899,7 @@ const PC=matchMedia('(hover:hover) and (pointer:fine)').matches;if(PC)view.class
 let HO=0,hoT=0,XR=36;
 function updHO(){try{const c=$('mC').getBoundingClientRect(),v=view.getBoundingClientRect(),f=c.width>0?Math.min(1,v.width/c.width):1;HO=f>=.999?0:Math.round(W*(1-f)/2);const xw=$('mSel').getBoundingClientRect().width||56;XR=Math.round((xw+22)*(W-2*HO)/v.width)}catch(e){HO=0}}
 addEventListener('resize',updHO);addEventListener('orientationchange',()=>setTimeout(updHO,250));
-function hudM(){const o=HO,rl=W-o-XR,vw=rl-o,cx=o+Math.round(vw*.42);R(0,0,W,28,'rgba(0,0,0,.6)');T('1UP '+pad(score),o+4,11,'#fff',8,'left');R(cx,5,4,6,'#ffd23f');T('x'+coins+'/'+totalCoins,cx+8,11,'#ffd23f',8,'left');T(LV[lvi].tut?'TUT':'LV'+(lvi+1),o+Math.round(vw*.8),11,'#d4f23c',8,'left');
+function hudM(){const o=HO,rl=W-o-XR,vw=rl-o,cx=o+Math.round(vw*.42);R(0,0,W,28,'rgba(0,0,0,.6)');R(o+4,5,4,6,'#ffd23f');T('x'+coins+'/'+totalCoins,o+12,11,'#ffd23f',8,'left');T(LV[lvi].tut?'TUT':'LV'+(lvi+1),o+Math.round(vw*.8),11,'#d4f23c',8,'left');
 R(o+4,19,56,4,'#333');R(o+4,19,56*fl/100,4,emp>0?'#f44':'#b99aff');
 for(let k=0;k<3;k++){const c2=k<hearts?'#ff3b3b':'#444',hx=rl-52+k*16,y=14;R(hx,y+4,3,3,c2);R(hx+4,y+4,3,3,c2);R(hx,y+6,7,2,c2);R(hx+2,y+8,3,2,c2);R(hx+3,y+10,1,1,c2)}}
 let tutI=0;const TUT=[[0,'MERGI',PC?'Apasă A / D sau săgețile.':'Folosește crucea din stânga.'],[170,'SARI',PC?'Apasă Spațiu. Ține apăsat ca să sari mai sus.':'Apasă butonul A. Ține apăsat ca să sari mai sus.'],[400,'SPRAY',PC?'Dă click. Spray-ul vindecă inamicii.':'Apasă butonul B. Spray-ul vindecă inamicii.'],[650,'MONEDE','Adună toate monedele ca să primești stelele.'],[880,'UȘA','Ajungi la ușa de la final și câștigi.']];
