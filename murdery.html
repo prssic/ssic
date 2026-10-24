@@ -274,9 +274,18 @@ description: "Mister Murdery · 27 octombrie."
                 <div class="scene" id="scene">
                     <!-- randarea din Blender; ecranul verde e acoperit de #tvScreen (poziție în %, vezi CSS) -->
                     <picture>
-                        <source media="(min-aspect-ratio: 1/1)" srcset="/assets/events/murdery/scena-pc.jpg">
-                        <img class="scene-bg" src="/assets/events/murdery/scena-mobil.jpg" alt="" decoding="async" draggable="false">
-                    </picture>
+                        <source media="(min-aspect-ratio: 1/1)" srcset="data:image/gif;base64,R0lGODlhAQABAAAAACw=">
+                        <img class="scene-bg" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="" decoding="async" draggable="false">
+                    </picture><script>
+(function(){
+const pic=document.querySelector('#scene picture'),src=pic.querySelector('source'),img=pic.querySelector('img'),EXT=['jpg','png'];
+function pick(base,set){let k=0;const p=new Image();p.onload=()=>set(p.src);p.onerror=()=>{if(k<EXT.length)nx()};function nx(){p.src=base+'.'+EXT[k++]}nx()}
+const mq=matchMedia('(min-aspect-ratio: 1/1)'),done={};
+function go(){const pc=mq.matches,key=pc?'pc':'mobil';if(done[key])return;done[key]=1;
+ pick('/assets/events/murdery/scena-'+key,u=>{if(pc)src.srcset=u;else img.src=u})}
+go();mq.addEventListener?mq.addEventListener('change',go):mq.addListener(go);
+})();
+</script>
                     <div class="tv-screen hover-target" id="tvScreen" role="region" aria-label="Televizor · MurderySolv">
                                 <div id="mView">
                                     <canvas id="mC" width="320" height="240"></canvas>
@@ -754,10 +763,10 @@ zt=0;zw=win?1:0;show('zoomout');if(win&&np>=0){pendingNp=-1;fromFs(()=>returnTv(
 function pause(v){if(v&&state=='play')state='paused';else if(!v&&state=='paused'){state='play';last=performance.now();acc=0}}
 
 /* ===== poze easter egg pe TV ===== */
-const PH=[{src:'/assets/events/murdery/diploma.jpg',g:'190,130,255'},{src:'/assets/events/murdery/ziar.jpg',g:'215,215,228'},{src:'/assets/events/murdery/murdery-solv.jpg',g:'236,120,200'}];
+const EXT=['jpg','png'];const PH=[{src:'/assets/events/murdery/diploma',g:'190,130,255'},{src:'/assets/events/murdery/ziar',g:'215,215,228'},{src:'/assets/events/murdery/murdery-solv',g:'236,120,200'}];
 const unl=()=>(save.st[1]>0||save.st[2]>0||save.st[3]>0)?[0,1,2]:[];
 function loadPh(){unl().forEach(j=>{const p=PH[j];if(p.im)return;p.im=new Image();p.im.onload=()=>{const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.fillStyle='#000';x.fillRect(0,0,W,H);
-const k=Math.min(W/p.im.naturalWidth,AH/p.im.naturalHeight),w=p.im.naturalWidth*k,h=p.im.naturalHeight*k;try{x.filter='contrast(1.1) saturate(1.1)'}catch(e){}x.drawImage(p.im,(W-w)/2,(AH-h)/2,w,h);p.c=c};p.im.src=p.src})}
+const k=Math.min(W/p.im.naturalWidth,AH/p.im.naturalHeight),w=p.im.naturalWidth*k,h=p.im.naturalHeight*k;try{x.filter='contrast(1.1) saturate(1.1)'}catch(e){}x.drawImage(p.im,(W-w)/2,(AH-h)/2,w,h);p.c=c};let k=0;const nx=()=>{p.im.src=p.src+'.'+EXT[k++]};p.im.onerror=()=>{if(k<EXT.length)nx()};nx()})}
 const AH=Math.round(H*.8);
 let phSel=-1,tr=null,tg=0,tvT=2500,glow='',gt=6000,ga=0,gb=0,gi=null,albT=0;
 const GLIN=650,GLOUT=750,IDLE_GLITCH=0,ALB_MS=7000;
