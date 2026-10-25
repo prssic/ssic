@@ -129,7 +129,7 @@ description: "Mister Murdery · 27 octombrie."
             #mTui{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.2cqw;text-align:center;background:radial-gradient(rgba(0,0,0,.7),rgba(0,0,0,.25))}
             #mTui[hidden]{display:none}
             #mTui h1{margin:0;font-weight:400;font-size:10cqw;line-height:1.2;color:#d4f23c;text-shadow:.5cqw .5cqw 0 #000,.8cqw .8cqw 0 #4a1d6e}
-            #mTui.pv{justify-content:flex-end;gap:1cqw;background:none;padding-bottom:1.5cqw}#mTui.pv h1,#mTui.pv #mLv{display:none}#mTui.pv #mMsg{font-size:2.8cqw;min-height:0}#mTui.pv .mb{font-size:3.4cqw;padding:1cqw 3cqw}
+            #mTui.pv{cursor:zoom-in;justify-content:flex-end;gap:1cqw;background:none;padding-bottom:1.5cqw}#mTui.pv h1,#mTui.pv #mLv{display:none}#mTui.pv #mMsg{font-size:2.8cqw;min-height:0}#mTui.pv .mb{font-size:3.4cqw;padding:1cqw 3cqw}
             #mMsg{font-size:3cqw;line-height:1.7;color:#ffd23f;text-shadow:.3cqw .3cqw 0 #000;min-height:1.7em}
             .mrow{display:flex;gap:2cqw;align-items:center;justify-content:center}
             .mb{font-family:inherit;font-size:4.2cqw;color:#fff;background:#6b2fa0;border:.6cqw solid #fff;padding:1.5cqw 3.6cqw;cursor:pointer;box-shadow:.7cqw .7cqw 0 #2a0f48;text-shadow:.3cqw .3cqw 0 #0006}
@@ -758,18 +758,19 @@ function fromFs(cb){scr.insertBefore(view,scr.firstChild);view.removeAttribute('
 function startLevel(i){AC();lvi=i;mk(i);E.pk=E.pk.filter(k=>k.k!='c'||(k.y>0&&k.y<238&&!sol(k.x>>4,k.y>>4)));totalCoins=E.pk.filter(k=>k.k=='c').length;tutI=0;hearts=3;score=0;coins=0;fl=100;emp=0;fire=0;inv=0;hurtT=0;lvT=0;zt=0;zw=1;jHold=1;setTimeout(()=>jingle(JS[i]||JS[0]),170);if(view.classList.contains('fs')){show('zoomin');zt=0;setTimeout(()=>{if(state=='zoomin'){state='play';last=performance.now();acc=0}},260);noise(.3,.08,1200)}else{show('glin');gi={t:0};tui.classList.remove('gi');tui.classList.add('gx');noise(.6,.09,1200);sfx(90,.55,'sawtooth',600,.05)}}
 function finish(win,why){dth=null;let np=-1;const before=unl().length;
 let sr=0;if(win){save.st[lvi]=Math.max(save.st[lvi]||0,hearts);sr=1;if(coins>=totalCoins){sr=2;if(hearts>=3)sr=3}save.sr[lvi]=Math.max(save.sr[lvi]|0,sr)}save.hi=Math.max(save.hi||0,score);persist();
-if(win&&lvi>=1&&lvi<=3){loadPh();const u=unl();if(u.length>before)np=u[0];else if(u.length){const o=u.filter(j=>j!==phSel);np=o.length?o[Math.floor(Math.random()*o.length)]:u[0]}}
+if(win&&lvi>=1&&lvi<=3){loadPh();const u=unl();if(u.length>before)np=u[before];else if(u.length){const o=u.filter(j=>j!==phSel);np=o.length?o[Math.floor(Math.random()*o.length)]:u[0]}}
+if(win&&lvi==3&&unl().indexOf(6)>=0){np=6;autoFull=1}
 msg='';const nmL=LV[lvi].tut?'TUTORIAL':'NIVEL '+(lvi+1);menuMsg=win?nmL+' TERMINAT · '+SP(sr,3-sr)+' · MONEDE '+coins+'/'+totalCoins:'GAME OVER';if(np>=0)pendingNp=np;
 zt=0;zw=win?1:0;show('zoomout');if(win&&np>=0){pendingNp=-1;fromFs(()=>returnTv(np))}else setTimeout(toMenu,260)}
 function pause(v){if(v&&state=='play')state='paused';else if(!v&&state=='paused'){state='play';last=performance.now();acc=0}}
 
 /* ===== poze easter egg pe TV ===== */
-const EXT=['jpg','png'];const PH=[{src:'/assets/events/murdery/diploma',g:'190,130,255'},{src:'/assets/events/murdery/ziar',g:'215,215,228'},{src:'/assets/events/murdery/murdery-solv',g:'236,120,200'}];
-const unl=()=>(save.st[1]>0||save.st[2]>0||save.st[3]>0)?[0,1,2]:[];
+const EXT=['jpg','png'];const PH=[{src:'/assets/events/murdery/diploma',g:'190,130,255'},{src:'/assets/events/murdery/ziar',g:'215,215,228'},{src:'/assets/events/murdery/murdery-solv',g:'236,120,200'},{src:'/assets/events/murdery/harta',e:['webp'],g:'120,220,150'},{src:'/assets/events/murdery/scrisoare1',e:['webp'],g:'240,215,150'},{src:'/assets/events/murdery/scrisoare2',e:['webp'],g:'240,170,120'},{src:'/assets/events/murdery/secret',e:['webp'],g:'255,60,80'}];
+const unl=()=>{const a=[];if(save.st[1]>0||save.st[2]>0||save.st[3]>0)a.push(0,1,2);if(save.st[2]>0)a.push(3,4);if(save.st[3]>0)a.push(5,6);return a};
 function loadPh(){unl().forEach(j=>{const p=PH[j];if(p.im)return;p.im=new Image();p.im.onload=()=>{const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.fillStyle='#000';x.fillRect(0,0,W,H);
-const k=Math.min(W/p.im.naturalWidth,AH/p.im.naturalHeight),w=p.im.naturalWidth*k,h=p.im.naturalHeight*k;try{x.filter='contrast(1.1) saturate(1.1)'}catch(e){}x.drawImage(p.im,(W-w)/2,(AH-h)/2,w,h);p.c=c};let k=0;const nx=()=>{p.im.src=p.src+'.'+EXT[k++]};p.im.onerror=()=>{if(k<EXT.length)nx()};nx()})}
+const k=Math.min(W/p.im.naturalWidth,AH/p.im.naturalHeight),w=p.im.naturalWidth*k,h=p.im.naturalHeight*k;try{x.filter='contrast(1.1) saturate(1.1)'}catch(e){}x.drawImage(p.im,(W-w)/2,(AH-h)/2,w,h);p.c=c};let k=0;const ex=p.e||EXT;const nx=()=>{p.im.src=p.src+'.'+ex[k++]};p.im.onerror=()=>{if(k<ex.length)nx()};nx()})}
 const AH=Math.round(H*.8);
-let phSel=-1,tr=null,tg=0,tvT=2500,glow='',gt=6000,ga=0,gb=0,gi=null,albT=0;
+let autoFull=0,phSel=-1,tr=null,tg=0,tvT=2500,glow='',gt=6000,ga=0,gb=0,gi=null,albT=0;
 const GLIN=650,GLOUT=750,IDLE_GLITCH=0,ALB_MS=7000;
 /* glitch TV -> joc: purici + felii + bare colorate, apoi fullscreen */
 function glDraw(p){const k=Math.sin(Math.PI*cl(p,0,1)),n=2+Math.round(14*k);
@@ -781,13 +782,15 @@ function glinFrame(dt){gi.t+=dt;glDraw(gi.t/GLIN);
 if(gi.t>=GLIN){gi=null;tui.classList.remove('gx');if(opening){opening=0;show('menu');toFs(()=>{})}else{show('zoomin');zt=0;toFs(()=>{state='play';last=performance.now();acc=0})}}}
 /* glitch joc -> TV (apoi, dacă s-a deblocat o poză, apare albumul) */
 function returnTv(np){phSel=-1;tr=null;tg=0;clearTimeout(albT);show('tv');buildTui();gb=GLOUT;tui.classList.remove('gx');tui.classList.add('gi');setTimeout(()=>tui.classList.remove('gi'),800);noise(.5,.08,1500);sfx(70,.45,'sawtooth',500,.05);if(np>=0)setTimeout(()=>swap(np),950)}
-function swap(j){if(j===phSel||tr||state!='tv')return;tr={t:0,to:j};clearTimeout(albT);if(j>=0)albT=setTimeout(()=>{if(state=='tv'&&phSel>=0)swap(-1)},650+ALB_MS)}
+const albArm=()=>{clearTimeout(albT);albT=setTimeout(()=>{if(state=='tv'&&phSel>=0&&!fullOn())swap(-1)},ALB_MS)};
+function swap(j){if(j===phSel||tr||state!='tv')return;tr={t:0,to:j};clearTimeout(albT);if(j>=0)albT=setTimeout(()=>{if(state=='tv'&&phSel>=0&&!fullOn())swap(-1)},650+ALB_MS)}
 function nav(d){const L=[-1].concat(unl()),i=L.indexOf(phSel);swap(L[(i+d+L.length*2)%L.length])}
 function buildTui(){const u=unl();tui.classList.toggle('pv',phSel>=0);$('mMsg').textContent=msg;$('mPp').hidden=$('mPn').hidden=(phSel<0||u.length<1);
 const lv=$('mLv');lv.innerHTML='';LV.forEach((c,i)=>{const b=document.createElement('button'),o=isOpen(i);b.className='mc'+(o?(save.st[i]>0?' ok':''):' lk');b.textContent=i+1;b.setAttribute('aria-label','Nivel '+(i+1)+(o?'':' (blocat)'));b.onclick=()=>o?startLevel(i):sfx(120,.15);lv.appendChild(b)})}
 function tvDraw(dt){tvT-=dt;if(gb>0)gb-=dt;if(IDLE_GLITCH&&!tr&&tg<=0&&tvT<=0){tvT=rnd(1800,6000);tg=rnd(150,380)}if(tg>0)tg-=dt;
 let a=phSel<0?1:(tg>0?.4:.07);
 if(tr){tr.t+=dt;if(tr.t>=325&&tr.to!==phSel){phSel=tr.to;buildTui()}a=tr.t<325?.4+.6*tr.t/325:1-.93*(tr.t-325)/325;if(tr.t>=650)tr=null}
+if(autoFull&&!tr&&phSel>=0){if(phSel==6)openFull();if(phSel!=6||fullOn())autoFull=0}
 R(0,0,W,H,'#000');const p=PH[phSel];
 if(p&&p.c){ctx.drawImage(p.c,0,0);if(tg>0||tr)for(let i=0;i<(tr?8:3);i++){const y=rnd(0,H-20),h=rnd(6,30);ctx.drawImage(cv,0,y,W,h,rnd(-18,18),y,W,h)}}
 if(gb>0){const k=cl(gb/GLOUT,0,1);a=Math.max(a,.3+.7*k)}
@@ -941,6 +944,18 @@ else if(a=='vb')save.vb=save.vb===0?1:0;
 else if(a=='reset'){if(armed){save.st=[0,0,0,0,0];save.sr=[0,0,0,0,0];save.hi=0;phSel=-1;armed=0;menuMsg=''}else armed=1}
 persist();renderMenu()});
 addEventListener('keydown',e=>{if(state=='menu'&&e.key=='Escape'){if(page=='main')exitFs();else{page='main';armed=0;menuMsg='';renderMenu()}}});
+
+/* ===== poza pe tot ecranul (tap pe ea) ===== */
+let phFull=null;const fullOn=()=>!!(phFull&&phFull.parentNode);
+function closeFull(){if(!fullOn())return;phFull.remove();if(state=='tv'&&phSel>=0)albArm()}
+function openFull(){const p=PH[phSel];if(!p||!p.im||!p.im.complete||!p.im.naturalWidth||fullOn())return;
+ phFull=document.createElement('div');phFull.id='phFull';
+ phFull.style.cssText='position:fixed;inset:0;z-index:100001;background:rgba(0,0,0,.96);display:flex;align-items:center;justify-content:center;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));box-sizing:border-box;touch-action:none;-webkit-user-select:none;user-select:none';
+ const im=document.createElement('img');im.src=p.im.src;im.draggable=false;im.alt='';im.style.cssText='max-width:100%;max-height:100%;object-fit:contain;box-shadow:0 0 0 2px #d4f23c,4px 4px 0 2px #000';
+ const h=document.createElement('div');h.textContent='ATINGE PENTRU A ÎNCHIDE';h.style.cssText="position:absolute;left:0;right:0;bottom:max(8px,env(safe-area-inset-bottom));text-align:center;font:600 12px 'Pixelify Sans',monospace;color:#d4f23c;text-shadow:1px 1px 0 #000;pointer-events:none;letter-spacing:.08em";
+ phFull.append(im,h);phFull.addEventListener('click',e=>{e.stopPropagation();closeFull()});document.body.appendChild(phFull);clearTimeout(albT);sfx(520,.05,'square',780)}
+view.addEventListener('click',e=>{if(state!='tv'||phSel<0||tr||fullOn())return;if(e.target.closest('button'))return;openFull()});
+addEventListener('keydown',e=>{if(e.key=='Escape')closeFull()});
 $('mPlay').onclick=()=>{if(state!='tv')return;openMenu()};
 $('mPp').onclick=()=>nav(-1);$('mPn').onclick=()=>nav(1);
 const exitFs=()=>{if(state=='menu'){dth=null;zt=0;zw=0;show('zoomout');fromFs(()=>{msg='';const n=pendingNp;pendingNp=-1;returnTv(n)})}};
